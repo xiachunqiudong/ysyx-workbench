@@ -34,11 +34,14 @@ static char* rl_gets() {
   }
 
   line_read = readline("(nemu) ");
-
+  // add history
   if (line_read && *line_read) {
     add_history(line_read);
   }
-
+  if(!line_read) {
+    // printf("line_read is NULL\n");
+  }
+  // printf("line_read: %s\n", line_read);
   return line_read;
 }
 
@@ -47,12 +50,36 @@ static int cmd_c(char *args) {
   return 0;
 }
 
-
 static int cmd_q(char *args) {
   return -1;
 }
 
 static int cmd_help(char *args);
+
+static int cmd_si(char *args) {
+  if(args == NULL) {
+    cpu_exec(1);
+  } else {
+    // TODO: 输入合法性检测
+    int step = atoi(args);
+    cpu_exec(step);
+  }
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  if(args == NULL) {
+    printf("info need 1 arg!\n");
+  } else if(strcmp("r", args) == 0) {
+    isa_reg_display();
+  } else if(strcmp("w", args) == 0) {
+    printf("info watch point\n");
+  } else {
+    printf("unknow info arg!\n");
+  }
+  return 0;
+}
+
 
 static struct {
   const char *name;
@@ -60,8 +87,10 @@ static struct {
   int (*handler) (char *);
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
+  { "c",    "Continue the execution of the program",            cmd_c },
+  { "q",    "Exit NEMU",                                        cmd_q },
+  { "si",   "Execute single instruction",                       cmd_si},
+  { "info", "Get the program status",                           cmd_info}
 
   /* TODO: Add more commands */
 
@@ -72,6 +101,8 @@ static struct {
 static int cmd_help(char *args) {
   /* extract the first argument */
   char *arg = strtok(NULL, " ");
+  // printf("arg = %s\n", arg);
+  // printf("args = %s\n", args);
   int i;
 
   if (arg == NULL) {
@@ -102,8 +133,12 @@ void sdb_mainloop() {
     return;
   }
 
+  // readline can not be NULL, so this is endless loop
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
+
+    // strtok("hello world", " ")
+    // hello[\0]world
 
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");
@@ -125,6 +160,7 @@ void sdb_mainloop() {
     int i;
     for (i = 0; i < NR_CMD; i ++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
+        // return value < 0 => return
         if (cmd_table[i].handler(args) < 0) { return; }
         break;
       }
