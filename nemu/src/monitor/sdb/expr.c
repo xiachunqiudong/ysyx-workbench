@@ -14,6 +14,8 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <stdio.h>
+#include <string.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -24,13 +26,7 @@
 enum {
   TK_NOTYPE = 256, 
   TK_EQ, 
-  TK_NUM,
-  TK_ADD,
-  TK_SUB,
-  TK_MUL,
-  TK_DIV,
-  TK_BUK,
-  TK_KET,
+  TK_NUM
 };
 
 static struct rule {
@@ -41,13 +37,15 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-  {"",    TK_NUM}       // num
-  {"\\*", '+'},         // mul
-  {"/",   '/'},         // div
+  {"\\(", '('},
+  {"\\)", ')'},
+  {"[0-9]+",    TK_NUM}, // num
+  {"\\*", '*'},          // mul
+  {"/",   '/'},          // div
   {" +",  TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"\\-", '-'},         // sub
-  {"==",   TK_EQ},      // equal
+  {"\\+", '+'},          // plus
+  {"\\-", '-'},          // sub
+  // {"==",   TK_EQ},    // equal
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -102,12 +100,16 @@ static bool make_token(char *e) {
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
-        switch (rules[i].token_type) {
-          
-          default: TODO();
+   
+        switch(rules[i].token_type) {
+          case(TK_NOTYPE): break;
+          case(TK_NUM):
+            assert(substr_len <= 32);
+            memcpy(tokens[nr_token].str, substr_start, substr_len);
+          default: 
+            tokens[nr_token++].type = rules[i].token_type; 
         }
-
+        
         break;
       }
     }
@@ -129,7 +131,13 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
-
+  for(int i = 0; i < nr_token; i++) {
+    if(tokens[i].type == TK_NUM) {
+      printf("%s ", tokens[i].str);
+    } else {
+      printf("%c ", tokens[i].type);
+    }
+  }
+  printf("\n");
   return 0;
 }

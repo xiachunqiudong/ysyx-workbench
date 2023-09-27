@@ -101,6 +101,15 @@ static int cmd_x(char *args) {
   return 0;
 }
 
+static int cmd_p(char *args) {
+  if(args != NULL) {
+    bool success;
+    expr(args, &success);
+  } else {
+    printf("cmd_p need 1 arg!\n");
+  }
+  return 0;
+}
 
 
 static struct {
@@ -114,6 +123,7 @@ static struct {
   { "si",   "Execute single instruction",                       cmd_si},
   { "info", "Get the program status",                           cmd_info},
   { "x",    "Get memory",                                       cmd_x},
+  { "p",    "Get the Expr Value",                               cmd_p},
 
   /* TODO: Add more commands */
 
