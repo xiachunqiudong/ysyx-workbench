@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <memory/paddr.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
@@ -80,6 +81,27 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+static int cmd_x(char *args) {
+  char *arg1, *arg2;
+  arg1 = strtok(NULL, " ");
+  arg2 = strtok(NULL, " ");
+  if(arg1 == NULL || arg2 == NULL) {
+    printf("cmd x need 2 args\n");
+  } else {
+    // printf("arg1 = %s, arg2 = %s\n", arg1, arg2);
+    int n = atoi(arg1);
+    int addr;
+    sscanf(arg2, "0x%x", &addr);
+    printf("0x%x: ", addr);
+    for(int i = n - 1; i >= 0; i--) {
+      printf("0x%x ", paddr_read(addr + i, 1));
+    }
+    printf("\n");
+  }
+  return 0;
+}
+
+
 
 static struct {
   const char *name;
@@ -90,7 +112,8 @@ static struct {
   { "c",    "Continue the execution of the program",            cmd_c },
   { "q",    "Exit NEMU",                                        cmd_q },
   { "si",   "Execute single instruction",                       cmd_si},
-  { "info", "Get the program status",                           cmd_info}
+  { "info", "Get the program status",                           cmd_info},
+  { "x",    "Get memory",                                       cmd_x},
 
   /* TODO: Add more commands */
 
