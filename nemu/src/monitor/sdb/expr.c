@@ -124,6 +124,74 @@ static bool make_token(char *e) {
 }
 
 
+// for eval
+
+// 检查是否是合法的括号
+bool check_legal(int p, int q) {
+  int cnt = 0;
+  
+  for(int i = p; i <= q; i++) {
+    int type = tokens[i].type;
+    if(type == '(') {
+      cnt++;
+    } else if(type == ')') {
+      if(cnt == 0) {
+        return false;
+      } else{
+        cnt--;
+      }
+    }
+  }
+
+  return (cnt == 0);
+}
+
+bool check_parentheses(int p, int q) {
+  return check_legal(p, q) && tokens[p].type == '(' && tokens[q].type == ')' && check_legal(p + 1, q - 1);
+}
+
+int priority[256];
+
+void init_priority() {
+  priority['+'] = 1;
+  priority['-'] = 1;  
+  priority['*'] = 2;
+  priority['/'] = 2;
+}
+
+int get_main_op(int p, int q) {
+  init_priority();
+  int cnt = 0;
+  int main_op = -1;
+  for(int i = p; i <= q; i++) {
+    Token token = tokens[i];
+    if(token.type == TK_NUM) {
+      continue;
+    }
+    if(token.type == '(') {
+      cnt++;
+      continue;
+    }
+    if(token.type == ')') {
+      cnt--;
+      continue;
+    }
+    if(cnt != 0) {
+      continue;
+    }
+    if(main_op == -1 || priority[i] < priority[main_op]) {
+      
+    }
+    
+  }
+
+}
+
+word_t eval(int p, int q) {
+ return 0; 
+}
+
+
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
@@ -139,5 +207,12 @@ word_t expr(char *e, bool *success) {
     }
   }
   printf("\n");
+
+  if(check_parentheses(0, nr_token - 1))
+    printf("test pass\n");
+  else
+    printf("test fail\n");
+
+
   return 0;
 }
