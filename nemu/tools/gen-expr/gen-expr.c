@@ -31,12 +31,57 @@ static char *code_format =
 "  return 0; "
 "}";
 
+static int buf_idx = 0;
+
+// generate a random number less than n
+static uint32_t choose(uint32_t n) {
+  return ((uint32_t)rand()) % n;
+}
+
+static void gen_num() {
+  uint32_t rand_num = choose(100);
+  int i = buf_idx;
+  // printf("random num = %d\n", rand_num);
+  rand_num = (rand_num == 0 ? 1 : rand_num);
+  while(rand_num != 0) {
+    buf[buf_idx++] = (rand_num % 10) + '0';
+    rand_num = rand_num / 10;
+  }
+  int j = buf_idx - 1;
+  // reverse num
+  while(i < j) {
+    char t = buf[i];
+    buf[i] = buf[j];
+    buf[j] = t;
+    i++; j--;
+  }
+}
+
+static void gen(char c) {
+  buf[buf_idx++] = c;
+}
+
+static void gen_op() {
+  switch(choose(4)) {
+    case 0: gen('+'); break;
+    case 1: gen('-'); break;
+    case 2: gen('*'); break;
+    default: gen('/'); break;
+  }
+}
+
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  switch(choose(3)) {
+    case 0: gen_num(); break;
+    case 1: gen('('); gen_rand_expr(); gen(')'); break;
+    default: gen_rand_expr(); gen_op(); gen_rand_expr(); break;
+  }
+  buf[buf_idx] = '\0';
 }
 
 int main(int argc, char *argv[]) {
   int seed = time(0);
+
   srand(seed);
   int loop = 1;
   if (argc > 1) {
@@ -44,15 +89,15 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
+    buf_idx = 0;
     gen_rand_expr();
-
     sprintf(code_buf, code_format, buf);
-
     FILE *fp = fopen("/tmp/.code.c", "w");
     assert(fp != NULL);
     fputs(code_buf, fp);
     fclose(fp);
 
+    // exec the gen code
     int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
     if (ret != 0) continue;
 

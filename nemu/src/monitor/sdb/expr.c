@@ -74,7 +74,9 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+#define TOKENS_SIZE 65536 + 128
+
+static Token tokens[TOKENS_SIZE] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -91,8 +93,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            // i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -104,7 +106,7 @@ static bool make_token(char *e) {
         switch(rules[i].token_type) {
           case(TK_NOTYPE): break;
           case(TK_NUM):
-            assert(substr_len <= 32);
+            assert(substr_len < 32);
             memcpy(tokens[nr_token].str, substr_start, substr_len);
           default: 
             tokens[nr_token++].type = rules[i].token_type; 
@@ -147,7 +149,11 @@ bool check_legal(int p, int q) {
 }
 
 bool check_parentheses(int p, int q) {
-  return check_legal(p, q) && tokens[p].type == '(' && tokens[q].type == ')' && check_legal(p + 1, q - 1);
+  bool legal_expr = check_legal(p, q);
+  if(legal_expr == false) {
+    assert(0);
+  }
+  return tokens[p].type == '(' && tokens[q].type == ')' && check_legal(p + 1, q - 1);
 }
 
 int priority[256];
@@ -155,40 +161,62 @@ int priority[256];
 void init_priority() {
   priority['+'] = 1;
   priority['-'] = 1;  
-  priority['*'] = 2;
+  priority['*'] = 3;
   priority['/'] = 2;
 }
 
+// return the main op index
 int get_main_op(int p, int q) {
   init_priority();
   int cnt = 0;
   int main_op = -1;
+
   for(int i = p; i <= q; i++) {
     Token token = tokens[i];
-    if(token.type == TK_NUM) {
+    if(token.type == TK_NUM || token.type == '(' || token.type == ')' || cnt != 0) {
+      cnt += (token.type == '(' ? 1 : (token.type == ')' ? -1 : 0));
       continue;
     }
-    if(token.type == '(') {
-      cnt++;
-      continue;
+  
+    if(main_op == -1 || priority[token.type] < priority[tokens[main_op].type]) {
+      main_op = i;
     }
-    if(token.type == ')') {
-      cnt--;
-      continue;
-    }
-    if(cnt != 0) {
-      continue;
-    }
-    if(main_op == -1 || priority[i] < priority[main_op]) {
-      
-    }
-    
   }
 
+  return main_op;
 }
 
-word_t eval(int p, int q) {
- return 0; 
+word_t eval(int p, int q, bool *success) {
+  if(*success == false) {
+    return 0;
+  }
+  if(p > q) {
+    assert(0);
+  } else if(p == q) {
+    // must be number
+    assert(tokens[p].type == TK_NUM);
+    // printf("eval:token is num, num = %s\n", tokens[p].str);
+    return  atoi(tokens[p].str);
+  } else if(check_parentheses(p, q)) {
+    return eval(p + 1, q - 1, success);
+  } else {
+    int op_idx = get_main_op(p, q);
+    word_t src1 = eval(p, op_idx - 1, success);
+    word_t src2 = eval(op_idx + 1, q, success);
+    switch(tokens[op_idx].type) {
+      case '+': return src1 + src2;
+      case '-': return src1 - src2;
+      case '*': return src1 * src2;
+      case '/': 
+        if(src2 == 0) {
+          // printf("EVAL: can not divide zero\n");
+          *success = false;
+          return 0;
+        }
+        return src1 / src2;
+      default: assert(0);
+    }
+  }
 }
 
 
@@ -197,22 +225,6 @@ word_t expr(char *e, bool *success) {
     *success = false;
     return 0;
   }
-
-  /* TODO: Insert codes to evaluate the expression. */
-  for(int i = 0; i < nr_token; i++) {
-    if(tokens[i].type == TK_NUM) {
-      printf("%s ", tokens[i].str);
-    } else {
-      printf("%c ", tokens[i].type);
-    }
-  }
-  printf("\n");
-
-  if(check_parentheses(0, nr_token - 1))
-    printf("test pass\n");
-  else
-    printf("test fail\n");
-
-
-  return 0;
+  *success = true;
+  return eval(0, nr_token - 1, success);
 }

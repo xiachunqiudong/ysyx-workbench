@@ -104,7 +104,10 @@ static int cmd_x(char *args) {
 static int cmd_p(char *args) {
   if(args != NULL) {
     bool success;
-    expr(args, &success);
+    word_t res = expr(args, &success);
+    if(success) {
+      printf("the expr result is %d\n", res);
+    }
   } else {
     printf("cmd_p need 1 arg!\n");
   }
@@ -160,11 +163,46 @@ void sdb_set_batch_mode() {
   is_batch_mode = true;
 }
 
+void expr_tb() {
+  // check the expr
+  char expr_tb_path[] = "/home/xia/project/chip/ysyx-workbench/nemu/tools/gen-expr/input";
+  FILE *fp = fopen(expr_tb_path, "r");
+  assert(fp != NULL);
+  int buf_size = 65536 + 128;
+  char buf[buf_size];
+  // read line from the input
+  while(fgets(buf, buf_size, fp)) {
+    uint32_t golden_num;
+    char expression[buf_size];
+    // ?? 
+
+    sscanf(buf, "%u %s\n", &golden_num, expression);
+    bool success;
+    word_t ret = expr(expression, &success);
+    if(success) {
+      if(ret != golden_num) {
+        printf("buf: %s", buf);
+        printf("expression: %s\n", expression);
+        printf("ret: %u, golden_num: %u\n", ret, golden_num);
+      } else {
+        // printf("pass\n");
+      }
+      
+    } else {
+      // printf("eval fail\n");
+    }
+  }
+  fclose(fp);
+  assert(0);
+}
+
 void sdb_mainloop() {
   if (is_batch_mode) {
     cmd_c(NULL);
     return;
   }
+
+   expr_tb();
 
   // readline can not be NULL, so this is endless loop
   for (char *str; (str = rl_gets()) != NULL; ) {
