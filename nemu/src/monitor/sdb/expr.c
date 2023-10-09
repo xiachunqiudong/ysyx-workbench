@@ -159,33 +159,6 @@ void init_priority() {
   priority['/'] = 2;
 }
 
-int get_main_op(int p, int q) {
-  init_priority();
-  int cnt = 0;
-  int main_op = -1;
-  for(int i = p; i <= q; i++) {
-    Token token = tokens[i];
-    if(token.type == TK_NUM) {
-      continue;
-    }
-    if(token.type == '(') {
-      cnt++;
-      continue;
-    }
-    if(token.type == ')') {
-      cnt--;
-      continue;
-    }
-    if(cnt != 0) {
-      continue;
-    }
-    if(main_op == -1 || priority[i] < priority[main_op]) {
-      
-    }
-    
-  }
-
-}
 
 word_t eval(int p, int q) {
  return 0; 
