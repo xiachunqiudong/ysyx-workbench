@@ -202,7 +202,7 @@ void sdb_mainloop() {
     return;
   }
 
-   expr_tb();
+   // expr_tb();
 
   // readline can not be NULL, so this is endless loop
   for (char *str; (str = rl_gets()) != NULL; ) {
