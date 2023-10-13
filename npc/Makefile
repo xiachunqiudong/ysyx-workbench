@@ -26,21 +26,12 @@ checkformat:
 	mill -i __.checkFormat
 
 clean:
-	-rm -rf $(BUILD_DIR) ./obj_dir *.wave
+	-rm -rf $(BUILD_DIR)
 
 .PHONY: test verilog help compile bsp reformat checkformat clean
 
-VFLAGS = -cc -trace --exe --build -j 16
-
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator $(VFLAGS) \
-	--top-module top \
-	  ./vsrc/top.v ./csrc/sim_main.cpp
-	./obj_dir/Vtop
-
-wave: sim
-	gtkwave wave.vcd
-
+	@echo "Write this Makefile by yourself."
 
 -include ../Makefile
