@@ -30,8 +30,11 @@ clean:
 
 .PHONY: test verilog help compile bsp reformat checkformat clean
 
+VFLAGS = -cc -trace --exe --build -j 16
+
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo "Write this Makefile by yourself."
+	verilator $(VFLAGS)  ./vsrc/top.v ./csrc/sim_main.cpp
+	./obj_dir/Vtop
 
 -include ../Makefile
