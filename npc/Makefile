@@ -1,37 +1,28 @@
 BUILD_DIR = ./build
 
-export PATH := $(PATH):$(abspath ./utils)
+VFLAGS = -cc -trace --exe --build -j 16
+VSRC = $(shell find $(./vsrc) -name "*.v")
+CSRC = $(shell find $(./csrc) -name "*.cpp" -or -name "*.c")
 
-test:
-	mill -i __.test
 
-verilog:
-	$(call git_commit, "generate verilog")
-	mkdir -p $(BUILD_DIR)
-	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
+sim: clean
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	@echo $(VSRC)
+	@echo $(CSRC)
+	@verilator $(VFLAGS) \
+	--top-module top \
+	--Mdir $(BUILD_DIR) \
+	-I./vsrc/include $(VSRC) $(CSRC)
+	$(BUILD_DIR)/Vtop
 
-help:
-	mill -i __.test.runMain Elaborate --help
-
-compile:
-	mill -i __.compile
-
-bsp:
-	mill -i mill.bsp.BSP/install
-
-reformat:
-	mill -i __.reformat
-
-checkformat:
-	mill -i __.checkFormat
+wave: sim
+	gtkwave wave.vcd
 
 clean:
-	-rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) 
+	rm -f *.wave
 
-.PHONY: test verilog help compile bsp reformat checkformat clean
+.PHONY: clean sim wave
 
-sim:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo "Write this Makefile by yourself."
 
 -include ../Makefile
