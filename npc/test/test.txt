@@ -1,0 +1,11 @@
+
+test.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+000001b8 <_start>:
+ 1b8:	fff00413          	li	s0,-1
+ 1bc:	00a00513          	li	a0,10
+ 1c0:	00900493          	li	s1,9
+ 1c4:	00100073          	ebreak

@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "paddr.h": "c",
+        "readline.h": "c",
+        "history.h": "c",
+        "mmio.h": "c",
+        "regex.h": "c",
+        "random": "c",
+        "array": "c",
+        "string_view": "c",
+        "common.h": "c",
+        "stdint.h": "c",
+        "stdlib.h": "c"
+    },
+    "files.watcherExclude": {
+        "**/target": true
+    }
+}
