@@ -1,5 +1,3 @@
-*.*
-*
 !*/
 !/nemu/*
 !/nexus-am/*
@@ -14,3 +12,4 @@
 /fceux-am
 /npc/build
 /am-kernels
+/npc/*.vcd
