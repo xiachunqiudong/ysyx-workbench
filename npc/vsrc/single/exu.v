@@ -11,13 +11,16 @@ module exu(
 	wire [`XLEN-1:0] src2;
 
 	assign src1 = rs1;
-	assign src2 = rs2;
+	assign src2 = imm;
 
 	wire [`XLEN-1:0] add_res;
 	wire [`XLEN-1:0] and_res;
 	wire [`XLEN-1:0] or_res;
 	wire [`XLEN-1:0] xor_res;
+
+	assign add_res = src1 + src2;
+
 	
-	assign out = add_res;
+	assign result = add_res;
 
 endmodule

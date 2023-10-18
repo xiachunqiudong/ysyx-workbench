@@ -48,7 +48,7 @@ module top(
       .jump()
     );
     
-    // ebreak: stop the simulation
+  // ebreak: stop the simulation
   import "DPI-C" function void env_ebreak();
   always @(*) begin
     if(ebreak) begin

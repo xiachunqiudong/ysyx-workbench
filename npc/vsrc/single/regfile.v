@@ -24,9 +24,9 @@ module regfile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
 
     import "DPI-C" function void set_gpr_ptr(input logic [DATA_WIDTH-1:0] a[]);
 
-    initial set_gpr_ptr(rf);
-
-
+    initial begin 
+        set_gpr_ptr(rf);
+    end
 
 
 endmodule

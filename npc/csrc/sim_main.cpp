@@ -7,6 +7,7 @@
 
 void pmem_init();
 void pmem_read(uint8_t *dest,uint32_t addr, int n);
+void rf_states();
 
 VerilatedContext *contextp;
 VerilatedVcdC *tfp;
@@ -72,6 +73,7 @@ int main(int argc, char **argv) {
     top->instr_i = *(uint32_t *)&instr;
     top->eval();
     tfp->dump(main_time);
+    rf_states();
     main_time++;
     if(main_time == 3) {
       rst = 0;

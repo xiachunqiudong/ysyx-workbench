@@ -10,13 +10,14 @@ uint8_t pmem[MEM_SIZE] = {0};
 
 void pmem_init() {
   
-  char img_file[] = "/home/xia/project/chip/ysyx-workbench"
+  char img_file[] = "/home/xiadong/project/chip/ysyx-workbench"
                     "/npc/test/test.bin";
   
   // rb: read binary
   FILE *fp = fopen(img_file, "rb");
+  
   if(fp == NULL) {
-    printf("can not open this file!\n");
+    printf("can not open this file!, file name = %s\n", img_file);
     assert(0);
   }
   
