@@ -41,4 +41,9 @@ endef
 _default:
 	@echo "Please run 'make' under subprojects."
 
-.PHONY: .git_commit .clean_index _default
+
+push:
+	git commit -a -m'x'
+	git push
+
+.PHONY: .git_commit .clean_index _default push

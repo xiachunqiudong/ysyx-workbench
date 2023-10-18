@@ -22,7 +22,7 @@ clean:
 	rm -rf $(BUILD_DIR) 
 	rm -f *.wave
 
-.PHONY: clean sim wave
+.PHONY: clean sim wave push
 
 
 -include ../Makefile

@@ -22,5 +22,11 @@ module regfile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
     assign rs1_rdata = rs1_raddr == 5'b0 ? 0 : rf[rs1_raddr];
     assign rs2_rdata = rs2_raddr == 5'b0 ? 0 : rf[rs2_raddr];
 
+    import "DPI-C" function void set_gpr_ptr(input logic [DATA_WIDTH-1:0] a[]);
+
+    initial set_gpr_ptr(rf);
+
+
+
 
 endmodule

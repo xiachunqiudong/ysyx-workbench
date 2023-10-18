@@ -31,6 +31,15 @@ module idu(
     // get op info
     assign ebreak = instr[31:20] == 12'b1 && instr[19:7] == 13'b0 && opcode == 7'b11100_11;
 
+    // ALU-I
+    // ALU-R
+    // LOAD
+    // STORE
+    // BRANCH
+    // JAL
+
+
+
     // get imm
     wire [`XLEN-1:0] imm_I;
     wire [`XLEN-1:0] imm_S;
