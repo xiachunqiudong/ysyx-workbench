@@ -40,14 +40,49 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 }
 
-char iring_buf[128][2];
+#define IRING_SIZE 10
+#define IRING_BUF_SIZE 256
+char *iring[IRING_SIZE];
 int iring_idx = 0;
+
+static void iring_record(Decode *s, vaddr_t pc) {
+  if(iring[iring_idx] == NULL) {
+    iring[iring_idx] = (char *)malloc(IRING_BUF_SIZE);
+  }
+  char *p = iring[iring_idx];
+  char *start = p;
+  iring_idx = (iring_idx + 1) % IRING_SIZE;
+
+  // -->pc
+  p += snprintf(p, IRING_BUF_SIZE, "   0x%08x: ", s->pc);
+  int ilen = s->snpc - s->pc;
+  uint8_t *inst = (uint8_t *)&s->isa.inst.val;
+  
+  // inst code
+  int disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  p  += disassemble(p, start + IRING_BUF_SIZE - p,
+                  MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), inst, ilen);
+  *(p - 1) = '\t';
+  
+  // inst binary
+  int i;
+  for(i = ilen - 1; i >= 0; i--) {
+    p += snprintf(p, 4, " %02x", inst[i]);
+  }
+
+  // the end
+  *p = '\0';
+
+}
 
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
   isa_exec_once(s);
   cpu.pc = s->dnpc;
+  // for iring record
+  iring_record(s, pc);
+
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
@@ -65,7 +100,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   p += space_len;
 
 #ifndef CONFIG_ISA_loongarch32r
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  int disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
 #else
@@ -125,6 +160,18 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+      if (nemu_state.halt_ret != 0) {
+        printf("iringbuf: bad TRAP\n");
+        int idx = (iring_idx - 1 + IRING_SIZE) % IRING_SIZE;
+        iring[idx][0] = '-';
+        iring[idx][1] = '-';
+        iring[idx][2] = '>';
+        int i;
+        for(i = 0; i < IRING_SIZE && iring[i] != NULL; i++) {
+          printf("%s\n", iring[i]);
+        }
+      }
+
       // fall through
     case NEMU_QUIT: statistic();
   }
