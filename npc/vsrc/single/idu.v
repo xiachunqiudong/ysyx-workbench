@@ -73,7 +73,7 @@ module idu(
   assign bltu = branch && fun3 == 3'b110;
   assign bgeu = branch && fun3 == 3'b111;
   // load
-  assign lb = branch;
+
 
 
     // get imm

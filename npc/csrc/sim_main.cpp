@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 void pmem_init();
-void pmem_read(uint8_t *dest,uint32_t addr, int n);
+uint32_t inst_read(uint32_t pc);
 void rf_states();
 
 VerilatedContext *contextp;
@@ -45,9 +45,9 @@ extern "C" void env_ebreak() {
   sim_flag = false;
 }
 
-void show_instr(uint8_t *instr, uint32_t pc) {
+void show_inst(uint8_t *instr, uint32_t pc) {
   printf("pc: %0x\t", pc);
-  printf("instr: ");
+  printf("inst: ");
   for(int i = 3; i >= 0; i--) {
     printf("%02x ", instr[i]);
   }
@@ -62,16 +62,17 @@ int main(int argc, char **argv) {
 
   int clk = 0;
   int rst = 1;
-  uint32_t pc;
-  uint8_t instr[4];
+  uint32_t pc, inst;
   while (sim_flag && main_time < 10 && !contextp->gotFinish()) {
     top->clk_i = clk;
     top->rst_i = rst;
+    
     pc = top->pc_o;
-    pmem_read(instr, pc, 4);
-
-    top->instr_i = *(uint32_t *)&instr;
+    inst = inst_read(pc);
+    show_inst((uint8_t *)&inst, pc);
+    top->instr_i = inst;
     top->eval();
+    
     tfp->dump(main_time);
     rf_states();
     main_time++;

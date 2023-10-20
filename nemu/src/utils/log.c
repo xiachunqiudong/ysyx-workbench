@@ -19,11 +19,9 @@ extern uint64_t g_nr_guest_inst;
 FILE *log_fp = NULL;
 // MY LOG
 FILE *iring_fp = NULL;
+FILE *memlog_fp = NULL;
 
 void init_log(const char *log_file) {
-  // iring
-  char *iring_file = "/home/xiadong/project/chip/ysyx-workbench/nemu/build/nemu-iring-log.txt"; 
-  iring_fp = fopen(log_file, "w");
   // itrace
   log_fp = stdout;
   if (log_file != NULL) {
@@ -32,6 +30,15 @@ void init_log(const char *log_file) {
     log_fp = fp;
   }
   Log("Log is written to %s", log_file ? log_file : "stdout");
+}
+
+void init_mytrace() {
+  // iring
+  char *iring_file = "/home/xiadong/project/chip/ysyx-workbench/nemu/build/nemu-iring-log.txt";
+  char *mem_file   = "/home/xiadong/project/chip/ysyx-workbench/nemu/build/nemu-mem-log.txt";
+  Log("iring log is written to %s", iring_file);
+  iring_fp = fopen(iring_file, "w");
+  memlog_fp = fopen(mem_file, "w");
 }
 
 bool log_enable() {

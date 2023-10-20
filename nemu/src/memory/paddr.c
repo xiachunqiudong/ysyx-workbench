@@ -28,14 +28,17 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {}; // 页对齐
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
+char mem_log_buf[128];
 static word_t pmem_read(paddr_t addr, int len) {
-  printf("pmem_read: addr = %08x\n", addr);
+  sprintf(mem_log_buf, "pmem_read: addr = %08x\n", addr);
+  MEM_LOG(mem_log_buf);
   word_t ret = host_read(guest_to_host(addr), len);
   return ret;
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
-  printf("pmem_write: addr = %08x, data = data\n", addr);
+  sprintf(mem_log_buf, "pmem_write: addr = %08x, data = data\n", addr);
+  MEM_LOG(mem_log_buf);
   host_write(guest_to_host(addr), len, data);
 }
 

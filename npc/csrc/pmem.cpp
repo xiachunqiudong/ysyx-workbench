@@ -35,6 +35,17 @@ void pmem_init() {
 
 }
 
+typedef uint32_t paddr_t;
+
+uint8_t *guest_to_host(paddr_t paddr) {
+  return pmem + paddr;
+}
+
+uint32_t inst_read(uint32_t pc) {
+  return *(uint32_t *)guest_to_host(pc);
+}
+
+
 void pmem_read(uint8_t *dest,uint32_t addr, int n) {
   for (int i = 0; i < n; i++) {
     *(dest + i) = pmem[addr + i];

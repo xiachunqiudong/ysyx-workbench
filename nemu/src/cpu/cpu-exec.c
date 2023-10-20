@@ -160,7 +160,7 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
-      if (nemu_state.halt_ret != 0) {
+      if (nemu_state.halt_ret == 0) {
         printf("iringbuf: bad TRAP\n");
         int idx = (iring_idx - 1 + IRING_SIZE) % IRING_SIZE;
         iring[idx][0] = '-';
@@ -168,7 +168,7 @@ void cpu_exec(uint64_t n) {
         iring[idx][2] = '>';
         int i;
         for(i = 0; i < IRING_SIZE && iring[i] != NULL; i++) {
-          printf("%s\n", iring[i]);
+          IRING_LOG(iring[i]);
         }
       }
 
