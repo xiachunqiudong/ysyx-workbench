@@ -14,7 +14,8 @@
         "locale.h": "c",
         "difftest.h": "c",
         "decode.h": "c",
-        "cpu.h": "c"
+        "cpu.h": "c",
+        "isa.h": "c"
     },
     "files.watcherExclude": {
         "**/target": true

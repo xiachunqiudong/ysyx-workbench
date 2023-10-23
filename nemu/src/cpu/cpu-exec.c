@@ -45,7 +45,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 char *iring[IRING_SIZE];
 int iring_idx = 0;
 
-static void iring_record(Decode *s, vaddr_t pc) {
+static void iring_record(Decode *s) {
   if(iring[iring_idx] == NULL) {
     iring[iring_idx] = (char *)malloc(IRING_BUF_SIZE);
   }
@@ -75,13 +75,58 @@ static void iring_record(Decode *s, vaddr_t pc) {
 
 }
 
+char *get_func_name(word_t pc);
+
+int level = 0;
+char buf[256];
+static void ftrace(Decode *s) {
+  word_t inst = s->isa.inst.val;
+  word_t opcode = BITS(inst, 6, 0);
+  word_t rd = BITS(inst, 11, 7);
+  word_t rs1 = BITS(inst, 19, 15);
+  
+  bool jal = opcode == 111;
+  bool jalr = opcode == 103;
+
+  bool call = (rd == 1) && (jal || jalr);
+  bool ret = jalr && (rs1 == 1) && (rd == 0);
+
+  char *p = buf;
+  p += sprintf(p, "0x%08x: ", s->pc);
+  
+  if(call)
+    level++;
+  else if(ret)
+    level--;
+
+  int i;
+  for (i = 0; i < level * 2; i++) {
+    *p++ = ' ';
+  }
+  
+  if (call) {
+    char *func_name = get_func_name(s->dnpc);
+    p += sprintf(p, "call [%s]@0x%08x", func_name, s->dnpc);
+  }
+  if (ret) {
+    char *func_name = get_func_name(s->pc);
+    p += sprintf(p, "ret [%s]", func_name);
+  }
+
+  if(call || ret)
+    printf("%s\n", buf);
+  
+}
+
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
   isa_exec_once(s);
   cpu.pc = s->dnpc;
   // for iring record
-  iring_record(s, pc);
+  iring_record(s);
+  // for ftrace
+  ftrace(s);
 
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
