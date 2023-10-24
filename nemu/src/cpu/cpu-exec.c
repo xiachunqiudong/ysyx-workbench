@@ -112,8 +112,8 @@ static void ftrace(Decode *s) {
     p += sprintf(p, "ret [%s]", func_name);
   }
 
-  if(call || ret)
-    printf("%s\n", buf);
+  //if(call || ret)
+    //printf("%s\n", buf);
   
 }
 

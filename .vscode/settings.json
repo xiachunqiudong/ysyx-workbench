@@ -15,7 +15,8 @@
         "difftest.h": "c",
         "decode.h": "c",
         "cpu.h": "c",
-        "isa.h": "c"
+        "isa.h": "c",
+        "reg.h": "c"
     },
     "files.watcherExclude": {
         "**/target": true

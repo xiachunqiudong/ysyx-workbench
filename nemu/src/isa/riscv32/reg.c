@@ -23,14 +23,18 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-void isa_reg_display() {
+void reg_display(CPU_state *cpu) {
   for(int i = 0; i < 32; i++) {
-    printf("%s = 0x%x\t", regs[i], cpu.gpr[i]);
+    printf("%s = 0x%x\t", regs[i], cpu->gpr[i]);
     if((i + 1) % 8 == 0) {
       printf("\n");
     }
   }
-  printf("PC = 0x%x\n", cpu.pc);
+  printf("PC = 0x%x\n", cpu->pc);
+}
+
+void isa_reg_display() {
+  reg_display(&cpu);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
