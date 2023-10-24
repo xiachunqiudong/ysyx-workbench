@@ -80,10 +80,9 @@ char *get_func_name(word_t pc);
 int level = 0;
 char buf[256];
 static void ftrace(Decode *s) {
-  word_t inst = s->isa.inst.val;
-  word_t opcode = BITS(inst, 6, 0);
-  word_t rd = BITS(inst, 11, 7);
-  word_t rs1 = BITS(inst, 19, 15);
+  word_t opcode = s->isa.opcode;
+  word_t rs1 = s->isa.rs1;
+  word_t rd = s->isa.rd;
   
   bool jal = opcode == 111;
   bool jalr = opcode == 103;

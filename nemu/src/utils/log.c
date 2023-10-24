@@ -17,6 +17,8 @@
 
 extern uint64_t g_nr_guest_inst;
 FILE *log_fp = NULL;
+FILE *iring_fp = NULL;
+FILE *memlog_fp = NULL;
 
 void init_log(const char *log_file) {
   // itrace
@@ -29,9 +31,29 @@ void init_log(const char *log_file) {
   Log("Log is written to %s", log_file ? log_file : "stdout");
 }
 
-// MY LOG
-FILE *iring_fp = NULL;
-FILE *memlog_fp = NULL;
+bool log_enable() {
+  return MUXDEF(CONFIG_TRACE, (g_nr_guest_inst >= CONFIG_TRACE_START) &&
+         (g_nr_guest_inst <= CONFIG_TRACE_END), false);
+}
+
+void init_iring(const char *iring_file) {
+  if (iring_file != NULL) {
+    FILE *fp = fopen(iring_file, "w");
+    Assert(fp, "Can not open '%s'", iring_file);
+    iring_fp = fp;
+  }
+  Log("Iring is written to %s", iring_file);
+}
+
+void init_memlog(const char *memlog_file) {
+  if (memlog_file != NULL) {
+    FILE *fp = fopen(memlog_file, "w");
+    Assert(fp, "Can not open '%s'", memlog_file);
+    memlog_fp = fp;
+  }
+  Log("Memlog is written to %s", memlog_file);
+}
+
 
 // for elf parse
 char *strtab;
@@ -114,20 +136,7 @@ char *get_func_name(word_t pc) {
   return func_name;
 }
 
-void init_mytrace() {
-  // iring
-  char *iring_file = "/home/xiadong/project/chip/ysyx-workbench/nemu/build/nemu-iring-log.txt";
-  char *mem_file   = "/home/xiadong/project/chip/ysyx-workbench/nemu/build/nemu-mem-log.txt";
-  Log("iring log is written to %s", iring_file);
-  iring_fp = fopen(iring_file, "w");
-  memlog_fp = fopen(mem_file, "w");
-  // ftrace
-}
 
-bool log_enable() {
-  return MUXDEF(CONFIG_TRACE, (g_nr_guest_inst >= CONFIG_TRACE_START) &&
-         (g_nr_guest_inst <= CONFIG_TRACE_END), false);
-}
 
 
 

@@ -18,7 +18,8 @@
 
 void init_rand();
 void init_log(const char *log_file);
-void init_mytrace();
+void init_iring(const char *iring_file);
+void init_memlog(const char *memlog_file);
 void elf_parse(const char *elf_file);
 void init_mem();
 void init_difftest(char *ref_so_file, long img_size, int port);
@@ -42,6 +43,8 @@ static void welcome() {
 void sdb_set_batch_mode();
 
 static char *log_file = NULL;
+static char *iring_file = NULL;
+static char *memlog_file = NULL;
 static char *elf_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
@@ -75,6 +78,8 @@ static int parse_args(int argc, char *argv[]) {
     {"batch"    , no_argument      , NULL, 'b'},
     {"elf"      , required_argument, NULL, 'e'},
     {"log"      , required_argument, NULL, 'l'},
+    {"iring"    , required_argument, NULL, 'i'},
+    {"memlog"    , required_argument, NULL, 'm'},
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
     {"help"     , no_argument      , NULL, 'h'},
@@ -82,12 +87,14 @@ static int parse_args(int argc, char *argv[]) {
   };
   int o;
   // e: e选项后面需要有参数
-  while ( (o = getopt_long(argc, argv, "-bhl:d:e:p:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:d:e:p:i:m:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'e': elf_file = optarg; break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
+      case 'i': iring_file = optarg; break;
+      case 'm': memlog_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
       case 1: img_file = optarg; return 0;
       default:
@@ -95,6 +102,8 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-b,--batch              run with batch mode\n");
         printf("\t-e,--elf=ELF_FILE       get elf_file from ELF_FILE\n");
         printf("\t-l,--log=FILE           output log to FILE\n");
+        printf("\t-i,--iring=FILE         output iring to FILE\n");
+        printf("\t-m,--memlog=FILE        output memlog to FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
         printf("\n");
@@ -116,9 +125,11 @@ void init_monitor(int argc, char *argv[]) {
   /* Open the log file. */
   init_log(log_file);
 
-  elf_parse(elf_file);
+  init_iring(iring_file);
 
-  init_mytrace();
+  init_memlog(memlog_file);
+
+  elf_parse(elf_file);
 
   /* Initialize memory. */
   init_mem();

@@ -29,6 +29,9 @@ typedef struct {
   union {
     uint32_t val;
   } inst;
+  int rs1;
+  int rd;
+  int opcode;
 } MUXDEF(CONFIG_RV64, riscv64_ISADecodeInfo, riscv32_ISADecodeInfo);
 
 #define isa_mmu_check(vaddr, len, type) (MMU_DIRECT)
