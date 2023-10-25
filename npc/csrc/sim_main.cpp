@@ -4,9 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "pmem.h"
 
-void pmem_init();
-uint32_t inst_read(uint32_t pc);
 void rf_states();
 
 VerilatedContext *contextp;
@@ -54,27 +53,35 @@ void show_inst(uint8_t *instr, uint32_t pc) {
   printf("\n");
 }
 
-int main(int argc, char **argv) {
+void init_monitor(int argc, char *argv[]);
+
+int main(int argc, char *argv[]) {
+
+  init_monitor(argc, argv);
 
   init(argc, argv);
   sim_flag = true;
-  pmem_init();
 
-  int clk = 0;
+  // printf("all init is done\n");
+
+  int clk = 1;
   int rst = 1;
   uint32_t pc, inst;
   while (sim_flag && main_time < 10 && !contextp->gotFinish()) {
     top->clk_i = clk;
-    top->rst_i = rst;
+    top->rst_i = rst;    
     
     pc = top->pc_o;
-    inst = inst_read(pc);
-    show_inst((uint8_t *)&inst, pc);
-    top->instr_i = inst;
+    if(pc != 0) {
+      inst = inst_read(pc);
+      top->instr_i = inst;
+    }
+    //show_inst((uint8_t *)&inst, pc);
+
     top->eval();
     
     tfp->dump(main_time);
-    rf_states();
+    //rf_states();
     main_time++;
     if(main_time == 3) {
       rst = 0;

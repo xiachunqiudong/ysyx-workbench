@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include "pmem.h"
 
-#define MEM_SIZE 1024
 
 uint8_t pmem[MEM_SIZE] = {0};
 
@@ -35,10 +35,8 @@ void pmem_init() {
 
 }
 
-typedef uint32_t paddr_t;
-
 uint8_t *guest_to_host(paddr_t paddr) {
-  return pmem + paddr;
+  return pmem + paddr - MEM_BASE;
 }
 
 uint32_t inst_read(uint32_t pc) {

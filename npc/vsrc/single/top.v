@@ -65,7 +65,7 @@ module top(
 
   always @(posedge clk_i or posedge rst_i) begin
     if(rst_i)
-      pc_r <= 0;
+      pc_r <= 32'h80000000;
     else
       pc_r <= pc_r + 4;
   end

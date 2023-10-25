@@ -13,7 +13,7 @@ sim: clean
 	--top-module top \
 	--Mdir $(BUILD_DIR) \
 	-I./vsrc/include $(VSRC) $(CSRC)
-	$(BUILD_DIR)/Vtop
+	$(BUILD_DIR)/Vtop /home/xiadong/project/chip/ysyx-workbench/am-kernels/tests/cpu-tests/build/add-riscv32e-npc.bin -l log.txt
 
 wave: sim
 	gtkwave wave.vcd
