@@ -17,7 +17,7 @@ double sc_time_stamp() {
 	return main_time;
 }
 
-void init(int argc, char **argv) {
+void init_verilator(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   
@@ -38,7 +38,7 @@ void free() {
     delete contextp; 
 }
 
-bool sim_flag;
+bool sim_flag = true;
 extern "C" void env_ebreak() {
   printf("ebreak at 0x%x\n", top->pc_o);
   sim_flag = false;
@@ -59,15 +59,12 @@ int main(int argc, char *argv[]) {
 
   init_monitor(argc, argv);
 
-  init(argc, argv);
-  sim_flag = true;
-
-  // printf("all init is done\n");
+  init_verilator(argc, argv);
 
   int clk = 1;
   int rst = 1;
   uint32_t pc, inst;
-  while (sim_flag && main_time < 10 && !contextp->gotFinish()) {
+  while (sim_flag && !contextp->gotFinish()) {
     top->clk_i = clk;
     top->rst_i = rst;    
     

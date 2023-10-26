@@ -8,6 +8,7 @@ module idu(
     output [4:0] rd,
     output [`XLEN-1:0] imm,
     // op info
+		output [`OP_WIDTH-1:0] op_info_o,
     output ebreak
 );
 	
@@ -16,7 +17,7 @@ module idu(
   assign rs1 = instr[19:15];
   assign rs2 = instr[24:20];
   assign rd  = instr[11:7];
-    
+
   wire [6:0] fun7;
   wire [2:0] fun3;
   wire [6:0] opcode;
@@ -47,14 +48,6 @@ module idu(
   wire alu_i;
   wire alu_r;
 
-  // branch
-  wire beq; 
-  wire bne;
-  wire blt; 
-  wire bge; 
-  wire bltu;
-  wire bgeu;
-
   assign lui    = opcode == 7'b01101_11;
   assign auipc  = opcode == 7'b00101_11;
   assign jal    = opcode == 7'b00101_11;
@@ -65,6 +58,23 @@ module idu(
   assign alu_i  = opcode == 7'b00000_11;
   assign alu_r  = opcode == 7'b00000_11;
 
+	assign op_info_o[`LUI]    = lui;
+	assign op_info_o[`AUIPC]  = auipc;
+	assign op_info_o[`JAL] 	  = jal;
+	assign op_info_o[`JALR]   = jalr;
+	assign op_info_o[`BRANCH] = branch;
+	assign op_info_o[`LOAD]   = load;
+	assign op_info_o[`STORE]  = store;
+	assign op_info_o[`ALU_I]  = alu_i;
+	assign op_info_o[`ALU_R]  = alu_r;
+
+	// branch
+  wire beq; 
+  wire bne;
+  wire blt; 
+  wire bge; 
+  wire bltu;
+  wire bgeu;
   // branch
   assign beq  = branch && fun3 == 3'b000;
   assign bne  = branch && fun3 == 3'b001;
@@ -72,27 +82,33 @@ module idu(
   assign bge  = branch && fun3 == 3'b101;
   assign bltu = branch && fun3 == 3'b110;
   assign bgeu = branch && fun3 == 3'b111;
-  // load
+  
+	// load
 
+  // get imm
+  wire [`XLEN-1:0] imm_I;
+  wire [`XLEN-1:0] imm_S;
+  wire [`XLEN-1:0] imm_B;
+  wire [`XLEN-1:0] imm_U;
+  wire [`XLEN-1:0] imm_J;
+  
+  assign imm_I = {{`XLEN-12{instr[31]}}, instr[31:20]};
+  assign imm_S = `XLEN'b0;
+	    wire [`XLEN-1:0] rv64_s_imm = { {52{instr_i[31]}}, instr_i[31:25], instr_i[11:7 ]}; 
+    wire [`XLEN-1:0] rv64_b_imm = { {51{instr_i[31]}}, instr_i[31],    instr_i[7],     instr_i[30:25], instr_i[11:8 ], 1'b0};
+    wire [`XLEN-1:0] rv64_j_imm = { {43{instr_i[31]}}, instr_i[31],    instr_i[19:12], instr_i[20],    instr_i[30:21], 1'b0};
+    wire [`XLEN-1:0] rv64_u_imm = { {32{instr_i[31]}}, instr_i[31:12], 12'b0 };
 
-
-    // get imm
-    wire [`XLEN-1:0] imm_I;
-    wire [`XLEN-1:0] imm_S;
-
-    assign imm_I = {{`XLEN-12{instr[31]}}, instr[31:20]};
-    assign imm_S = `XLEN'b0;
-
-    // imm MUX
-    MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(`XLEN))
-    imm_mux(
-        .out(imm),
-        .key(type_I),
-        .lut({
-            1'b1, imm_I,
-            1'b0, imm_S
-        })
-    );
+  // imm MUX
+  MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(`XLEN))
+  imm_mux(
+      .out(imm),
+      .key(type_I),
+      .lut({
+        1'b1, imm_I,
+        1'b0, imm_S
+      })
+  );
 
 
 endmodule
