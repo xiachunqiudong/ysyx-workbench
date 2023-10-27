@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "pmem.h"
-
-void rf_states();
+#include "monitor.h"
 
 VerilatedContext *contextp;
 VerilatedVcdC *tfp;
@@ -53,7 +52,21 @@ void show_inst(uint8_t *instr, uint32_t pc) {
   printf("\n");
 }
 
-void init_monitor(int argc, char *argv[]);
+void exec_once() {
+  top->clk = 0;
+  top->eval();
+  tfp->dump(main_time++);
+
+
+  top->clk = 1;
+  uint32_t pc, inst;
+  inst = inst_read(pc);
+  top->instr_i = inst;
+  top->eval();
+  tfp->dump(main_time++);
+
+}
+
 
 int main(int argc, char *argv[]) {
 
@@ -73,11 +86,15 @@ int main(int argc, char *argv[]) {
       inst = inst_read(pc);
       top->instr_i = inst;
     } else {
-      printf("wrong pc: %08x", pc);
+      printf("wrong pc: %08x\n", pc);
     }
     //show_inst((uint8_t *)&inst, pc);
 
     top->eval();
+
+    printf("pc: %x\n", pc);
+    reg_display();
+
     
     tfp->dump(main_time);
     //rf_states();

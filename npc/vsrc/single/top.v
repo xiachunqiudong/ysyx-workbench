@@ -42,12 +42,13 @@ module top(
 
   exu
   exu_u(
-    .rs1(rs1_rdata),
-    .rs2(rs2_rdata),
-    .imm(imm),
-    .pc(),
-    .result(exu_out),
-    .jump()
+    .rs1_i(rs1_rdata),
+    .rs2_i(rs2_rdata),
+    .imm_i(imm),
+    .pc_i(pc_r),
+    .op_info_i(op_info),
+    .result_o(exu_out),
+    .jump_o()
   );
     
   // ebreak: stop the simulation
