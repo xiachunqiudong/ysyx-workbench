@@ -12,3 +12,10 @@
 `define STORE  7
 `define ALU_I  8
 `define ALU_R  9
+
+// imm type
+`define TYPE_I 0
+`define TYPE_S 1
+`define TYPE_B 2
+`define TYPE_U 3
+`define TYPE_J 4

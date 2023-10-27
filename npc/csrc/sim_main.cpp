@@ -64,14 +64,16 @@ int main(int argc, char *argv[]) {
   int clk = 1;
   int rst = 1;
   uint32_t pc, inst;
-  while (sim_flag && !contextp->gotFinish()) {
+  while (sim_flag && main_time < 50 && !contextp->gotFinish()) {
     top->clk_i = clk;
     top->rst_i = rst;    
     
     pc = top->pc_o;
-    if(pc != 0) {
+    if(pc >= MEM_BASE) {
       inst = inst_read(pc);
       top->instr_i = inst;
+    } else {
+      printf("wrong pc: %08x", pc);
     }
     //show_inst((uint8_t *)&inst, pc);
 

@@ -17,6 +17,7 @@ sim: clean
 
 run: sim
 	$(BUILD_DIR)/Vtop $(ARGS) $(IMG)
+	gtkwave wave.vcd
 
 wave: run
 	gtkwave wave.vcd

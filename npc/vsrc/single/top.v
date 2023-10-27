@@ -18,12 +18,12 @@ module top(
 
   idu 
   idu_u(.instr(instr_i),
-    .rs1(rs1),
-    .rs2(rs2),
-    .rd(rd),
-    .imm(imm),
+    .rs1_o(rs1),
+    .rs2_o(rs2),
+    .rd_o(rd),
+    .imm_o(imm),
 		.op_info_o(op_info),
-    .ebreak(ebreak)
+    .ebreak_o(ebreak)
   );
 
   regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(`XLEN)) 
