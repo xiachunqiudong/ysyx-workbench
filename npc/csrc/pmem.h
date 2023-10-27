@@ -2,6 +2,7 @@
 #define MEM_BASE 0x80000000
 
 typedef uint32_t paddr_t;
+typedef uint32_t word_t;
 
 void pmem_init();
 uint32_t inst_read(uint32_t addr);

@@ -35,6 +35,13 @@ void pmem_init() {
 
 }
 
+extern "C" void inst_read(paddr_t addr, word_t *inst) {
+  if(addr >= MEM_BASE) {
+    *inst = *(word_t *)guest_to_host(addr);
+     printf("addr = %08x, inst = %08x\n", addr, *inst);
+  }
+}
+
 uint8_t *guest_to_host(paddr_t paddr) {
   return pmem + paddr - MEM_BASE;
 }

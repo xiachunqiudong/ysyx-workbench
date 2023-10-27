@@ -39,7 +39,7 @@ void free() {
 
 bool sim_flag = true;
 extern "C" void env_ebreak() {
-  printf("ebreak at 0x%x\n", top->pc_o);
+  printf("ebreak!\n");
   sim_flag = false;
 }
 
@@ -52,19 +52,30 @@ void show_inst(uint8_t *instr, uint32_t pc) {
   printf("\n");
 }
 
+void cpu_rst() {
+  top->clk_i = 0;
+  top->rst_i = 0;
+  top->eval();
+  tfp->dump(main_time++);
+  
+  // reset
+  top->clk_i = 1;
+  top->rst_i = 1;
+  top->eval();
+  tfp->dump(main_time++);
+}
+
 void exec_once() {
-  top->clk = 0;
+  top->clk_i = 0;
+  top->rst_i = 0;
   top->eval();
   tfp->dump(main_time++);
 
 
-  top->clk = 1;
-  uint32_t pc, inst;
-  inst = inst_read(pc);
-  top->instr_i = inst;
+  top->clk_i = 1;
+  top->rst_i = 0;
   top->eval();
   tfp->dump(main_time++);
-
 }
 
 
@@ -73,36 +84,11 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 
   init_verilator(argc, argv);
-
-  int clk = 1;
-  int rst = 1;
-  uint32_t pc, inst;
+  
+  cpu_rst();
+  
   while (sim_flag && main_time < 50 && !contextp->gotFinish()) {
-    top->clk_i = clk;
-    top->rst_i = rst;    
-    
-    pc = top->pc_o;
-    if(pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
-      inst = inst_read(pc);
-      top->instr_i = inst;
-    } else {
-      printf("wrong pc: %08x\n", pc);
-    }
-    //show_inst((uint8_t *)&inst, pc);
-
-    top->eval();
-
-    printf("pc: %x\n", pc);
-    reg_display();
-
-    
-    tfp->dump(main_time);
-    //rf_states();
-    main_time++;
-    if(main_time == 3) {
-      rst = 0;
-    }
-    clk = 1 - clk;
+    exec_once();  
   }
 
   free();

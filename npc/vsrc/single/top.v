@@ -2,9 +2,7 @@
 
 module top(
   input clk_i,
-  input rst_i,
-  output [31:0] pc_o,
-  input [31:0] instr_i
+  input rst_i //
 );
 
   wire [4:0] rs1;
@@ -16,8 +14,15 @@ module top(
 	wire [`OP_WIDTH-1:0] op_info;
   wire ebreak;
 
+  wire [31:0] inst;
+
+  ifu
+  ifu_u(.pc_i(pc_r),
+        .inst_o(inst)
+  );
+
   idu 
-  idu_u(.instr(instr_i),
+  idu_u(.instr(inst),
     .rs1_o(rs1),
     .rs2_o(rs2),
     .rd_o(rd),
@@ -60,7 +65,6 @@ module top(
   end
 
   
-  assign pc_o = pc_r;
   reg [`PC_WIDTH-1:0] pc_r;
 
 	// next pc

@@ -1,13 +1,14 @@
 
+import "DPI-C" function void inst_read(input int addr, output int rdata);
+
 module ifu(
-    input clk_i,
-    output [31:0] pc_o,
-    input [31:0] instr_in,
-    output [31:0] instr_out
+	output [31:0] pc_i,
+	output [31:0] inst_o
 );
 
-    reg [31:0] pc_r;
-    
+	always@(*) begin
+		inst_read(pc_i, inst_o);
+	end
 
 
 endmodule
