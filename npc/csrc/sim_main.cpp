@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     top->rst_i = rst;    
     
     pc = top->pc_o;
-    if(pc >= MEM_BASE) {
+    if(pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
       inst = inst_read(pc);
       top->instr_i = inst;
     } else {
