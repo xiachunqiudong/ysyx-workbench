@@ -35,6 +35,7 @@ void pmem_init() {
 
 }
 
+// DPI-C
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
   if(addr >= MEM_BASE) {
     *inst = *(word_t *)guest_to_host(addr);
@@ -42,17 +43,19 @@ extern "C" void inst_read(paddr_t addr, word_t *inst) {
   }
 }
 
+extern "C" void pmem_read(int raddr, int *rdate) {
+  *rdate = *(int *)guest_to_host(raddr & ~0x3u);
+}
+
+extern "C" void pmem_write(int waddr, int wdata, char mask) {
+  uint8_t *base_addr = guest_to_host(waddr & ~0x3u);
+  int wdata = wdata;
+  int i;
+  for (i = 0; i < 4; i++) {
+    *base_addr = ((mask >> i) & 1) ? *((uint8_t *)(&wdata) + i) : *base_addr;
+  }
+}
+
 uint8_t *guest_to_host(paddr_t paddr) {
   return pmem + paddr - MEM_BASE;
-}
-
-uint32_t inst_read(uint32_t pc) {
-  return *(uint32_t *)guest_to_host(pc);
-}
-
-
-void pmem_read(uint8_t *dest,uint32_t addr, int n) {
-  for (int i = 0; i < n; i++) {
-    *(dest + i) = pmem[addr + i];
-  }
 }
