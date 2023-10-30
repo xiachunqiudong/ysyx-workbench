@@ -42,8 +42,11 @@ _default:
 	@echo "Please run 'make' under subprojects."
 
 
+Author = xiadong
+Date = $(shell date "+%Y/%m/%d %H:%M")
+
 push:
-	git commit -a -m'x'
+	git commit -a -m'commit date: $(Date), author: $(Author)'
 	git push
 
 .PHONY: .git_commit .clean_index _default push
