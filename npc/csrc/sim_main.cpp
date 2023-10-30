@@ -70,12 +70,12 @@ void exec_once() {
   top->rst_i = 0;
   top->eval();
   tfp->dump(main_time++);
-
-
+  
   top->clk_i = 1;
   top->rst_i = 0;
   top->eval();
   tfp->dump(main_time++);
+  
 }
 
 
@@ -88,6 +88,7 @@ int main(int argc, char *argv[]) {
   cpu_rst();
   
   while (sim_flag && main_time < 50 && !contextp->gotFinish()) {
+    reg_display();
     exec_once();  
   }
 

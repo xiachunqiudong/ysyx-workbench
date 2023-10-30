@@ -11,16 +11,17 @@ uint8_t pmem[MEM_SIZE] = {0};
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
   if(addr >= MEM_BASE) {
     *inst = *(word_t *)guest_to_host(addr);
-    //printf("addr = %08x, inst = %08x\n", addr, *inst);
+    printf("-------------------\n");
+    printf("pc: %08x, inst: %08x\n", addr, *inst);
   }
 }
 
 int addr_check(int addr) {
   int result = 0;
-  if(addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {  
+  if(addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
     result = 1;
   } else {
-    printf("bad mem access addr, addr = %08x\n", addr);
+    printf("MEM -> bad mem access addr, addr = %08x\n", addr);
     result = 0;
   }
   
@@ -35,6 +36,7 @@ extern "C" void pmem_read(int raddr, int *rdate) {
 }
 
 extern "C" void pmem_write(int waddr, int wdata, char mask) {
+  printf("MEM -> waddr: %08x, wdata: %08x, mask: %d\n", waddr, wdata, mask);
   uint8_t *base_addr = guest_to_host(waddr & ~0x3u);
   int data = wdata;
   int i;

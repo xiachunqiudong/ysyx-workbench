@@ -2,8 +2,12 @@
 
 module top(
   input clk_i,
-  input rst_i //
+  input rst_i,
+  output [`XLEN-1:0] pc_o
 );
+
+
+  assign pc_o = pc_r;
 
   wire [4:0] rs1;
   wire [4:0] rs2;
@@ -20,12 +24,14 @@ module top(
   wire [31:0] inst;
 
   ifu
-  ifu_u(.pc_i(pc_r),
-        .inst_o(inst)
+  ifu_u(
+    .pc_i(pc_r),
+    .inst_o(inst)
   );
 
   idu 
-  idu_u(.instr(inst),
+  idu_u(
+    .instr(inst),
     .rs1_o(rs1),
     .rs2_o(rs2),
     .rd_o(rd),
