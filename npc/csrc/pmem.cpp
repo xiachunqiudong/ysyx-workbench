@@ -7,12 +7,14 @@
 
 uint8_t pmem[MEM_SIZE] = {0};
 
+int disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 // DPI-C
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
   if(addr >= MEM_BASE) {
     *inst = *(word_t *)guest_to_host(addr);
     printf("-------------------\n");
     printf("pc: %08x, inst: %08x\n", addr, *inst);
+    
   }
 }
 
