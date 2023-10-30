@@ -49,10 +49,10 @@ extern "C" void pmem_read(int raddr, int *rdate) {
 
 extern "C" void pmem_write(int waddr, int wdata, char mask) {
   uint8_t *base_addr = guest_to_host(waddr & ~0x3u);
-  int wdata = wdata;
+  int data = wdata;
   int i;
   for (i = 0; i < 4; i++) {
-    *base_addr = ((mask >> i) & 1) ? *((uint8_t *)(&wdata) + i) : *base_addr;
+    *base_addr = ((mask >> i) & 1) ? *((uint8_t *)(&data) + i) : *base_addr;
   }
 }
 
