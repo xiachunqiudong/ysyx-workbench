@@ -46,7 +46,7 @@ Author = xiadong
 Date = $(shell date "+%Y/%m/%d %H:%M")
 
 push:
-	git commit -a -m'commit date: $(Date), author: $(Author)'
+	git commit -a -m'$(Author): $(Date)'
 	git push
 
 .PHONY: .git_commit .clean_index _default push
