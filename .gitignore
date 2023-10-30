@@ -10,5 +10,5 @@
 /nvboard
 /fceux-am
 /npc/build
-/am-kernels
 /npc/*.vcd
+/am-kernels

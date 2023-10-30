@@ -40,6 +40,8 @@ void reg_display() {
 char *img_file;
 char *log_file;
 
+void init_log(const char *log_file);
+
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
   //  name         has arg                 val            
@@ -97,6 +99,10 @@ static void load_img() {
 }
 
 void init_monitor(int argc, char *argv[]) {
+  
   parse_args(argc, argv);
+  
+  init_log(log_file);
+
   load_img();
 }
