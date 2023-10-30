@@ -2,7 +2,7 @@ BUILD_DIR = ./build
 
 VFLAGS = -cc -trace --exe --build -j 16
 VSRC = $(shell find $(./vsrc) -name "*.v")
-CSRC = $(shell find $(./csrc) -name "*.cpp" -or -name "*.c")
+CSRC = $(shell find $(./csrc) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
 
 
 sim: clean
@@ -12,7 +12,7 @@ sim: clean
 	@verilator $(VFLAGS) \
 	--top-module top \
 	--Mdir $(BUILD_DIR) \
-	-I./vsrc/include $(VSRC) $(CSRC)
+	-I./vsrc/include $(VSRC) $(CSRC) -lllvm
 	
 
 run: sim

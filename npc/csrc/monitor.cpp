@@ -37,11 +37,8 @@ void reg_display() {
   }
 }
 
-// init by args
 char *img_file;
 char *log_file;
-
-
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
@@ -99,9 +96,14 @@ static void load_img() {
   }
 }
 
+void init_disasm(const char *triple);
+
+
 void init_monitor(int argc, char *argv[]) {
   
   parse_args(argc, argv);
+
+  init_disasm("riscv32-pc-linux-gnu");
   
   init_log(log_file);
 

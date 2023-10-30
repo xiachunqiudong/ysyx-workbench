@@ -10,12 +10,14 @@ uint8_t pmem[MEM_SIZE] = {0};
 int disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 // DPI-C
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
-  char buf[128];
+  char buf[256];
+  char *p = buf;
   if(addr >= MEM_BASE) {
     *inst = *(word_t *)guest_to_host(addr);
     log("-------------------");
-    sprintf(buf, "pc: %08x, inst: %08x\n", addr, *inst);
-    log(buf);    
+    p += sprintf(p, "pc: %08x, inst: %08x\n", addr, *inst);
+    disassemble(p, 128, addr, (uint8_t *)inst, 4);
+    log(buf);
   }
 }
 

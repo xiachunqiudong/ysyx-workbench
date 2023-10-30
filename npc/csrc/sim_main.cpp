@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "pmem.h"
 #include "monitor.h"
+#include "log.h"
 
 VerilatedContext *contextp;
 VerilatedVcdC *tfp;
@@ -88,7 +89,7 @@ int main(int argc, char *argv[]) {
   cpu_rst();
   
   while (sim_flag && main_time < 50 && !contextp->gotFinish()) {
-    reg_display();
+    // reg_display();
     exec_once();  
   }
 
