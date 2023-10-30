@@ -12,7 +12,7 @@ sim: clean
 	@verilator $(VFLAGS) \
 	--top-module top \
 	--Mdir $(BUILD_DIR) \
-	-I./vsrc/include $(VSRC) $(CSRC) -lllvm
+	-I./vsrc/include $(VSRC) $(CSRC) -lLLVM-14
 	
 
 run: sim
