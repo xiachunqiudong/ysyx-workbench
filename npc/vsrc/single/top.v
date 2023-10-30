@@ -12,6 +12,9 @@ module top(
   wire [`XLEN-1:0] rs2_rdata;
   wire [`XLEN-1:0] imm;
 	wire [`OP_WIDTH-1:0] op_info;
+  wire [`BR_FUN_WIDTH-1:0] br_fun;
+  wire [`LD_FUN_WIDTH-1:0] ld_fun;
+  wire [`ST_FUN_WIDTH-1:0] st_fun;
   wire ebreak;
 
   wire [31:0] inst;
@@ -28,6 +31,9 @@ module top(
     .rd_o(rd),
     .imm_o(imm),
 		.op_info_o(op_info),
+    .br_fun_o(br_fun),
+    .ld_fun_o(ld_fun),
+    .st_fun_o(st_fun),
     .ebreak_o(ebreak)
   );
 
@@ -56,6 +62,20 @@ module top(
     .jump_o()
   );
     
+
+  wire[`XLEN-1:0] mem_rdata;
+
+  mem
+  mem_u(
+    .ld_i(op_info[`LOAD]),
+    .st_i(op_info[`STORE]),
+    .ld_fun_i(ld_fun),
+    .st_fun_i(st_fun),
+    .addr_i(exu_out),
+    .wdata_i(rs2_rdata),
+    .rdata_o(mem_rdata)
+  );
+
   // ebreak: stop the simulation
   import "DPI-C" function void env_ebreak();
   always @(*) begin

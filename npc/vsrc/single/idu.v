@@ -9,6 +9,9 @@ module idu(
     output [`XLEN-1:0] imm_o,
     // op info
 		output [`OP_WIDTH-1:0] op_info_o,
+    output [`BR_FUN_WIDTH-1:0] br_fun_o,
+    output [`LD_FUN_WIDTH-1:0] ld_fun_o,
+    output [`ST_FUN_WIDTH-1:0] st_fun_o,
     output ebreak_o // exception
 );
 	
@@ -58,26 +61,30 @@ module idu(
 	assign op_info_o[`ALU_I]  = alu_i;
 	assign op_info_o[`ALU_R]  = alu_r;
 
-	// branch
-  wire beq; 
-  wire bne;
-  wire blt; 
-  wire bge; 
-  wire bltu;
-  wire bgeu;
   // branch
-  assign beq  = branch && fun3 == 3'b000;
-  assign bne  = branch && fun3 == 3'b001;
-  assign blt  = branch && fun3 == 3'b100;
-  assign bge  = branch && fun3 == 3'b101;
-  assign bltu = branch && fun3 == 3'b110;
-  assign bgeu = branch && fun3 == 3'b111;
+  assign br_fun_o[`BEQ]  = branch && fun3 == 3'b000;
+  assign br_fun_o[`BNE]  = branch && fun3 == 3'b001;
+  assign br_fun_o[`BLT]  = branch && fun3 == 3'b100;
+  assign br_fun_o[`BGE]  = branch && fun3 == 3'b101;
+  assign br_fun_o[`BLTU] = branch && fun3 == 3'b110;
+  assign br_fun_o[`BGEU] = branch && fun3 == 3'b111;
   
 	// load
+  assign ld_fun_o[`LB]  = load && fun3 == 3'b000;
+  assign ld_fun_o[`LH]  = load && fun3 == 3'b001;
+  assign ld_fun_o[`LW]  = load && fun3 == 3'b010;
+  assign ld_fun_o[`LBU] = load && fun3 == 3'b100;
+  assign ld_fun_o[`LHU] = load && fun3 == 3'b101;
+
+  // store
+  assign st_fun_o[`SB] = store && fun3 == 3'b000; 
+  assign st_fun_o[`SH] = store && fun3 == 3'b001; 
+  assign st_fun_o[`SW] = store && fun3 == 3'b010; 
 
 
-
-  // get imm
+  //*************************//
+  //       Get Imm           //
+  //*************************//
   wire [4:0] imm_type;
 	assign imm_type[`TYPE_I] = alu_i || jalr || load;
 	assign imm_type[`TYPE_S] = store;
