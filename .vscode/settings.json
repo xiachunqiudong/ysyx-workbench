@@ -1,22 +1,6 @@
 {
     "files.associations": {
-        "paddr.h": "c",
-        "readline.h": "c",
-        "history.h": "c",
-        "mmio.h": "c",
-        "regex.h": "c",
-        "random": "c",
-        "array": "c",
-        "string_view": "c",
-        "common.h": "c",
-        "stdint.h": "c",
-        "stdlib.h": "c",
-        "locale.h": "c",
-        "difftest.h": "c",
-        "decode.h": "c",
-        "cpu.h": "c",
-        "isa.h": "c",
-        "reg.h": "c"
+        "common.h": "c"
     },
     "files.watcherExclude": {
         "**/target": true

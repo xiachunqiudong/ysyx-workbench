@@ -4,6 +4,7 @@
 #include "verilated_dpi.h"
 #include "pmem.h"
 #include "monitor.h"
+#include "log.h"
 
 typedef uint32_t word_t;
 
@@ -40,7 +41,7 @@ void reg_display() {
 char *img_file;
 char *log_file;
 
-void init_log(const char *log_file);
+
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {

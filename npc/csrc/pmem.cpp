@@ -2,19 +2,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include <string.h>
 #include "pmem.h"
+#include "log.h"
 
 uint8_t pmem[MEM_SIZE] = {0};
 
 int disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 // DPI-C
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
+  char buf[128];
   if(addr >= MEM_BASE) {
     *inst = *(word_t *)guest_to_host(addr);
-    printf("-------------------\n");
-    printf("pc: %08x, inst: %08x\n", addr, *inst);
-    
+    log("-------------------");
+    sprintf(buf, "pc: %08x, inst: %08x\n", addr, *inst);
+    log(buf);    
   }
 }
 
@@ -23,7 +24,7 @@ int addr_check(int addr) {
   if(addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
     result = 1;
   } else {
-    printf("MEM -> bad mem access addr, addr = %08x\n", addr);
+    // printf("MEM -> bad mem access addr, addr = %08x\n", addr);
     result = 0;
   }
   
@@ -38,7 +39,9 @@ extern "C" void pmem_read(int raddr, int *rdate) {
 }
 
 extern "C" void pmem_write(int waddr, int wdata, char mask) {
-  printf("MEM -> waddr: %08x, wdata: %08x, mask: %d\n", waddr, wdata, mask);
+  char buf[128];
+  sprintf(buf, "MEM -> waddr: %08x, wdata: %08x, mask: %d", waddr, wdata, mask);
+  log(buf);
   uint8_t *base_addr = guest_to_host(waddr & ~0x3u);
   int data = wdata;
   int i;
