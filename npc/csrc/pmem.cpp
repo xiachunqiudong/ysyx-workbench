@@ -15,7 +15,6 @@ static int addr_check(int addr) {
     // printf("MEM -> bad mem access addr, addr = %08x\n", addr);
     result = 0;
   }
-  
   return result;
 }
 
@@ -31,6 +30,7 @@ extern "C" void inst_read(paddr_t addr, word_t *inst) {
     int size = BUF_SIZE - (p - buf);
     disassemble(p, size, addr, (uint8_t *)inst, 4);
     log(buf);
+    printf("%s\n", buf);
   }
 }
 

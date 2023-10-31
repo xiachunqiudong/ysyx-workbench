@@ -82,7 +82,6 @@ void exec_once() {
 int main(int argc, char *argv[]) {
 
   
-
   init_verilator(argc, argv);
 
   init_monitor(argc, argv);

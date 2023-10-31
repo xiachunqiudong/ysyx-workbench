@@ -34,7 +34,7 @@ static int cmd_q(char *arg) {
 }
 
 static int cmd_si(char *arg) {
-  printf("si\n");
+  exec_once();
   return 0;
 }
 
