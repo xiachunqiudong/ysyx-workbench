@@ -1,6 +1,10 @@
 {
     "files.associations": {
-        "common.h": "c"
+        "common.h": "c",
+        "string_view": "cpp",
+        "regex": "cpp",
+        "string": "cpp",
+        "*.tcc": "cpp"
     },
     "files.watcherExclude": {
         "**/target": true

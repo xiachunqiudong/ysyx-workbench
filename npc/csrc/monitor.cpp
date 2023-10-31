@@ -96,9 +96,6 @@ static void load_img() {
   }
 }
 
-void init_disasm(const char *triple);
-
-
 void init_monitor(int argc, char *argv[]) {
   
   parse_args(argc, argv);

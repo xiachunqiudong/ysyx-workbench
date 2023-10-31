@@ -15,7 +15,7 @@ extern "C" void inst_read(paddr_t addr, word_t *inst) {
   if(addr >= MEM_BASE) {
     *inst = *(word_t *)guest_to_host(addr);
     log("-------------------");
-    p += sprintf(p, "pc: %08x, inst: %08x\n", addr, *inst);
+    p += sprintf(p, "%08x: ", addr);
     disassemble(p, 128, addr, (uint8_t *)inst, 4);
     log(buf);
   }
