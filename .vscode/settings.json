@@ -4,7 +4,9 @@
         "string_view": "cpp",
         "regex": "cpp",
         "string": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "isa.h": "c",
+        "cpu.h": "c"
     },
     "files.watcherExclude": {
         "**/target": true

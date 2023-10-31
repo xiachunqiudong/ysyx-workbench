@@ -64,6 +64,7 @@ void cpu_rst() {
   top->rst_i = 1;
   top->eval();
   tfp->dump(main_time++);
+
 }
 
 void exec_once() {
@@ -76,23 +77,18 @@ void exec_once() {
   top->rst_i = 0;
   top->eval();
   tfp->dump(main_time++);
-  
 }
-
 
 int main(int argc, char *argv[]) {
 
-  init_monitor(argc, argv);
+  
 
   init_verilator(argc, argv);
-  
+
+  init_monitor(argc, argv);
+
   cpu_rst();
   
-  while (sim_flag && main_time < 50 && !contextp->gotFinish()) {
-    // reg_display();
-    exec_once();  
-  }
-
   free();
   
   return 0;
