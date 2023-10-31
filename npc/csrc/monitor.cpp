@@ -4,7 +4,7 @@
 #include "verilated_dpi.h"
 #include "pmem.h"
 #include "monitor.h"
-#include "log.h"
+#include "utils.h"
 
 typedef uint32_t word_t;
 

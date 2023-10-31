@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "pmem.h"
 #include "monitor.h"
-#include "log.h"
+#include "utils.h"
 
 VerilatedContext *contextp;
 VerilatedVcdC *tfp;
