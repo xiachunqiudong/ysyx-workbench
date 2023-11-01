@@ -30,7 +30,6 @@ extern "C" void inst_read(paddr_t addr, word_t *inst) {
     int size = BUF_SIZE - (p - buf);
     disassemble(p, size, addr, (uint8_t *)inst, 4);
     log(buf);
-    printf("%s\n", buf);
   }
 }
 

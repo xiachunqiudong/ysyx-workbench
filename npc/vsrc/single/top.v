@@ -2,12 +2,23 @@
 
 module top(
   input clk_i,
-  input rst_i,
-  output [`XLEN-1:0] pc_o
+  input rst_i // reset signal
 );
 
+  // record the last pc and instruction
+  import "DPI-C" function void get_pc_inst (input int pc, input int inst);
+  
+  reg [`XLEN-1:0] pc_last;
+  reg [31:0] inst_last;
 
-  assign pc_o = pc_r;
+  always @(posedge clk_i) begin
+    pc_last <= pc_r;
+    inst_last <= inst;
+  end
+
+  always @(*) begin
+    get_pc_inst(pc_last, inst_last);
+  end
 
   wire [4:0] rs1;
   wire [4:0] rs2;
@@ -51,7 +62,7 @@ module top(
     .rs1_rdata(rs1_rdata),
     .rs2_rdata(rs2_rdata),
     .waddr(rd),
-    .wdata(exu_out),
+    .wdata(rd_wdata),
     .wen(1'b1)
   );
 
@@ -80,6 +91,16 @@ module top(
     .addr_i(exu_out),
     .wdata_i(rs2_rdata),
     .rdata_o(mem_rdata)
+  );
+
+  wire [`XLEN-1:0] rd_wdata;
+
+  wb
+  wb_u(
+    .op_info_i  (op_info),
+    .mem_rdata_i(mem_rdata),
+    .exu_out_i  (exu_out),
+    .rd_wdata_o (rd_wdata)
   );
 
   // ebreak: stop the simulation

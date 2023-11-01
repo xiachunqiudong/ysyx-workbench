@@ -3,6 +3,15 @@
 #include <readline/history.h>
 #include <utils.h>
 
+// DPI-C
+
+static uint32_t pc_last, inst_last;
+
+extern "C" void get_pc_inst(uint32_t pc, uint32_t inst) {
+  pc_last = pc;
+  inst_last = inst;
+}
+
 static char* rl_gets() {
   static char *line_read = NULL;
 
@@ -25,6 +34,20 @@ static char* rl_gets() {
 
 void exec_once();
 
+void exec(int n) {
+  int size = 64;
+  char disasm[size];
+  if (n >= 5) {
+    printf("two much steps, only forward 5 steps!\n");
+  }
+  int i;
+  for (i = 0; i < n; i++) {
+    exec_once();
+    disassemble(disasm, size, pc_last, (uint8_t *)&inst_last, 4);
+    printf("0x%08x: %s\n", pc_last, disasm);
+  }
+}
+
 static int cmd_c(char *arg) {
   return 0;
 }
@@ -34,7 +57,12 @@ static int cmd_q(char *arg) {
 }
 
 static int cmd_si(char *arg) {
-  exec_once();
+  if (arg == NULL) {
+    exec(1);
+  } else {
+    int step = atoi(arg);
+    exec(step);
+  }
   return 0;
 }
 

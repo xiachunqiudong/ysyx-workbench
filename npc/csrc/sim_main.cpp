@@ -64,7 +64,6 @@ void cpu_rst() {
   top->rst_i = 1;
   top->eval();
   tfp->dump(main_time++);
-
 }
 
 void exec_once() {
@@ -81,7 +80,6 @@ void exec_once() {
 
 int main(int argc, char *argv[]) {
 
-  
   init_verilator(argc, argv);
 
   init_monitor(argc, argv);

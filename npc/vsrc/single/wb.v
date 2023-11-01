@@ -2,14 +2,15 @@
 
 module wb(
   input  [`OP_WIDTH-1:0] op_info_i,
-  input  [`XLEN-1:0] mem_rdata,
-  input  [`XLEN-1:0] exu_out,
-  output [`XLEN-1:0] rf_wdata
+  input  [`XLEN-1:0] mem_rdata_i,
+  input  [`XLEN-1:0] exu_out_i,
+  output [`XLEN-1:0] rd_wdata_o
 );
 
   wire load;
 
-  assign rf_wdata = load ? mem_rdata : exu_out;
-  
+  assign load = op_info_i[`LOAD];
+
+  assign rd_wdata_o = load ? mem_rdata_i : exu_out_i;
 
 endmodule
