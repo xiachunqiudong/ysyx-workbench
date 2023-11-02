@@ -107,7 +107,7 @@ static struct {
 } cmd_table [] = {
   //{ "help", "Display information about all supported commands", cmd_help },
   { "c",    "Continue the execution of the program",            cmd_c },
-  { "q",    "Exit NEMU",                                        cmd_q },
+  { "q",    "Exit NPC",                                         cmd_q },
   { "si",   "Execute single instruction",                       cmd_si},
   { "info", "Get the program status",                           cmd_info},
   { "x",    "Get memory",                                       cmd_x},
