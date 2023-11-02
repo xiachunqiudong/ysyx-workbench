@@ -7,7 +7,7 @@
 
 uint8_t pmem[MEM_SIZE] = {0};
 
-static int addr_check(int addr) {
+int addr_check(int addr) {
   int result = 0;
   if(addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
     result = 1;
@@ -45,11 +45,14 @@ extern "C" void pmem_write(int waddr, int wdata, char mask) {
   sprintf(buf, "MEM -> waddr: %08x, wdata: %08x, mask: %d", waddr, wdata, mask);
   log(buf);
   uint8_t *base_addr = guest_to_host(waddr & ~0x3u);
-  int data = wdata;
+  int real_wdata;
+  uint8_t *wp = (uint8_t *)&real_wdata;
   int i;
   for (i = 0; i < 4; i++) {
-    *base_addr = ((mask >> i) & 1) ? *((uint8_t *)(&data) + i) : *base_addr;
+    *(wp + i) = ((mask >> i) & 1) ? *(((uint8_t *)(&wdata)) + i) : *(base_addr + i);
   }
+  printf("MEM --> waddr: %08x, wdata: %08x, mask: %d, real_wdata: %08x\n", waddr, wdata, mask, real_wdata);
+  *(int *)base_addr = real_wdata;
 }
 
 uint8_t *guest_to_host(paddr_t paddr) {

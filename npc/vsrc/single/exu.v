@@ -107,6 +107,7 @@ module exu(
 
   assign add_sub_res_sel = alu_add | alu_sub | load | store | jal | jalr | lui | auipc;
   assign res_sel_key = {alu_fun_i[9:2], add_sub_res_sel};
+  
   MuxKey #(.NR_KEY(`ALU_FUN_WIDTH-1), .KEY_LEN(`ALU_FUN_WIDTH-1), .DATA_LEN(`XLEN))
   imm_mux(
     .out(result_o),

@@ -2,6 +2,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <utils.h>
+#include <pmem.h>
 
 // DPI-C
 
@@ -37,7 +38,7 @@ void exec_once();
 void exec(int n) {
   int size = 64;
   char disasm[size];
-  if (n >= 5) {
+  if (n > 5) {
     printf("two much steps, only forward 5 steps!\n");
   }
   int i;
@@ -71,6 +72,34 @@ static int cmd_info(char *arg) {
   return 0;
 }
 
+static int cmd_x(char *args) {
+  char *arg1, *arg2;
+  arg1 = strtok(NULL, " ");
+  arg2 = strtok(NULL, " ");
+  if(arg1 == NULL || arg2 == NULL) {
+    printf("cmd x need 2 args\n");
+  } else {
+    
+    int n = atoi(arg1);
+    paddr_t addr;
+    sscanf(arg2, "0x%x", &addr);
+    
+    if(addr_check(addr)) {
+      uint8_t *host_addr = guest_to_host(addr);
+      printf("0x%x: ", addr);
+      for(int i = n - 1; i >= 0; i--) {
+        printf("0x02%x ", host_addr[i]);
+      }
+      printf("\n");
+    } else {
+      printf("bad mem access address!\n");
+    }
+  
+  }
+  return 0;
+}
+
+
 static struct {
   const char *name;
   const char *description;
@@ -81,7 +110,7 @@ static struct {
   { "q",    "Exit NEMU",                                        cmd_q },
   { "si",   "Execute single instruction",                       cmd_si},
   { "info", "Get the program status",                           cmd_info},
-  //{ "x",    "Get memory",                                       cmd_x},
+  { "x",    "Get memory",                                       cmd_x},
   //{ "p",    "Get the Expr Value",                               cmd_p},
 };
 
