@@ -20,19 +20,29 @@ module top(
     get_pc_inst(pc_last, inst_last);
   end
 
+  wire [31:0] inst;
+
+  // data path
   wire [4:0] rs1;
   wire [4:0] rs2;
   wire [4:0] rd;
   wire [`XLEN-1:0] rs1_rdata;
   wire [`XLEN-1:0] rs2_rdata;
   wire [`XLEN-1:0] imm;
-	wire [`OP_WIDTH-1:0] op_info;
-  wire [`BR_FUN_WIDTH-1:0] br_fun;
-  wire [`LD_FUN_WIDTH-1:0] ld_fun;
-  wire [`ST_FUN_WIDTH-1:0] st_fun;
+  // control path
+  wire rd_wen;  
+  wire [`OP_WIDTH-1:0]      op_info;
+  wire [`BR_FUN_WIDTH-1:0]  br_fun;
+  wire [`LD_FUN_WIDTH-1:0]  ld_fun;
+  wire [`ST_FUN_WIDTH-1:0]  st_fun;
+  wire [`ALU_FUN_WIDTH-1:0] alu_fun;
   wire ebreak;
 
-  wire [31:0] inst;
+  wire [`XLEN-1:0] exu_out;
+  wire [`XLEN-1:0] mem_rdata;
+  wire [`XLEN-1:0] rd_wdata;
+
+ 
 
   ifu
   ifu_u(
@@ -47,10 +57,12 @@ module top(
     .rs2_o(rs2),
     .rd_o(rd),
     .imm_o(imm),
+    .rd_wen_o(rd_wen),
 		.op_info_o(op_info),
     .br_fun_o(br_fun),
     .ld_fun_o(ld_fun),
     .st_fun_o(st_fun),
+    .alu_fun_o(alu_fun),
     .ebreak_o(ebreak)
   );
 
@@ -63,10 +75,8 @@ module top(
     .rs2_rdata(rs2_rdata),
     .waddr(rd),
     .wdata(rd_wdata),
-    .wen(1'b1)
+    .wen(rd_wen)
   );
-
-  wire [`XLEN-1:0] exu_out;
 
   exu
   exu_u(
@@ -75,13 +85,12 @@ module top(
     .imm_i(imm),
     .pc_i(pc_r),
     .op_info_i(op_info),
+    .br_fun_i(br_fun),
+    .alu_fun_i(alu_fun),
     .result_o(exu_out),
     .jump_o()
   );
     
-
-  wire[`XLEN-1:0] mem_rdata;
-
   mem
   mem_u(
     .ld_i(op_info[`LOAD]),
@@ -92,8 +101,6 @@ module top(
     .wdata_i(rs2_rdata),
     .rdata_o(mem_rdata)
   );
-
-  wire [`XLEN-1:0] rd_wdata;
 
   wb
   wb_u(
@@ -111,10 +118,9 @@ module top(
 		end
   end
 
-  
   reg [`PC_WIDTH-1:0] pc_r;
-
-	// next pc
+	
+  // next pc
 	wire [`PC_WIDTH-1:0] pc_n;
 
 	wire [`PC_WIDTH-1:0] npc_src1;

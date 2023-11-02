@@ -7,11 +7,13 @@ module idu(
     output [4:0] rs2_o,
     output [4:0] rd_o,
     output [`XLEN-1:0] imm_o,
+		output rd_wen_o,
     // op info
-		output [`OP_WIDTH-1:0] op_info_o,
-    output [`BR_FUN_WIDTH-1:0] br_fun_o,
-    output [`LD_FUN_WIDTH-1:0] ld_fun_o,
-    output [`ST_FUN_WIDTH-1:0] st_fun_o,
+		output [`OP_WIDTH-1:0]      op_info_o,
+    output [`BR_FUN_WIDTH-1:0]  br_fun_o,
+    output [`LD_FUN_WIDTH-1:0]  ld_fun_o,
+    output [`ST_FUN_WIDTH-1:0]  st_fun_o,
+    output [`ALU_FUN_WIDTH-1:0] alu_fun_o,
     output ebreak_o // exception
 );
 	
@@ -49,6 +51,8 @@ module idu(
   assign alu_i  = opcode == 7'b00100_11;
   assign alu_r  = opcode == 7'b01100_11;
 
+	assign rd_wen_o = !branch && !store && (rd_o != 5'b0);
+
   assign ebreak_o = instr[31:20] == 12'b1 && instr[19:7] == 13'b0 && opcode == 7'b11100_11;
 
 	assign op_info_o[`LUI]    = lui;
@@ -61,26 +65,34 @@ module idu(
 	assign op_info_o[`ALU_I]  = alu_i;
 	assign op_info_o[`ALU_R]  = alu_r;
 
-  // branch
+  // branch function
   assign br_fun_o[`BEQ]  = branch && fun3 == 3'b000;
   assign br_fun_o[`BNE]  = branch && fun3 == 3'b001;
   assign br_fun_o[`BLT]  = branch && fun3 == 3'b100;
   assign br_fun_o[`BGE]  = branch && fun3 == 3'b101;
   assign br_fun_o[`BLTU] = branch && fun3 == 3'b110;
   assign br_fun_o[`BGEU] = branch && fun3 == 3'b111;
-  
-	// load
+	// load function
   assign ld_fun_o[`LB]  = load && fun3 == 3'b000;
   assign ld_fun_o[`LH]  = load && fun3 == 3'b001;
   assign ld_fun_o[`LW]  = load && fun3 == 3'b010;
   assign ld_fun_o[`LBU] = load && fun3 == 3'b100;
   assign ld_fun_o[`LHU] = load && fun3 == 3'b101;
-
-  // store
+  // store function
   assign st_fun_o[`SB] = store && fun3 == 3'b000; 
   assign st_fun_o[`SH] = store && fun3 == 3'b001; 
   assign st_fun_o[`SW] = store && fun3 == 3'b010; 
-
+  // alu function
+  assign alu_fun_o[`ADD]  = fun3 == 3'b000 && (alu_i || (alu_r && fun7 == 7'b000_0000));
+  assign alu_fun_o[`SUB]  = fun3 == 3'b000 && (alu_r && fun7 == 7'b010_0000);
+  assign alu_fun_o[`SLL]  = fun3 == 3'b001 && fun7 == 7'b000_0000 && (alu_i || alu_r);
+  assign alu_fun_o[`SLT]  = fun3 == 3'b010 && (alu_i || (alu_r && fun7 == 7'b000_0000));
+  assign alu_fun_o[`SLTU] = fun3 == 3'b011 && (alu_i || (alu_r && fun7 == 7'b000_0000));
+  assign alu_fun_o[`XOR]  = fun3 == 3'b100 && (alu_i || (alu_r && fun7 == 7'b000_0000));
+  assign alu_fun_o[`SRL]  = fun3 == 3'b101 && fun7 == 7'b000_0000 && (alu_i || alu_r);
+  assign alu_fun_o[`SRA]  = fun3 == 3'b101 && fun7 == 7'b010_0000 && (alu_i || alu_r);
+  assign alu_fun_o[`OR]   = fun3 == 3'b110 && (alu_i || (alu_r && fun7 == 7'b000_0000));
+  assign alu_fun_o[`AND]  = fun3 == 3'b111 && (alu_i || (alu_r && fun7 == 7'b000_0000));
 
   //*************************//
   //       Get Imm           //
@@ -109,15 +121,15 @@ module idu(
 	// NR_KEY: 键值对的数量 KEY_LEN: 键值的位宽
   MuxKey #(.NR_KEY(5), .KEY_LEN(5), .DATA_LEN(`XLEN))
   imm_mux(
-      .out(imm_o),
-      .key(imm_type),
-      .lut({
-        5'b00001, imm_I,
-        5'b00010, imm_S,
-        5'b00100, imm_B,
-        5'b01000, imm_U,
-        5'b10000, imm_J
-      })
+    .out(imm_o),
+    .key(imm_type),
+    .lut({
+      5'b00001, imm_I,
+      5'b00010, imm_S,
+      5'b00100, imm_B,
+      5'b01000, imm_U,
+      5'b10000, imm_J
+    })
   );
 
 endmodule
