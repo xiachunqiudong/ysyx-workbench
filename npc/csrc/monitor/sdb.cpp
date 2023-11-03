@@ -40,6 +40,7 @@ void exec(int n) {
   char disasm[size];
   if (n > 5) {
     printf("two much steps, only forward 5 steps!\n");
+    n = 5;
   }
   int i;
   for (i = 0; i < n; i++) {
@@ -47,6 +48,29 @@ void exec(int n) {
     disassemble(disasm, size, pc_last, (uint8_t *)&inst_last, 4);
     printf("0x%08x: %s\n", pc_last, disasm);
   }
+}
+
+// utils for cmd
+static int is_single_digit(const char c, char type) {
+  switch (type) {
+  case 'd': return c >= '0' && c <= '9';
+  case 'h': return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+  default: return c >= '0' && c <= '9';
+  }
+}
+
+static int is_digit(const char *str, char type) {
+  if (str == NULL) {
+    return 0;
+  }
+  while (*str != '\0') {
+    if(is_single_digit(*str, type)) {
+      str++;
+    } else {
+      return 0;
+    }
+  }
+  return 1;
 }
 
 static int cmd_c(char *arg) {
@@ -60,6 +84,8 @@ static int cmd_q(char *arg) {
 static int cmd_si(char *arg) {
   if (arg == NULL) {
     exec(1);
+  } else if (!is_digit(arg, 'd')) {
+    printf("cmd si argument must be a number!\n");
   } else {
     int step = atoi(arg);
     exec(step);
@@ -78,12 +104,12 @@ static int cmd_x(char *args) {
   arg2 = strtok(NULL, " ");
   if(arg1 == NULL || arg2 == NULL) {
     printf("cmd x need 2 args\n");
+  } else if (!is_digit(arg1, 'd')) {
+    printf("arg1 must be a number!\n");
   } else {
-    
     int n = atoi(arg1);
     paddr_t addr;
     sscanf(arg2, "0x%x", &addr);
-    
     if(addr_check(addr)) {
       uint8_t *host_addr = guest_to_host(addr);
       printf("0x%x: ", addr);
@@ -94,11 +120,9 @@ static int cmd_x(char *args) {
     } else {
       printf("bad mem access address!\n");
     }
-  
   }
   return 0;
 }
-
 
 static struct {
   const char *name;
