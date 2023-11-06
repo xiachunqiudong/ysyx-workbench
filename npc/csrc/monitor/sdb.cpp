@@ -138,10 +138,10 @@ static struct {
   //{ "p",    "Get the Expr Value",                               cmd_p},
 };
 
-#define NR_CMD sizeof(cmd_table)
+#define NR_CMD sizeof(cmd_table)/sizeof(cmd_table[0])
 
 void sdb_mainloop() {
-
+  printf("NR_CMD: %d\n", NR_CMD);
   // readline can not be NULL, so this is endless loop
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
@@ -158,10 +158,11 @@ void sdb_mainloop() {
       args = NULL;
     }
 
+    // 将命令名称和命令表中的所有命令作匹配
     int i;
     for (i = 0; i < NR_CMD; i ++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
-        // return value < 0 => return
+        // if handler return value < 0 then return
         if (cmd_table[i].handler(args) < 0) { return; }
         break;
       }
