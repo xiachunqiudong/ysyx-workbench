@@ -40,7 +40,6 @@ void free() {
 
 bool sim_flag = true;
 extern "C" void env_ebreak() {
-  printf("ebreak!\n");
   sim_flag = false;
 }
 

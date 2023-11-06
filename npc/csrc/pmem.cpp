@@ -44,11 +44,9 @@ extern "C" void pmem_write(int waddr, int wdata, char mask) {
   char buf[BUF_SIZE];
   char real_mask[9] = {0};
   int i;
-  for (int i = 0; i < 8; i++) {
+  for (i = 0; i < 8; i++) {
     real_mask[7 - i] = (mask >> i & 1) + '0';
   }
-  sprintf(buf, "MEM -> waddr: %08x, wdata: %08x, mask: %s", waddr, wdata, real_mask);
-  log(buf);
   
   uint8_t *base_addr = guest_to_host(waddr & ~0x3u);
   int real_wdata;
@@ -56,7 +54,11 @@ extern "C" void pmem_write(int waddr, int wdata, char mask) {
   for (i = 0; i < 4; i++) {
     *(wp + i) = ((mask >> i) & 1) ? *(((uint8_t *)(&wdata)) + i) : *(base_addr + i);
   }
-  printf("MEM --> waddr: %08x, wdata: %08x, mask: %s, real_wdata: %08x\n", waddr, wdata, real_mask, real_wdata);
+
+  sprintf(buf, "(MEM) waddr: %08x, wdata: %08x, mask: %s, real_wdata: %08x\n", 
+          waddr, wdata, real_mask, real_wdata);
+  log(buf);
+  
   *(int *)base_addr = real_wdata;
 }
 

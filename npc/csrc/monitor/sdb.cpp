@@ -33,22 +33,36 @@ static char* rl_gets() {
   return line_read;
 }
 
+
+// CPU state
+enum CPU_STATE {
+  RUNNING = 0, 
+  STOP
+} cpu_state;
+
 void exec_once();
 
-void exec(int n) {
+extern bool sim_flag;
+void exec(uint32_t n) {
   int size = 64;
   char disasm[size];
-  if (n > 5) {
-    printf("two much steps, only forward 5 steps!\n");
-    n = 5;
-  }
-  int i;
+  uint32_t i;
   for (i = 0; i < n; i++) {
+    if (cpu_state == STOP) {
+      disassemble(disasm, size, pc_last, (uint8_t *)&inst_last, 4);
+      printf("The sim env has call the ebreak, end the simulation.\n");
+      //printf("0x%08x: %s\n", pc_last, disasm);
+      break;
+    }
     exec_once();
     disassemble(disasm, size, pc_last, (uint8_t *)&inst_last, 4);
     printf("0x%08x: %s\n", pc_last, disasm);
+    if (sim_flag == false) {
+      cpu_state = STOP;
+    }
   }
 }
+
 
 // utils for cmd
 static int is_single_digit(const char c, char type) {
@@ -74,6 +88,7 @@ static int is_digit(const char *str, char type) {
 }
 
 static int cmd_c(char *arg) {
+  exec(-1);
   return 0;
 }
 
@@ -141,7 +156,6 @@ static struct {
 #define NR_CMD sizeof(cmd_table)/sizeof(cmd_table[0])
 
 void sdb_mainloop() {
-  printf("NR_CMD: %d\n", NR_CMD);
   // readline can not be NULL, so this is endless loop
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);
