@@ -10,7 +10,8 @@ module regfile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
     // write
     input [DATA_WIDTH-1:0] wdata,
     input [ADDR_WIDTH-1:0] waddr,
-    input wen
+    input wen,
+    output [DATA_WIDTH-1:0] a0
 );
     
     reg [DATA_WIDTH-1:0] rf [1:31];
@@ -27,6 +28,8 @@ module regfile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
     initial begin 
         set_gpr_ptr(rf);
     end
+
+    assign a0 = rf[10];
 
 
 endmodule

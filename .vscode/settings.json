@@ -6,7 +6,12 @@
         "string": "cpp",
         "*.tcc": "cpp",
         "isa.h": "c",
-        "cpu.h": "c"
+        "cpu.h": "c",
+        "bitset": "c",
+        "condition_variable": "c",
+        "list": "c",
+        "type_traits": "c",
+        "algorithm": "c"
     },
     "files.watcherExclude": {
         "**/target": true

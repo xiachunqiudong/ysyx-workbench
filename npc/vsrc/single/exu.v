@@ -84,7 +84,15 @@ module exu(
               : (jal || jalr) ? 4
               : imm_i;
 
+  wire [`XLEN-1:0] adder_cin;
+  wire [`XLEN-1:0] adder_src1;
+  wire [`XLEN-1:0] adder_src2;
+  assign adder_cin = {{`XLEN-1{1'b0}}, alu_sub};
+  assign adder_src1 = src1;
+  assign adder_src2 = {`XLEN{alu_sub}} ^ src2;
+      
 	wire [`XLEN-1:0] add_sub_res;
+  wire             adder_cout;
 	wire [`XLEN-1:0] sll_res;
 	wire [`XLEN-1:0] slt_res;
 	wire [`XLEN-1:0] sltu_res;
@@ -94,11 +102,19 @@ module exu(
 	wire [`XLEN-1:0] or_res;
 	wire [`XLEN-1:0] and_res;
 
-	assign add_sub_res = src1 + ({`XLEN{alu_sub}} ^ src2) + {{`XLEN-1{1'b0}}, alu_sub};
+  wire eq;
+  wire ne;
+  wire lt;  
+  wire ge;
+  wire ltu;
+  wire geu;  
+	assign {adder_cout, add_sub_res} = adder_src1 + adder_src2 + adder_cin;
   assign sll_res = src1 << src2[4:0];
+  assign slt_res  = {{`XLEN-1{1'b0}}, lt};
+  assign sltu_res = {{`XLEN-1{1'b0}}, ltu};
   assign xor_res = src1 ^ src2;
-  assign srl_res = src1 >> src2;
-  assign sra_res = $signed(src1) >>> src2;
+  assign srl_res = src1 >> src2[4:0];
+  assign sra_res = $signed(src1) >>> src2[4:0];
   assign or_res  = src1 | src2;
   assign and_res = src1 & src2;
 
@@ -124,6 +140,28 @@ module exu(
       9'b1_0000_0000, and_res
     })
   );
+
+  // BRANCH
+  assign eq = ~ne;
+  assign ne =  (|xor_res);
+  
+  // 通过分析 A - B 来比较 A 和 B 的大小，假设 A 和 B 都是有符号数
+  // 如果无溢出那么结果符号为1则 A < B, 如果发生溢出那么符号为0则 A < B
+  // A < B = of & ~res[XLEN-1] | ~of & res[XLEN-1]
+  // A 与 B 符号不同, A负 B正
+  // A 与 B 符号相同, 看加法器结果 [必定不能溢出]
+  assign lt  = ( src1[`XLEN-1] & ~src2[`XLEN-1]) |
+               (~(src1[`XLEN-1] ^ src2[`XLEN-1]) & add_sub_res[`XLEN-1]);
+  assign ge  = ~lt | eq;
+  assign ltu = ~adder_cout;
+  assign geu = adder_cout | eq;
+
+  assign jump_o = (beq  & eq)  |
+                  (bne  & ne)  |
+                  (blt  & lt)  |
+                  (bge  & ge)  |
+                  (bltu & ltu) |
+                  (bgeu & geu);
 
 
 endmodule

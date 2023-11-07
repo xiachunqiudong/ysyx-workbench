@@ -38,6 +38,7 @@ module top(
   wire [`ALU_FUN_WIDTH-1:0] alu_fun;
   wire ebreak;
 
+  wire jump;
   wire [`XLEN-1:0] exu_out;
   wire [`XLEN-1:0] mem_rdata;
   wire [`XLEN-1:0] rd_wdata;
@@ -66,6 +67,8 @@ module top(
     .ebreak_o(ebreak)
   );
 
+  wire [`XLEN-1:0] rf_a0;
+
   regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(`XLEN)) 
   regfile_u(
     .clk(clk_i),
@@ -75,7 +78,8 @@ module top(
     .rs2_rdata(rs2_rdata),
     .waddr(rd),
     .wdata(rd_wdata),
-    .wen(rd_wen)
+    .wen(rd_wen),
+    .a0(rf_a0)
   );
 
   exu
@@ -88,7 +92,7 @@ module top(
     .br_fun_i(br_fun),
     .alu_fun_i(alu_fun),
     .result_o(exu_out),
-    .jump_o()
+    .jump_o(jump)
   );
     
   mem
@@ -111,10 +115,10 @@ module top(
   );
 
   // ebreak: stop the simulation
-  import "DPI-C" function void env_ebreak();
+  import "DPI-C" function void env_ebreak(input int pc, input int a0);
   always @(*) begin
     if(ebreak) begin
-    	env_ebreak();
+    	env_ebreak(pc_r, rf_a0);
 		end
   end
 
@@ -131,11 +135,11 @@ module top(
 	assign jal  = op_info[`JAL];
 	assign jalr = op_info[`JALR];
 
-	wire jump;
-	assign jump = jal || jalr;
+  wire taken;
+	assign taken = jal || jalr || jump;
 
 	assign npc_src1 = jalr ? rs1_rdata : pc_r;
-	assign npc_src2 = jump ? imm : 4;
+	assign npc_src2 = taken ? imm : 4;
 
 	assign pc_n = npc_src1 + npc_src2;
 	

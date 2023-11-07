@@ -39,7 +39,10 @@ void free() {
 }
 
 bool sim_flag = true;
-extern "C" void env_ebreak() {
+// record pc and a0
+// stop sim
+extern "C" void env_ebreak(uint32_t pc, uint32_t a0) {
+  printf("ebreak at pc: %08x, code = %u\n", pc, a0);
   sim_flag = false;
 }
 
