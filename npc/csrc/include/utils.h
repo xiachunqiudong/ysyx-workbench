@@ -8,3 +8,7 @@ void log(char *str);
 
 // reg
 void reg_display();
+
+// bit helper
+bool is_digit(const char *str, char type);
+

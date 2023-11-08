@@ -7,7 +7,7 @@
 
 uint8_t pmem[MEM_SIZE] = {0};
 
-int addr_check(int addr) {
+bool addr_check(int addr) {
   int result = 0;
   if(addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
     result = 1;
@@ -25,7 +25,6 @@ extern "C" void inst_read(paddr_t addr, word_t *inst) {
   char *p = buf;
   if(addr >= MEM_BASE) {
     *inst = *(word_t *)guest_to_host(addr);
-    log("-------------------");
     p += sprintf(p, "%08x: ", addr);
     int size = BUF_SIZE - (p - buf);
     disassemble(p, size, addr, (uint8_t *)inst, 4);

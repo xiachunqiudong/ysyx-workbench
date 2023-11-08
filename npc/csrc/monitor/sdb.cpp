@@ -1,17 +1,27 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <utils.h>
-#include <pmem.h>
+#include "pmem.h"
+#include "sdb.h"
+#include "utils.h"
 
 // DPI-C
-
 static uint32_t pc_last, inst_last;
 
 extern "C" void get_pc_inst(uint32_t pc, uint32_t inst) {
   pc_last = pc;
   inst_last = inst;
 }
+
+// EBREAK
+bool sim_flag = true;
+int ret_value = 0;
+extern "C" void env_ebreak(uint32_t pc, uint32_t a0) {
+  printf("ebreak at pc: %08x, code = %u\n", pc, a0);
+  sim_flag = false;
+  ret_value = a0;
+}
+
 
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -33,16 +43,16 @@ static char* rl_gets() {
   return line_read;
 }
 
-
 // CPU state
 enum CPU_STATE {
   RUNNING = 0, 
-  STOP
-} cpu_state;
+  STOP,
+};
+
+enum CPU_STATE cpu_state = RUNNING;
 
 void exec_once();
 
-extern bool sim_flag;
 void exec(uint32_t n) {
   int size = 64;
   char disasm[size];
@@ -61,30 +71,6 @@ void exec(uint32_t n) {
       cpu_state = STOP;
     }
   }
-}
-
-
-// utils for cmd
-static int is_single_digit(const char c, char type) {
-  switch (type) {
-  case 'd': return c >= '0' && c <= '9';
-  case 'h': return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
-  default: return c >= '0' && c <= '9';
-  }
-}
-
-static int is_digit(const char *str, char type) {
-  if (str == NULL) {
-    return 0;
-  }
-  while (*str != '\0') {
-    if(is_single_digit(*str, type)) {
-      str++;
-    } else {
-      return 0;
-    }
-  }
-  return 1;
 }
 
 static int cmd_c(char *arg) {
@@ -185,3 +171,8 @@ void sdb_mainloop() {
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
   }
 }
+
+int is_npc_exit_bad() {
+  return ret_value;
+}
+

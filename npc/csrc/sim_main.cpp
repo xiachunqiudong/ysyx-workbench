@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "pmem.h"
 #include "monitor.h"
+#include "sdb.h"
 #include "utils.h"
 
 VerilatedContext *contextp;
@@ -38,13 +39,6 @@ void free() {
     delete contextp; 
 }
 
-bool sim_flag = true;
-// record pc and a0
-// stop sim
-extern "C" void env_ebreak(uint32_t pc, uint32_t a0) {
-  printf("ebreak at pc: %08x, code = %u\n", pc, a0);
-  sim_flag = false;
-}
 
 void show_inst(uint8_t *instr, uint32_t pc) {
   printf("pc: %0x\t", pc);
@@ -86,9 +80,7 @@ int main(int argc, char *argv[]) {
 
   init_monitor(argc, argv);
 
-  cpu_rst();
-  
   free();
   
-  return 0;
+  return is_npc_exit_bad();
 }
