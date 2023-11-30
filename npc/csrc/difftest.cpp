@@ -1,6 +1,6 @@
 #include <dlfcn.h>
 #include "difftest.h"
-#include "common.h"
+#include "utils.h"
 
 void (*ref_difftest_init)(int port) = nullptr;
 void (*ref_difftest_regcpy)(void *dut, bool direction) = nullptr;
@@ -23,6 +23,7 @@ void init_difftest(char *ref_so_file, char * img_file) {
     printf("can not open this ref so file, file name: %s\n", ref_so_file);
     assert(0);
   }
+  print_blue("open success!\n");
 
   ref_difftest_regcpy = (void (*)(void *, bool))dlsym(handle, "difftest_regcpy");
   assert(ref_difftest_regcpy);

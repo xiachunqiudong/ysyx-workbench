@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <assert.h>
+#include "utils.h"
 
 FILE *log_fp = NULL;
 
@@ -21,3 +20,8 @@ void log(char *str) {
   fprintf(log_fp, "%s\n", str);
   fflush(log_fp);
 }
+
+void print_blue(char *str) {
+  printf(ANSI_FG_BLUE "%s" ANSI_NONE, str);
+}
+
