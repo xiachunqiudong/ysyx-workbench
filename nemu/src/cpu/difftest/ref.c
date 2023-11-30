@@ -18,12 +18,34 @@
 #include <difftest-def.h>
 #include <memory/paddr.h>
 
+// addr: Ref guest memory 
+// buf:  Dut host memory 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-  assert(0);
+  // DIFFTEST_TO_DUT 0
+  // DIFFTEST_TO_REF 1
+  uint8_t *ref_host_addr = guest_to_host(addr);
+  int i;
+  for (i = 0; i < n; i++) {
+    if(direction)
+      *ref_host_addr = *((uint8_t *)buf);
+    else
+      *((uint8_t *)buf) = *ref_host_addr;
+  }
 }
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
-  assert(0);
+  RISCV_GPR_TYPE * dut_ptr = (RISCV_GPR_TYPE *)dut;
+  int i;
+  for (i = 0; i < RISCV_GPR_NUM; i++) {
+    if (direction)
+      cpu.gpr[i] = dut_ptr[i];
+    else
+      dut_ptr[i] = cpu.gpr[i];
+  }
+  if (direction)
+    cpu.pc = dut_ptr[RISCV_GPR_NUM];
+  else
+    dut_ptr[RISCV_GPR_NUM] = cpu.pc;
 }
 
 __EXPORT void difftest_exec(uint64_t n) {

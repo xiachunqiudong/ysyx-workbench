@@ -11,10 +11,11 @@ sim: clean
 	@verilator $(VFLAGS) \
 	--top-module top \
 	--Mdir $(BUILD_DIR) \
-	-CFLAGS "-I /home/xiadong/project/chip/ysyx-workbench/npc/csrc/include" \
 	-I./vsrc/include $(VSRC) $(CSRC) \
+	-CFLAGS -I$(NPC_HOME)/csrc/include \
 	-LDFLAGS -"lLLVM-14" \
 	-LDFLAGS -"lreadline"
+
 
 
 run: sim
