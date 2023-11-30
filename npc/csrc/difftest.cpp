@@ -11,7 +11,8 @@ void ref_init() {
 }
 
 void init_difftest(char *ref_so_file, char * img_file) {
-  
+  char buf[128];
+
   if (ref_so_file == nullptr) {
     printf("ref_so_file can not be null\n");
     assert(0);
@@ -23,7 +24,8 @@ void init_difftest(char *ref_so_file, char * img_file) {
     printf("can not open this ref so file, file name: %s\n", ref_so_file);
     assert(0);
   }
-  print_blue("open success!\n");
+  sprintf(buf, "ref so file from: %s\n", ref_so_file);
+  print_blue(buf);
 
   ref_difftest_regcpy = (void (*)(void *, bool))dlsym(handle, "difftest_regcpy");
   assert(ref_difftest_regcpy);
