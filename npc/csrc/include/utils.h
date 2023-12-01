@@ -13,7 +13,8 @@ bool is_digit(const char *str, char type);
 
 //--------------log----------------
 void log(char *str);
-void print_blue(char *str);
+void npc_info(char *str);
+void npc_error(char *str);
 
 #define ANSI_FG_BLACK   "\33[1;30m"
 #define ANSI_FG_RED     "\33[1;31m"

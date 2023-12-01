@@ -1,7 +1,8 @@
 #include <stdint.h>
 
-#define MEM_SIZE 0x8000000
-#define MEM_BASE 0x80000000
+#define MEM_SIZE  0x8000000
+#define MEM_BASE  0x80000000
+#define RESET_VEC 0x80000000
 
 typedef uint32_t paddr_t;
 typedef uint32_t word_t;

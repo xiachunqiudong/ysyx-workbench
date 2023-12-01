@@ -42,9 +42,10 @@ static int parse_args(int argc, char *argv[]) {
   return 0;
 }
 
-static void load_img() {
+static long load_img() {
+  char buf[128];
+  long size;
   if (img_file != NULL) {
-    printf("load img file from %s\n", img_file);
     // rb: read binary
     FILE *fp = fopen(img_file, "rb");
     
@@ -55,19 +56,20 @@ static void load_img() {
     
     // stream = fp, offset = 0, whence = SEEK_END
     fseek(fp, 0, SEEK_END);
-    long size = ftell(fp);
-    printf("This image size is %ld\n", size);
+    size = ftell(fp);
+    sprintf(buf, "load img from %s, image size is %ld\n", img_file, size);
+    npc_info(buf);
     fseek(fp, 0, SEEK_SET);
-    
-    int ret = fread(guest_to_host(MEM_BASE), size, 1, fp);
-    if(ret != 1) {
-      printf("ret = %d\n", ret);
+  
+    if(fread(guest_to_host(MEM_BASE), size, 1, fp) != 1) {
       assert(0);
     }
   } else {
-    printf("img file is NULL use the default img\n");
+    sprintf(buf, "img file is NULL use the default img\n");
+    npc_error(buf);
     assert(0);
   }
+  return size;
 }
 
 void sdb_mainloop();
@@ -81,13 +83,13 @@ void init_monitor(int argc, char *argv[]) {
   
   init_log(log_file);
 
-  load_img();
+  int img_size = load_img();
 
-  init_difftest(diff_file, img_file);
+  #ifdef DIFF
+  init_difftest(diff_file, img_size, 0);
+  #endif
 
   cpu_rst();
-
-  ref_init();
 
   sdb_mainloop();
 

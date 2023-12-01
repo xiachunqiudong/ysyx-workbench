@@ -3,6 +3,7 @@
 FILE *log_fp = NULL;
 
 void init_log(const char *log_file) {
+  char buf[128];
   // itrace
   log_fp = stdout;
   if (log_file != NULL) {
@@ -13,7 +14,8 @@ void init_log(const char *log_file) {
     }
     log_fp = fp;
   }
-  printf("Log is written to %s\n", log_file ? log_file : "stdout");
+  sprintf(buf, "Log is written to %s\n", log_file ? log_file : "stdout");
+  npc_info(buf);
 }
 
 void log(char *str) {
@@ -21,7 +23,11 @@ void log(char *str) {
   fflush(log_fp);
 }
 
-void print_blue(char *str) {
-  printf(ANSI_FG_BLUE "%s" ANSI_NONE, str);
+void npc_info(char *str) {
+  printf(ANSI_FG_CYAN "[NPC info] %s" ANSI_NONE, str);
+}
+
+void npc_error(char *str) {
+  printf(ANSI_FG_RED "[NPC error] %s" ANSI_NONE, str);
 }
 
