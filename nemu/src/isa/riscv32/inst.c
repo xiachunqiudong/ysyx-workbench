@@ -169,5 +169,6 @@ int isa_exec_once(Decode *s) {
   // instrcution fetch
   // update the snpc
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
+  printf("[isa_exec_once] inst: %08x\n", s->isa.inst.val);
   return decode_exec(s);
 }

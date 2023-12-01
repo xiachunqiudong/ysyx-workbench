@@ -20,16 +20,17 @@
 
 // addr: Ref guest memory 
 // buf:  Dut host memory 
+// DIFFTEST_TO_DUT 0
+// DIFFTEST_TO_REF 1
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-  // DIFFTEST_TO_DUT 0
-  // DIFFTEST_TO_REF 1
   uint8_t *ref_host_addr = guest_to_host(addr);
-  int i;
+  long i;
   for (i = 0; i < n; i++) {
-    if(direction)
-      *ref_host_addr = *((uint8_t *)buf);
-    else
-      *((uint8_t *)buf) = *ref_host_addr;
+    if(direction) {
+      *(ref_host_addr + i) = *((uint8_t *)buf + i);
+    } else {
+      *((uint8_t *)buf + i) = *(ref_host_addr + i);
+    }  
   }
 }
 

@@ -1,7 +1,5 @@
 #include "verilated_dpi.h"
-#include <stdint.h>
-
-typedef uint32_t word_t;
+#include "common.h"
 
 word_t *cpu_gpr = nullptr;
 
@@ -25,9 +23,12 @@ void reg_display() {
     else
       printf("%s = 0x%08x\t", regs[i], cpu_gpr[i-1]);
     
-    if((i + 1) % 8 == 0) {
+    if((i + 1) % 8 == 0)
       printf("\n");
-    }
   
   }
 }
+
+word_t gpr_val(int idx) {
+  return cpu_gpr[idx];
+} 

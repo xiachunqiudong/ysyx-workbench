@@ -7,7 +7,7 @@ void init_log(const char *log_file);
 
 // reg
 void reg_display();
-
+word_t gpr_val(int idx);
 // bit helper
 bool is_digit(const char *str, char type);
 

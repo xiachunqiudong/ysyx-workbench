@@ -30,15 +30,19 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 char mem_log_buf[128];
 static word_t pmem_read(paddr_t addr, int len) {
+  #ifdef CONFIG_ITRACE
   sprintf(mem_log_buf, "pmem_read: addr = %08x\n", addr);
   MEM_LOG(mem_log_buf);
+  #endif
   word_t ret = host_read(guest_to_host(addr), len);
   return ret;
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
+  #ifdef CONFIG_ITRACE
   sprintf(mem_log_buf, "pmem_write: addr = %08x, data = %x\n", addr, data);
   MEM_LOG(mem_log_buf);
+  #endif
   host_write(guest_to_host(addr), len, data);
 }
 

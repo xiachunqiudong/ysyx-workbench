@@ -40,6 +40,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 }
 
+#ifdef CONFIG_ITRACE
 #define IRING_SIZE 10
 #define IRING_BUF_SIZE 256
 char *iring[IRING_SIZE];
@@ -102,7 +103,6 @@ static void ftrace(Decode *s) {
   for (i = 0; i < level * 2; i++) {
     *p++ = ' ';
   }
-  
   if (call) {
     char *func_name = get_func_name(s->dnpc);
     p += sprintf(p, "call [%s]@0x%08x", func_name, s->dnpc);
@@ -111,23 +111,21 @@ static void ftrace(Decode *s) {
     char *func_name = get_func_name(s->pc);
     p += sprintf(p, "ret [%s]", func_name);
   }
-
-  //if(call || ret)
-    //printf("%s\n", buf);
-  
 }
+#endif
 
 static void exec_once(Decode *s, vaddr_t pc) {
+  printf("[exec onec] pc:%08x\n", pc);
   s->pc = pc;
   s->snpc = pc;
   isa_exec_once(s);
   cpu.pc = s->dnpc;
-  // for iring record
-  iring_record(s);
-  // for ftrace
-  ftrace(s);
 
 #ifdef CONFIG_ITRACE
+
+  iring_record(s);
+  ftrace(s);
+
   char *p = s->logbuf;
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
   int ilen = s->snpc - s->pc;
@@ -205,6 +203,7 @@ void cpu_exec(uint64_t n) {
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
       
+      #ifdef CONFIG_ITRACE
       // need fix
       if (nemu_state.halt_ret == 0) {
         printf("iringbuf: bad TRAP\n");
@@ -217,7 +216,7 @@ void cpu_exec(uint64_t n) {
           IRING_LOG(iring[i]);
         }
       }
-
+      #endif
       // fall through
     case NEMU_QUIT: statistic();
   }

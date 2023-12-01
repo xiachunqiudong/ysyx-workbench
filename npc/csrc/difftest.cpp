@@ -9,6 +9,7 @@ void (*ref_difftest_exec)(uint64_t n) = nullptr;
 
 void init_difftest(char *ref_so_file, long img_size,int port) {
   char buf[128];
+  void *handle;
 
   // open the so file
   if (ref_so_file == nullptr) {
@@ -17,7 +18,6 @@ void init_difftest(char *ref_so_file, long img_size,int port) {
     assert(0);
   }
 
-  void *handle;
   handle = dlopen(ref_so_file, RTLD_LAZY);
   if (handle == nullptr) {
     sprintf(buf, "can not open this ref so file, file name: %s\n", ref_so_file);
@@ -42,22 +42,35 @@ void init_difftest(char *ref_so_file, long img_size,int port) {
   assert(ref_difftest_exec);
 
   ref_difftest_init(port);
-  ref_difftest_memcpy(RESET_VEC, guest_to_host(RESET_VEC), img_size, true);
+  ref_difftest_memcpy(RESET_VEC, guest_to_host(RESET_VEC), img_size, true); // TO-DO
   // ref_difftest_regcpy();
 
 }
 
-
+static void chk_regs(npc_state ref_state) {
+  bool pass = true;
+  int i;
+  // gpr[0] always be zero
+  word_t *ref_gpr = ref_state.gpr;
+  for (i = 0; i < 31; i++) {
+    if (i == 0) {
+      assert(ref_gpr[0] == 0);
+    } else if (gpr_val(i-1) != ref_gpr[i]) {
+      assert(0);
+    }
+  }
+}
 
 void difftest_step(paddr_t pc) {
   
-  npc_state state;
+  npc_state ref_state;
  
   ref_difftest_exec(1);
 
-  ref_difftest_regcpy((void *)&state, false);
+  ref_difftest_regcpy((void *)&ref_state, false);
 
-  printf("pc = %08x\n", state.pc);
+  // printf("pc = %08x\n", ref_state.pc);
 
-
+  chk_regs(ref_state);
+  
 }
