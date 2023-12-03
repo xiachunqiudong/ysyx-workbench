@@ -115,7 +115,6 @@ static void ftrace(Decode *s) {
 #endif
 
 static void exec_once(Decode *s, vaddr_t pc) {
-  printf("[exec onec] pc:%08x\n", pc);
   s->pc = pc;
   s->snpc = pc;
   isa_exec_once(s);

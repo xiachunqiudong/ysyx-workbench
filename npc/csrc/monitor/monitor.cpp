@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "pmem.h"
 #include "difftest.h"
+#include "sdb.h"
 
 char *img_file;
 char *log_file;
@@ -14,15 +15,17 @@ char *diff_file;
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
-  //  name         has arg                 val  
+  //  name         has arg                 val
+    {"batch"    , no_argument      , NULL, 'b'},  
     {"diff"     , required_argument, NULL, 'd'},          
     {"log"      , required_argument, NULL, 'l'},
     {0          , 0                , NULL,  0 },// must all zero
   };
   int o;
   // e: e选项后面需要有参数
-  while ( (o = getopt_long(argc, argv, "-l:d:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bl:d:", table, NULL)) != -1) {
     switch (o) {
+      case 'b': set_batch_mode(); break;
       case 'd': diff_file = optarg; break;
       case 'l': log_file = optarg; break;
       case 1:   img_file = optarg; return 0;

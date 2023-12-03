@@ -76,19 +76,17 @@ uint64_t get_time();
 #define IRING_LOG(str) \
   do { \
     extern FILE* iring_fp; \
-    if (iring_fp != NULL) { \
-      fprintf(iring_fp, "%s\n", str); \
-      fflush(iring_fp); \
-    } \
+    assert(iring_fp != NULL); \
+    fprintf(iring_fp, "%s\n", str); \
+    fflush(iring_fp); \
   } while (0) \
 
 #define MEM_LOG(str) \
   do { \
     extern FILE* memlog_fp; \
-    if (memlog_fp != NULL) { \
-      fprintf(memlog_fp, "%s\n", str); \
-      fflush(memlog_fp); \
-    } \
+    assert(memlog_fp); \
+    fprintf(memlog_fp, "%s\n", str); \
+    fflush(memlog_fp); \
   } while (0) \
 
 #endif

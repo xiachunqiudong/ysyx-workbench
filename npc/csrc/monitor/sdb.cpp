@@ -1,27 +1,31 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "difftest.h"
 #include "pmem.h"
+#include "npc.h"
 #include "sdb.h"
 #include "utils.h"
 
 // DPI-C
-static uint32_t pc_last, inst_last;
+static uint32_t this_pc_d1, this_inst_d1, this_pc, this_inst;
 
-extern "C" void get_pc_inst(uint32_t pc, uint32_t inst) {
-  pc_last = pc;
-  inst_last = inst;
+extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint32_t inst) {
+  this_pc_d1 = pc_d1;
+  this_inst_d1 = inst_d1;
+  this_pc = pc;
+  this_inst = inst;
 }
 
 // EBREAK
-bool sim_flag = true;
 int ret_value = 0;
 extern "C" void env_ebreak(uint32_t pc, uint32_t a0) {
-  printf("ebreak at pc: %08x, code = %u\n", pc, a0);
-  sim_flag = false;
+  char buf[128];
+  sprintf(buf, "The npc sim env has call the ebreak, end the simulation.\n" "ebreak at pc: %08x, code = %u\n", pc, a0);
+  npc_info(buf);
   ret_value = a0;
+  npc_set_state(NPC_STOP);
 }
-
 
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -43,32 +47,39 @@ static char* rl_gets() {
   return line_read;
 }
 
-// CPU state
-enum CPU_STATE {
-  RUNNING = 0, 
-  STOP,
-};
-
-enum CPU_STATE cpu_state = RUNNING;
-
 void exec_once();
+
+bool is_batch_mode = false;
+void set_batch_mode() {
+  is_batch_mode = true;
+}
 
 void exec(uint32_t n) {
   int size = 64;
-  char disasm[size];
-  uint32_t i;
-  for (i = 0; i < n; i++) {
-    if (cpu_state == STOP) {
-      disassemble(disasm, size, pc_last, (uint8_t *)&inst_last, 4);
-      printf("The sim env has call the ebreak, end the simulation.\n");
-      //printf("0x%08x: %s\n", pc_last, disasm);
+  char disasm[size], buf[128];
+  for (uint32_t i = 0; i < n; i++) {
+    if (npc_get_state() == NPC_STOP) {
+      disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
+      sprintf(buf, "npc sim stop caused by ebreak, at %08x: %s\n", this_pc, disasm);
+      npc_info(buf);
       break;
-    }
-    exec_once();
-    disassemble(disasm, size, pc_last, (uint8_t *)&inst_last, 4);
-    printf("0x%08x: %s\n", pc_last, disasm);
-    if (sim_flag == false) {
-      cpu_state = STOP;
+    } else if (npc_get_state() == NPC_ERROR_DIFF) {
+      disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
+      sprintf(buf, "npc sim error caused by difftest fail, at %08x: %s\n", this_pc_d1, disasm);
+      npc_error(buf);
+      break;
+    } else {
+      exec_once();
+      #ifdef DIFF
+      if(!difftest_step(this_pc)) {// diff fail
+        npc_set_state(NPC_ERROR_DIFF);
+        ret_value = 1;
+      }
+      #endif
+      if (is_batch_mode == false) {
+        disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
+        printf("%08x: %s\n", this_pc_d1, disasm);
+      }
     }
   }
 }
@@ -142,6 +153,15 @@ static struct {
 #define NR_CMD sizeof(cmd_table)/sizeof(cmd_table[0])
 
 void sdb_mainloop() {
+
+  if (is_batch_mode) {
+    char buf[128];
+    sprintf(buf, "batch mode on, if you wanna close this mode please remove the -b in abstract-machine/scripts/platform/npc.mk\n");
+    npc_info(buf);
+    cmd_c(nullptr);
+    return;
+  }
+
   // readline can not be NULL, so this is endless loop
   for (char *str; (str = rl_gets()) != NULL; ) {
     char *str_end = str + strlen(str);

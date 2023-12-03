@@ -1,6 +1,8 @@
 #include <dlfcn.h>
+#include "common.h"
 #include "difftest.h"
 #include "utils.h"
+#include "pmem.h"
 
 void (*ref_difftest_init)(int port) = nullptr;
 void (*ref_difftest_regcpy)(void *dut, bool direction) = nullptr;
@@ -42,28 +44,45 @@ void init_difftest(char *ref_so_file, long img_size,int port) {
   assert(ref_difftest_exec);
 
   ref_difftest_init(port);
-  ref_difftest_memcpy(RESET_VEC, guest_to_host(RESET_VEC), img_size, true); // TO-DO
+  ref_difftest_memcpy(RESET_VEC, guest_to_host(RESET_VEC), img_size, true);
   // ref_difftest_regcpy();
 
 }
 
-static void chk_regs(npc_state ref_state) {
+static bool chk_regs(cpu_state ref_state, paddr_t pc) {
   bool pass = true;
-  int i;
-  // gpr[0] always be zero
+  
+  char buf[128];
   word_t *ref_gpr = ref_state.gpr;
-  for (i = 0; i < 31; i++) {
-    if (i == 0) {
-      assert(ref_gpr[0] == 0);
-    } else if (gpr_val(i-1) != ref_gpr[i]) {
-      assert(0);
+  
+  for (int i = 1; i < 31; i++) {
+    if (gpr_val(i-1) != ref_gpr[i]) {
+      sprintf(buf, "difftest find the %s is different, ref: 0x%08x npc: 0x%08x\n", get_gpr_name(i), ref_gpr[i], gpr_val(i-1));
+      npc_error(buf);
+      pass = false;
     }
   }
+
+  if (pass == false) {
+    sprintf(buf, "difftest check reg fail!\n");
+    npc_error(buf);
+    
+    sprintf(buf, "ref reg state:\n");
+    npc_info(buf);
+    show_cpu_state(ref_state);
+    
+    sprintf(buf, "npc reg state:\n");
+    npc_info(buf);
+    reg_display();
+    
+  }
+  
+  return pass;
 }
 
-void difftest_step(paddr_t pc) {
+bool difftest_step(paddr_t pc) {
   
-  npc_state ref_state;
+  cpu_state ref_state;
  
   ref_difftest_exec(1);
 
@@ -71,6 +90,6 @@ void difftest_step(paddr_t pc) {
 
   // printf("pc = %08x\n", ref_state.pc);
 
-  chk_regs(ref_state);
+  return chk_regs(ref_state, pc);
   
 }

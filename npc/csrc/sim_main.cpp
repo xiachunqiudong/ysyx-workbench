@@ -7,7 +7,6 @@
 #include "monitor.h"
 #include "sdb.h"
 #include "utils.h"
-#include "difftest.h"
 
 VerilatedContext *contextp;
 VerilatedVcdC *tfp;
@@ -72,10 +71,6 @@ void exec_once() {
   top->rst_i = 0;
   top->eval();
   tfp->dump(main_time++);
-
-  #ifdef DIFF
-  difftest_step(0);
-  #endif
 
 }
 

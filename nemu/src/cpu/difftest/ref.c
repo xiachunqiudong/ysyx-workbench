@@ -24,12 +24,13 @@
 // DIFFTEST_TO_REF 1
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   uint8_t *ref_host_addr = guest_to_host(addr);
+  uint8_t *dut_addr = (uint8_t *)buf;
   long i;
   for (i = 0; i < n; i++) {
     if(direction) {
-      *(ref_host_addr + i) = *((uint8_t *)buf + i);
+      ref_host_addr[i] = dut_addr[i];
     } else {
-      *((uint8_t *)buf + i) = *(ref_host_addr + i);
+      dut_addr[i] = ref_host_addr[i];
     }  
   }
 }

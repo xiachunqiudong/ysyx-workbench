@@ -16,7 +16,8 @@ const char *regs[] = {
 };
 
 void reg_display() {
-  for(int i = 0; i < 32; i++) {
+  int i;
+  for(i = 0; i < 32; i++) {
     
     if (i == 0)
       printf("%s = 0x%08x\t",regs[i], 0);
@@ -29,6 +30,22 @@ void reg_display() {
   }
 }
 
+void show_cpu_state(cpu_state cpu) {
+  // printf("pc: 0x%08x\n", cpu.pc);
+  int i;
+  for(i = 0; i < 32; i++) {
+    printf("%s = 0x%08x\t", regs[i], cpu.gpr[i]);
+    if((i + 1) % 8 == 0) {
+      printf("\n"); 
+    }
+  }
+}
+
+
 word_t gpr_val(int idx) {
   return cpu_gpr[idx];
-} 
+}
+
+const char *get_gpr_name(int i) {
+  return regs[i];
+}

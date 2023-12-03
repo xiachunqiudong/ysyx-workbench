@@ -6,7 +6,7 @@ module top(
 );
 
   // record the last pc and instruction
-  import "DPI-C" function void get_pc_inst (input int pc, input int inst);
+  import "DPI-C" function void get_pc_inst (input int pc_d1, input int inst_d1, input int pc, input int inst);
   
   reg [`XLEN-1:0] pc_last;
   reg [31:0] inst_last;
@@ -17,7 +17,7 @@ module top(
   end
 
   always @(*) begin
-    get_pc_inst(pc_last, inst_last);
+    get_pc_inst(pc_last, inst_last, pc_r, inst);
   end
 
   wire [31:0] inst;

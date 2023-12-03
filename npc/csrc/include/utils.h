@@ -1,3 +1,6 @@
+#ifndef __UTILS__
+#define __UTILS__
+
 #include "common.h"
 
 void init_disasm(const char *triple);
@@ -34,4 +37,4 @@ void npc_error(char *str);
 #define ANSI_BG_WHITE   "\33[1;47m"
 #define ANSI_NONE       "\33[0m"
 
-
+#endif
