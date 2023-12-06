@@ -14,7 +14,8 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   panic("Not implemented");
 }
 
-// return the number of characters printed (excluding the null byte used to end output to strings)
+// return the number of characters printed 
+// (excluding the null byte used to end output to strings)
 int sprintf(char *out, const char *fmt, ...) {
   
   va_list vl;
@@ -32,7 +33,7 @@ int sprintf(char *out, const char *fmt, ...) {
       continue;
     }
     // %
-	i++; // pass the %
+	  i++; // pass the %
     switch (fmt[i++]) {
       case 'd':
         d = va_arg(vl, int);

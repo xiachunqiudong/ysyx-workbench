@@ -41,10 +41,13 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 #ifdef CONFIG_ITRACE
+
 #define IRING_SIZE 10
 #define IRING_BUF_SIZE 256
 char *iring[IRING_SIZE];
 int iring_idx = 0;
+
+char *get_func_name(word_t pc);
 
 static void iring_record(Decode *s) {
   if(iring[iring_idx] == NULL) {
@@ -65,18 +68,12 @@ static void iring_record(Decode *s) {
                   MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), inst, ilen);
   *(p - 1) = '\t';
   
-  // inst binary
   int i;
   for(i = ilen - 1; i >= 0; i--) {
     p += snprintf(p, 4, " %02x", inst[i]);
   }
-
-  // the end
   *p = '\0';
-
 }
-
-char *get_func_name(word_t pc);
 
 int level = 0;
 char buf[256];
@@ -112,6 +109,7 @@ static void ftrace(Decode *s) {
     p += sprintf(p, "ret [%s]", func_name);
   }
 }
+
 #endif
 
 static void exec_once(Decode *s, vaddr_t pc) {
@@ -203,9 +201,7 @@ void cpu_exec(uint64_t n) {
           nemu_state.halt_pc);
       
       #ifdef CONFIG_ITRACE
-      // need fix
-      if (nemu_state.halt_ret == 0) {
-        printf("iringbuf: bad TRAP\n");
+      if (nemu_state.halt_ret != 0) {
         int idx = (iring_idx - 1 + IRING_SIZE) % IRING_SIZE;
         iring[idx][0] = '-';
         iring[idx][1] = '-';
