@@ -17,7 +17,11 @@
         "difftest.h": "c",
         "reg.h": "c",
         "am.h": "c",
-        "klib-macros.h": "c"
+        "klib-macros.h": "c",
+        "amdev.h": "c",
+        "cstdlib": "c",
+        "memory": "c",
+        "new": "c"
     },
     "files.watcherExclude": {
         "**/target": true

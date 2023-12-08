@@ -7,8 +7,8 @@
 !README.md
 !.gitignore
 !init.sh
-/nvboard
 /fceux-am
 /npc/build
 /npc/*.vcd
 /am-kernels
+/nvboard
