@@ -30,10 +30,8 @@ module top import liang_pkg::*;
   logic [XLEN-1:0] rs2_rdata;
 
   assign pc = pc_r;
-
-  wire [`OP_WIDTH-1:0]      op_info;
+  
   wire ebreak;
-
   wire jump;
   wire [`XLEN-1:0] exu_out;
   wire [`XLEN-1:0] mem_rdata;
@@ -87,7 +85,7 @@ module top import liang_pkg::*;
 
   wb
   wb_u(
-    .op_info_i  (op_info),
+    .uop_info_i (uop_info),
     .mem_rdata_i(mem_rdata),
     .exu_out_i  (exu_out),
     .rd_wdata_o (rd_wdata)
@@ -111,8 +109,8 @@ module top import liang_pkg::*;
 
 	wire jal;
 	wire jalr;
-	assign jal  = op_info[`JAL];
-	assign jalr = op_info[`JALR];
+	assign jal  = uop_info.fu_op == JAL;
+	assign jalr = uop_info.fu_op == JALR;
 
   wire taken;
 	assign taken = jal || jalr || jump;
