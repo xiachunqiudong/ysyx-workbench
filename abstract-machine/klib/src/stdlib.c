@@ -41,6 +41,7 @@ void *malloc(size_t size) {
   }
   void *addr = malloc_addr;
   malloc_addr = (void *)(((size_t)malloc_addr + size + 7) & ~7);
+  //malloc_addr += 1024;
 #endif
   return addr;
 }

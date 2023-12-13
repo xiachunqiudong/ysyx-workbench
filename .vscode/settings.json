@@ -21,7 +21,13 @@
         "amdev.h": "c",
         "cstdlib": "c",
         "memory": "c",
-        "new": "c"
+        "new": "c",
+        "string.h": "c",
+        "stdlib.h": "c",
+        "io.h": "c",
+        "klib.h": "c",
+        "nemu.h": "c",
+        "stdbool.h": "c"
     },
     "files.watcherExclude": {
         "**/target": true

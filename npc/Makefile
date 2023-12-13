@@ -1,7 +1,7 @@
 BUILD_DIR = ./build
 
 VFLAGS = -cc -trace --exe --build -j 8
-VSRC = $(shell find $(./vsrc) -name "*.v")
+VSRC = $(shell find $(./vsrc) -name "*.v" -or -name "*.sv")
 CSRC = $(shell find $(./csrc) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
 
 sim: clean
@@ -11,12 +11,12 @@ sim: clean
 	@verilator $(VFLAGS) \
 	--top-module top \
 	--Mdir $(BUILD_DIR) \
-	-I./vsrc/include $(VSRC) $(CSRC) \
+	-sv \
+	-I./vsrc/include \
+	$(VSRC) $(CSRC) \
 	-CFLAGS -I$(NPC_HOME)/csrc/include \
 	-LDFLAGS -"lLLVM-14" \
 	-LDFLAGS -"lreadline"
-
-
 
 run: sim
 	$(BUILD_DIR)/Vtop $(ARGS) $(IMG)

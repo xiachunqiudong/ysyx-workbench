@@ -7,7 +7,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  char buf[256];
+  char buf[2048];
   va_list vl;
   va_start(vl, fmt);
   int vn = vsprintf(buf, fmt, vl);
@@ -21,11 +21,12 @@ int printf(const char *fmt, ...) {
 
 int vsprintf(char *out, const char *fmt, va_list vl) {
   int i = 0, cnt = 0;
-  int d; char *s;
+  int d; char c; char *s;
   while (fmt[i]) {
     // char
     if (fmt[i] != '%'){
       out[cnt++] = fmt[i++];
+      //putch(out[cnt-1]);
       continue;
     }
 	  i++; // pass the %
@@ -48,6 +49,10 @@ int vsprintf(char *out, const char *fmt, va_list vl) {
         while(*s != '\0') {
           out[cnt++] = *s++;
         }
+        break;
+      case 'c':
+        c = va_arg(vl, int);
+        out[cnt++] = c;
         break;
     } 
   }

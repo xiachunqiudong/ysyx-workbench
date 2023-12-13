@@ -1,6 +1,7 @@
 `include "defines.v"
 
-module top(
+module top import liang_pkg::*;
+(
   input clk_i,
   input rst_i // reset signal
 );
@@ -20,17 +21,16 @@ module top(
     get_pc_inst(pc_last, inst_last, pc_r, inst);
   end
 
-  wire [31:0] inst;
+  inst_t inst;
+  pc_t   pc;
+  // Instrucion Decode
+  id_info_t id_info;
+  // Execution
+  logic [XLEN-1:0] rs1_rdata;
+  logic [XLEN-1:0] rs2_rdata;
 
-  // data path
-  wire [4:0] rs1;
-  wire [4:0] rs2;
-  wire [4:0] rd;
-  wire [`XLEN-1:0] rs1_rdata;
-  wire [`XLEN-1:0] rs2_rdata;
-  wire [`XLEN-1:0] imm;
-  // control path
-  wire rd_wen;  
+  assign pc = pc_r;
+
   wire [`OP_WIDTH-1:0]      op_info;
   wire [`BR_FUN_WIDTH-1:0]  br_fun;
   wire [`LD_FUN_WIDTH-1:0]  ld_fun;
@@ -43,22 +43,16 @@ module top(
   wire [`XLEN-1:0] mem_rdata;
   wire [`XLEN-1:0] rd_wdata;
 
- 
-
   ifu
   ifu_u(
-    .pc_i(pc_r),
+    .pc_i  (pc),
     .inst_o(inst)
   );
 
   idu 
   idu_u(
-    .instr(inst),
-    .rs1_o(rs1),
-    .rs2_o(rs2),
-    .rd_o(rd),
-    .imm_o(imm),
-    .rd_wen_o(rd_wen),
+    .inst_i    (inst),
+    .id_info_o (id_info),
 		.op_info_o(op_info),
     .br_fun_o(br_fun),
     .ld_fun_o(ld_fun),
@@ -71,23 +65,23 @@ module top(
 
   regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(`XLEN)) 
   regfile_u(
-    .clk(clk_i),
-    .rs1_raddr(rs1),
-    .rs2_raddr(rs2),
-    .rs1_rdata(rs1_rdata),
-    .rs2_rdata(rs2_rdata),
-    .waddr(rd),
-    .wdata(rd_wdata),
-    .wen(rd_wen),
-    .a0(rf_a0)
+    .clk       (clk_i),
+    .rs1_raddr (id_info.rs1),
+    .rs2_raddr (id_info.rs2),
+    .rs1_rdata (rs1_rdata),
+    .rs2_rdata (rs2_rdata),
+    .waddr     (id_info.rd),
+    .wdata     (rd_wdata),
+    .wen       (id_info.rd_wen),
+    .a0        (rf_a0)
   );
 
   exu
   exu_u(
     .rs1_i(rs1_rdata),
     .rs2_i(rs2_rdata),
-    .imm_i(imm),
-    .pc_i(pc_r),
+    .imm_i(id_info.imm),
+    .pc_i (pc),
     .op_info_i(op_info),
     .br_fun_i(br_fun),
     .alu_fun_i(alu_fun),
@@ -138,8 +132,8 @@ module top(
   wire taken;
 	assign taken = jal || jalr || jump;
 
-	assign npc_src1 = jalr ? rs1_rdata : pc_r;
-	assign npc_src2 = taken ? imm : 4;
+	assign npc_src1 = jalr ?  rs1_rdata   : pc_r;
+	assign npc_src2 = taken ? id_info.imm : 4;
 
 	assign pc_n = npc_src1 + npc_src2;
 	
