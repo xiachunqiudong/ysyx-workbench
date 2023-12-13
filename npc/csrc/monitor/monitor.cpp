@@ -46,12 +46,11 @@ static int parse_args(int argc, char *argv[]) {
 }
 
 static long load_img() {
-  char buf[128];
+  char buf[256];
   long size;
   if (img_file != NULL) {
     // rb: read binary
     FILE *fp = fopen(img_file, "rb");
-    
     if(fp == NULL) {
       printf("can not open this file!, file name = %s\n", img_file);
       assert(0);

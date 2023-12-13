@@ -24,7 +24,7 @@ module top import liang_pkg::*;
   inst_t inst;
   pc_t   pc;
   // Instrucion Decode
-  id_info_t id_info;
+  uop_info_t uop_info;
   // Execution
   logic [XLEN-1:0] rs1_rdata;
   logic [XLEN-1:0] rs2_rdata;
@@ -32,10 +32,6 @@ module top import liang_pkg::*;
   assign pc = pc_r;
 
   wire [`OP_WIDTH-1:0]      op_info;
-  wire [`BR_FUN_WIDTH-1:0]  br_fun;
-  wire [`LD_FUN_WIDTH-1:0]  ld_fun;
-  wire [`ST_FUN_WIDTH-1:0]  st_fun;
-  wire [`ALU_FUN_WIDTH-1:0] alu_fun;
   wire ebreak;
 
   wire jump;
@@ -51,53 +47,42 @@ module top import liang_pkg::*;
 
   idu 
   idu_u(
-    .inst_i    (inst),
-    .id_info_o (id_info),
-		.op_info_o(op_info),
-    .br_fun_o(br_fun),
-    .ld_fun_o(ld_fun),
-    .st_fun_o(st_fun),
-    .alu_fun_o(alu_fun),
-    .ebreak_o(ebreak)
+    .pc_i       (pc_r),
+    .inst_i     (inst),
+    .uop_info_o (uop_info),
+    .ebreak_o   (ebreak)
   );
 
   wire [`XLEN-1:0] rf_a0;
 
-  regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(`XLEN)) 
+  regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(XLEN)) 
   regfile_u(
     .clk       (clk_i),
-    .rs1_raddr (id_info.rs1),
-    .rs2_raddr (id_info.rs2),
+    .rs1_raddr (uop_info.rs1),
+    .rs2_raddr (uop_info.rs2),
     .rs1_rdata (rs1_rdata),
     .rs2_rdata (rs2_rdata),
-    .waddr     (id_info.rd),
+    .waddr     (uop_info.rd),
     .wdata     (rd_wdata),
-    .wen       (id_info.rd_wen),
+    .wen       (uop_info.rd_wen),
     .a0        (rf_a0)
   );
 
-  exu
-  exu_u(
-    .rs1_i(rs1_rdata),
-    .rs2_i(rs2_rdata),
-    .imm_i(id_info.imm),
-    .pc_i (pc),
-    .op_info_i(op_info),
-    .br_fun_i(br_fun),
-    .alu_fun_i(alu_fun),
-    .result_o(exu_out),
-    .jump_o(jump)
+  alu
+  alu_u(
+    .rs1_i      (rs1_rdata),
+    .rs2_i      (rs2_rdata),
+    .uop_info_i (uop_info),
+    .alu_res_o  (exu_out),
+    .jump_o     (jump)
   );
     
   mem
   mem_u(
-    .ld_i(op_info[`LOAD]),
-    .st_i(op_info[`STORE]),
-    .ld_fun_i(ld_fun),
-    .st_fun_i(st_fun),
-    .addr_i(exu_out),
-    .wdata_i(rs2_rdata),
-    .rdata_o(mem_rdata)
+    .uop_info_i (uop_info),
+    .addr_i     (exu_out),
+    .wdata_i    (rs2_rdata),
+    .rdata_o    (mem_rdata)
   );
 
   wb
@@ -133,7 +118,7 @@ module top import liang_pkg::*;
 	assign taken = jal || jalr || jump;
 
 	assign npc_src1 = jalr ?  rs1_rdata   : pc_r;
-	assign npc_src2 = taken ? id_info.imm : 4;
+	assign npc_src2 = taken ? uop_info.imm : 4;
 
 	assign pc_n = npc_src1 + npc_src2;
 	

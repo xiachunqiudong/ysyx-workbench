@@ -3,19 +3,17 @@
 import "DPI-C" function void pmem_read(input int raddr, output int rdate);
 import "DPI-C" function void pmem_write(input int waddr, input int wdate, input byte wmask);
 
-module mem(
+module mem import liang_pkg::*;
+(
 	// control signal
-	input ld_i,
-	input st_i,
-	input [`LD_FUN_WIDTH-1:0] ld_fun_i,
-	input [`ST_FUN_WIDTH-1:0] st_fun_i,
+  input uop_info_t uop_info_i,
 	// data signal
-	input  [`XLEN-1:0] addr_i,
-	input  [`XLEN-1:0] wdata_i,
-	output [`XLEN-1:0] rdata_o //
+	input  [XLEN-1:0] addr_i,
+	input  [XLEN-1:0] wdata_i,
+	output [XLEN-1:0] rdata_o //
 );
 
-	wire [`XLEN-1:0] ram_addr;
+	wire [XLEN-1:0] ram_addr;
 	assign ram_addr = {addr_i[`XLEN-1:2], 2'b0};
 	
 	// LOAD
@@ -60,25 +58,25 @@ module mem(
 	assign lh_ext_data  = {{`XLEN-16{1'b0}}, lh_data};
 	assign lh_sext_data = {{`XLEN-16{lh_data[15]}}, lh_data};
   
-	MuxKey #(.NR_KEY(5), .KEY_LEN(5), .DATA_LEN(`XLEN))
+	MuxKey #(.NR_KEY(6), .KEY_LEN(3), .DATA_LEN(XLEN))
   rdata_mux(
       .out(rdata_o),
-      .key(ld_fun_i),
+      .key(uop_info_i.load_type),
       .lut({
-        5'b00001, lb_sext_data, // lb
-        5'b00010, lh_sext_data, // lh
-        5'b00100, ram_rdata,    // lw
-        5'b01000, lb_ext_data,  // lbu
-        5'b10000, lh_ext_data   // lhu
+        LOAD_NONE, {XLEN{1'b0}},
+        LOAD_LB,   lb_sext_data, // lb
+        LOAD_LH,   lh_sext_data, // lh
+        LOAD_LW,   ram_rdata,    // lw
+        LOAD_LBU,  lb_ext_data,  // lbu
+        LOAD_LHU,  lh_ext_data   // lhu
       })
   );
-
 
 	// STORE
 	wire [`XLEN-1:0] ram_wdata;
 	wire [3:0] ram_mask;
 	always @(*) begin
-		if(st_i) begin
+		if(uop_info_i.fu_op == STORE) begin
 			pmem_write(ram_addr, ram_wdata, {4'b0, ram_mask});
 		end
 	end
@@ -133,25 +131,27 @@ module mem(
     })
   );
 
-	MuxKey #(.NR_KEY(3), .KEY_LEN(3), .DATA_LEN(`XLEN))
+	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(`XLEN))
   wdata_mux(
     .out(ram_wdata),
-    .key(st_fun_i),
+    .key(uop_info_i.store_type),
     .lut({
-      3'b001, sb_data, // sb
-      3'b010, sh_data, // sh
-      3'b100, wdata_i  // sw
+      STORE_NONE, {XLEN{1'b0}},
+      STORE_SB,    sb_data, // sb
+      STORE_SH,    sh_data, // sh
+      STORE_SW,    wdata_i  // sw
     })
   );
 
-	MuxKey #(.NR_KEY(3), .KEY_LEN(3), .DATA_LEN(4))
+	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(4))
   wmask_mux(
     .out(ram_mask),
-    .key(st_fun_i),
+    .key(uop_info_i.store_type),
     .lut({
-      3'b001, sb_mask, // sb
-      3'b010, sh_mask, // sh
-      3'b100, 4'b1111  // sw
+      STORE_NONE, 4'b0000,
+      STORE_SB,   sb_mask, // sb
+      STORE_SH,   sh_mask, // sh
+      STORE_SW,   4'b1111  // sw
     })
   );
 

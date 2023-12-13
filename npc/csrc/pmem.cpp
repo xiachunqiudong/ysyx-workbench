@@ -19,7 +19,7 @@ bool addr_check(int addr) {
 }
 
 // DPI-C
-#define BUF_SIZE 256
+#define BUF_SIZE 512
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
   char buf[BUF_SIZE];
   char *p = buf;

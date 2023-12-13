@@ -3,7 +3,7 @@
 FILE *log_fp = NULL;
 
 void init_log(const char *log_file) {
-  char buf[128];
+  char buf[256];
   // itrace
   log_fp = stdout;
   if (log_file != NULL) {

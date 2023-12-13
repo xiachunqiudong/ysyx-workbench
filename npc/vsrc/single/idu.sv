@@ -2,28 +2,30 @@
 
 module idu import liang_pkg::*;
 (
+    input  pc_t           pc_i,
     input  inst_t         inst_i,
-    output id_info_t      id_info_o,
-    // op info
-		output [`OP_WIDTH-1:0]      op_info_o,
-    output [`BR_FUN_WIDTH-1:0]  br_fun_o,
-    output [`LD_FUN_WIDTH-1:0]  ld_fun_o,
-    output [`ST_FUN_WIDTH-1:0]  st_fun_o,
-    output [`ALU_FUN_WIDTH-1:0] alu_fun_o,
-    output ebreak_o // exception
+    output uop_info_t     uop_info_o,
+    output                ebreak_o // exception
 );
-  fu_e      fu;
-  fu_op_e   fu_op;
-  fu_func_e fu_func;
+
+  fu_e         fu;
+  fu_op_e      fu_op;
+  fu_func_e    fu_func;
+  load_type_e  load_type;
+  store_type_e store_type;
   
-  assign id_info_o = '{rs1:     rs1,
-                       rs2:     rs2,
-                       rd:      rd, 
-                       imm:     imm, 
-                       rd_wen:  rd_wen,
-                       fu:      fu,
-                       fu_op:   fu_op, 
-                       fu_func: fu_func
+  assign uop_info_o = '{
+                        pc:      pc_i,
+                        rs1:     rs1,
+                        rs2:     rs2,
+                        rd:      rd, 
+                        imm:     imm, 
+                        rd_wen:  rd_wen,
+                        fu:      fu,
+                        fu_op:   fu_op, 
+                        fu_func: fu_func,
+                        load_type:  load_type,
+                        store_type: store_type
                        };
 
   always_comb begin
@@ -49,85 +51,16 @@ module idu import liang_pkg::*;
   assign fun3   = inst_i[14:12];
   assign opcode = inst_i[6:0];
 
-  logic lui;
-  logic auipc;
-  logic jal;
-  logic jalr;
-  logic branch;
-  logic load;
-  logic store;
-  logic alu_i;
-  logic alu_r;
-
-	// get op info
-  assign lui    = opcode == 7'b01101_11;
-  assign auipc  = opcode == 7'b00101_11;
-  assign jal    = opcode == 7'b11011_11;
-  assign jalr   = opcode == 7'b11001_11;
-  assign branch = opcode == 7'b11000_11;
-  assign load   = opcode == 7'b00000_11;
-  assign store  = opcode == 7'b01000_11;
-  assign alu_i  = opcode == 7'b00100_11;
-  assign alu_r  = opcode == 7'b01100_11;
-
-	assign rd_wen = !branch && !store && (rd != 5'b0);
+	assign rd_wen = !(fu_op inside {BRANCH, STORE}) && (rd != 5'b0);
 
   assign ebreak_o = inst_i[31:20] == 12'b1 && inst_i[19:7] == 13'b0 && opcode == 7'b11100_11;
 
-	assign op_info_o[`LUI]    = lui;
-	assign op_info_o[`AUIPC]  = auipc;
-	assign op_info_o[`JAL] 	  = jal;
-	assign op_info_o[`JALR]   = jalr;
-	assign op_info_o[`BRANCH] = branch;
-	assign op_info_o[`LOAD]   = load;
-	assign op_info_o[`STORE]  = store;
-	assign op_info_o[`ALU_I]  = alu_i;
-	assign op_info_o[`ALU_R]  = alu_r;
-
-  // branch function
-  assign br_fun_o[`BEQ]  = branch && fun3 == 3'b000;
-  assign br_fun_o[`BNE]  = branch && fun3 == 3'b001;
-  assign br_fun_o[`BLT]  = branch && fun3 == 3'b100;
-  assign br_fun_o[`BGE]  = branch && fun3 == 3'b101;
-  assign br_fun_o[`BLTU] = branch && fun3 == 3'b110;
-  assign br_fun_o[`BGEU] = branch && fun3 == 3'b111;
-	// load function
-  assign ld_fun_o[`LB]  = load && fun3 == 3'b000;
-  assign ld_fun_o[`LH]  = load && fun3 == 3'b001;
-  assign ld_fun_o[`LW]  = load && fun3 == 3'b010;
-  assign ld_fun_o[`LBU] = load && fun3 == 3'b100;
-  assign ld_fun_o[`LHU] = load && fun3 == 3'b101;
-  // store function
-  assign st_fun_o[`SB] = store && fun3 == 3'b000; 
-  assign st_fun_o[`SH] = store && fun3 == 3'b001; 
-  assign st_fun_o[`SW] = store && fun3 == 3'b010; 
-  // alu function
-  assign alu_fun_o[`ADD]  = fun3 == 3'b000 && (alu_i || (alu_r && fun7 == 7'b000_0000));
-  assign alu_fun_o[`SUB]  = fun3 == 3'b000 && (alu_r && fun7 == 7'b010_0000);
-  assign alu_fun_o[`SLL]  = fun3 == 3'b001 && fun7 == 7'b000_0000 && (alu_i || alu_r);
-  assign alu_fun_o[`SLT]  = fun3 == 3'b010 && (alu_i || (alu_r && fun7 == 7'b000_0000));
-  assign alu_fun_o[`SLTU] = fun3 == 3'b011 && (alu_i || (alu_r && fun7 == 7'b000_0000));
-  assign alu_fun_o[`XOR]  = fun3 == 3'b100 && (alu_i || (alu_r && fun7 == 7'b000_0000));
-  assign alu_fun_o[`SRL]  = fun3 == 3'b101 && fun7 == 7'b000_0000 && (alu_i || alu_r);
-  assign alu_fun_o[`SRA]  = fun3 == 3'b101 && fun7 == 7'b010_0000 && (alu_i || alu_r);
-  assign alu_fun_o[`OR]   = fun3 == 3'b110 && (alu_i || (alu_r && fun7 == 7'b000_0000));
-  assign alu_fun_o[`AND]  = fun3 == 3'b111 && (alu_i || (alu_r && fun7 == 7'b000_0000));
-
-  assign lui    = opcode == 7'b01101_11;
-  assign auipc  = opcode == 7'b00101_11;
-  assign jal    = opcode == 7'b11011_11;
-  assign jalr   = opcode == 7'b11001_11;
-  assign branch = opcode == 7'b11000_11;
-  assign load   = opcode == 7'b00000_11;
-  assign store  = opcode == 7'b01000_11;
-  assign alu_i  = opcode == 7'b00100_11;
-  assign alu_r  = opcode == 7'b01100_11;
-
-
   always_comb begin
-    fu_func = FUNC_NONE;
     fu_op   = OP_NONE;
-    case(fun7)
+    fu_func = FUNC_NONE;
+    load_type  = LOAD_NONE;
+    store_type = STORE_NONE;
+    case(opcode)
       7'b01101_11: fu_op = LUI;
       7'b00101_11: fu_op = AUIPC;
       7'b11011_11: fu_op = JAL;
@@ -149,22 +82,22 @@ module idu import liang_pkg::*;
       7'b00000_11: begin
         fu_op = LOAD;
         case(fun3)
-          3'b000: fu_func = LB;
-          3'b001: fu_func = LH;
-          3'b010: fu_func = LW;
-          3'b100: fu_func = LBU;
-          3'b101: fu_func = LHU;
-          default: fu_func = FUNC_NONE;
+          3'b000: load_type = LOAD_LB;
+          3'b001: load_type = LOAD_LH;
+          3'b010: load_type = LOAD_LW;
+          3'b100: load_type = LOAD_LBU;
+          3'b101: load_type = LOAD_LHU;
+          default:load_type = LOAD_NONE;
         endcase
       end
       // STORE
       7'b01000_11: begin
         fu_op = STORE;
         case(fun3)
-          3'b000: fu_func = SB;
-          3'b001: fu_func = SH;
-          3'b010: fu_func = SW;
-          default: fu_func = FUNC_NONE;
+          3'b000: store_type = STORE_SB;
+          3'b001: store_type = STORE_SH;
+          3'b010: store_type = STORE_SW;
+          default:store_type = STORE_NONE;
         endcase
       end
       // ALU-I
@@ -221,8 +154,10 @@ module idu import liang_pkg::*;
         endcase
       end
       default: begin 
-        fu_op   = OP_NONE;
-        fu_func = FUNC_NONE;
+        fu_op      = OP_NONE;
+        fu_func    = FUNC_NONE;
+        load_type  = LOAD_NONE;
+        store_type = STORE_NONE;
       end
     endcase
   end
@@ -231,14 +166,31 @@ module idu import liang_pkg::*;
   //*************************//
   //       Get Imm           //
   //*************************//
-  logic [4:0]      imm_type;
-  logic [XLEN-1:0] imm;
-	assign imm_type[`TYPE_I] = alu_i || jalr || load;
-	assign imm_type[`TYPE_S] = store;
-	assign imm_type[`TYPE_B] = branch;
-	assign imm_type[`TYPE_U] = lui || auipc;
-	assign imm_type[`TYPE_J] = jal;
+  // logic [4:0]      imm_type;
+  
+	// assign imm_type[`TYPE_I] = alu_i || jalr || load;
+	// assign imm_type[`TYPE_S] = store;
+	// assign imm_type[`TYPE_B] = branch;
+	// assign imm_type[`TYPE_U] = lui || auipc;
+	// assign imm_type[`TYPE_J] = jal;
 	
+  imm_type_e imm_type;
+  logic [XLEN-1:0] imm;
+
+  always_comb begin
+    imm_type   = IMM_NONE;
+    if (fu_op inside {ALI, ALR, LOAD})
+      imm_type = IMM_I;
+    else if(fu_op == STORE)
+     imm_type  = IMM_S;
+    else if(fu_op == BRANCH)
+      imm_type = IMM_B;
+    else if(fu_op inside {LUI, AUIPC})
+      imm_type = IMM_U;
+    else if(fu_op == JAL)
+      imm_type = IMM_J;
+  end
+  
 	logic [`XLEN-1:0] imm_I;
   logic [`XLEN-1:0] imm_S;
   logic [`XLEN-1:0] imm_B;
@@ -254,16 +206,17 @@ module idu import liang_pkg::*;
 
   // imm MUX
 	// NR_KEY: 键值对的数量 KEY_LEN: 键值的位宽
-  MuxKey #(.NR_KEY(5), .KEY_LEN(5), .DATA_LEN(`XLEN))
+  MuxKey #(.NR_KEY(6), .KEY_LEN(3), .DATA_LEN(`XLEN))
   imm_mux(
     .out(imm),
     .key(imm_type),
     .lut({
-      5'b00001, imm_I,
-      5'b00010, imm_S,
-      5'b00100, imm_B,
-      5'b01000, imm_U,
-      5'b10000, imm_J
+      IMM_NONE, {XLEN{1'b0}},
+      IMM_I,     imm_I,
+      IMM_S,     imm_S,
+      IMM_B,     imm_B,
+      IMM_U,     imm_U,
+      IMM_J,     imm_J
     })
   );
 
