@@ -1,9 +1,7 @@
-`include "defines.v"
-
 import "DPI-C" function void pmem_read(input int raddr, output int rdate);
 import "DPI-C" function void pmem_write(input int waddr, input int wdate, input byte wmask);
 
-module mem import liang_pkg::*;
+module lsu import liang_pkg::*;
 (
 	// control signal
   input uop_info_t uop_info_i,
@@ -14,10 +12,10 @@ module mem import liang_pkg::*;
 );
 
 	wire [XLEN-1:0] ram_addr;
-	assign ram_addr = {addr_i[`XLEN-1:2], 2'b0};
+	assign ram_addr = {addr_i[XLEN-1:2], 2'b0};
 	
 	// LOAD
-	wire [`XLEN-1:0] ram_rdata;
+	wire [XLEN-1:0] ram_rdata;
 	always @(*) begin
 		pmem_read(ram_addr, ram_rdata);
 	end
@@ -36,10 +34,10 @@ module mem import liang_pkg::*;
       })
   );
 
-	wire [`XLEN-1:0] lb_ext_data;
-	wire [`XLEN-1:0] lb_sext_data;
-	assign lb_ext_data  = {{`XLEN-8{1'b0}}, lb_data};
-	assign lb_sext_data = {{`XLEN-8{lb_data[7]}}, lb_data};
+	wire [XLEN-1:0] lb_ext_data;
+	wire [XLEN-1:0] lb_sext_data;
+	assign lb_ext_data  = {{XLEN-8{1'b0}}, lb_data};
+	assign lb_sext_data = {{XLEN-8{lb_data[7]}}, lb_data};
 
 	// LOAD HALF
 	wire [15:0] lh_data;
@@ -53,10 +51,10 @@ module mem import liang_pkg::*;
       })
   );
 
-	wire [`XLEN-1:0] lh_ext_data;
-	wire [`XLEN-1:0] lh_sext_data;
-	assign lh_ext_data  = {{`XLEN-16{1'b0}}, lh_data};
-	assign lh_sext_data = {{`XLEN-16{lh_data[15]}}, lh_data};
+	wire [XLEN-1:0] lh_ext_data;
+	wire [XLEN-1:0] lh_sext_data;
+	assign lh_ext_data  = {{XLEN-16{1'b0}}, lh_data};
+	assign lh_sext_data = {{XLEN-16{lh_data[15]}}, lh_data};
   
 	MuxKey #(.NR_KEY(6), .KEY_LEN(3), .DATA_LEN(XLEN))
   rdata_mux(
@@ -73,7 +71,7 @@ module mem import liang_pkg::*;
   );
 
 	// STORE
-	wire [`XLEN-1:0] ram_wdata;
+	wire [XLEN-1:0] ram_wdata;
 	wire [3:0] ram_mask;
 	always @(*) begin
 		if(uop_info_i.fu_op == STORE) begin
@@ -82,8 +80,8 @@ module mem import liang_pkg::*;
 	end
 
 	// STORE BYTE
-	wire [`XLEN-1:0] sb_data;
-	MuxKey #(.NR_KEY(4), .KEY_LEN(2), .DATA_LEN(`XLEN))
+	wire [XLEN-1:0] sb_data;
+	MuxKey #(.NR_KEY(4), .KEY_LEN(2), .DATA_LEN(XLEN))
   sb_mux(
     .out(sb_data),
     .key(addr_i[1:0]),
@@ -109,8 +107,8 @@ module mem import liang_pkg::*;
   );
 
 	// STORE HALF
-	wire [`XLEN-1:0] sh_data;
-	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(`XLEN))
+	wire [XLEN-1:0] sh_data;
+	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(XLEN))
   sh_mux(
     .out(sh_data),
     .key(addr_i[1]),
@@ -131,7 +129,7 @@ module mem import liang_pkg::*;
     })
   );
 
-	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(`XLEN))
+	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(XLEN))
   wdata_mux(
     .out(ram_wdata),
     .key(uop_info_i.store_type),

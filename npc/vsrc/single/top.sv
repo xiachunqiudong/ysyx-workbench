@@ -1,5 +1,3 @@
-`include "defines.v"
-
 module top import liang_pkg::*;
 (
   input clk_i,
@@ -9,7 +7,7 @@ module top import liang_pkg::*;
   // record the last pc and instruction
   import "DPI-C" function void get_pc_inst (input int pc_d1, input int inst_d1, input int pc, input int inst);
   
-  reg [`XLEN-1:0] pc_last;
+  reg [XLEN-1:0] pc_last;
   reg [31:0] inst_last;
 
   always @(posedge clk_i) begin
@@ -33,9 +31,9 @@ module top import liang_pkg::*;
   
   wire ebreak;
   wire jump;
-  wire [`XLEN-1:0] exu_out;
-  wire [`XLEN-1:0] mem_rdata;
-  wire [`XLEN-1:0] rd_wdata;
+  wire [XLEN-1:0] alu_out;
+  wire [XLEN-1:0] mem_rdata;
+  wire [XLEN-1:0] rd_wdata;
 
   ifu
   ifu_u(
@@ -51,7 +49,7 @@ module top import liang_pkg::*;
     .ebreak_o   (ebreak)
   );
 
-  wire [`XLEN-1:0] rf_a0;
+  wire [XLEN-1:0] rf_a0;
 
   regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(XLEN)) 
   regfile_u(
@@ -71,14 +69,14 @@ module top import liang_pkg::*;
     .rs1_i      (rs1_rdata),
     .rs2_i      (rs2_rdata),
     .uop_info_i (uop_info),
-    .alu_res_o  (exu_out),
+    .alu_res_o  (alu_out),
     .jump_o     (jump)
   );
     
-  mem
-  mem_u(
+  lsu
+  lsu_u(
     .uop_info_i (uop_info),
-    .addr_i     (exu_out),
+    .addr_i     (alu_out),
     .wdata_i    (rs2_rdata),
     .rdata_o    (mem_rdata)
   );
@@ -87,7 +85,7 @@ module top import liang_pkg::*;
   wb_u(
     .uop_info_i (uop_info),
     .mem_rdata_i(mem_rdata),
-    .exu_out_i  (exu_out),
+    .alu_out_i  (alu_out),
     .rd_wdata_o (rd_wdata)
   );
 

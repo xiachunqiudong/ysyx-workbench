@@ -8,11 +8,10 @@ sim: clean
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo $(VSRC)
 	@echo $(CSRC)
-	@verilator $(VFLAGS) \
+	verilator $(VFLAGS) \
 	--top-module top \
 	--Mdir $(BUILD_DIR) \
 	-sv \
-	-I./vsrc/include \
 	$(VSRC) $(CSRC) \
 	-CFLAGS -I$(NPC_HOME)/csrc/include \
 	-LDFLAGS -"lLLVM-14" \

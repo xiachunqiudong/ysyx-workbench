@@ -81,3 +81,13 @@ package liang_pkg;
   } uop_info_t;
 
 endpackage
+
+package utils
+
+  typedef struct packed {
+    logic flag;
+    logic value;
+  } ptr_t;
+
+
+endpackage

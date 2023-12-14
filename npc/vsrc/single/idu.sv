@@ -1,5 +1,3 @@
-`include "defines.v"
-
 module idu import liang_pkg::*;
 (
     input  pc_t           pc_i,
@@ -191,22 +189,22 @@ module idu import liang_pkg::*;
       imm_type = IMM_J;
   end
   
-	logic [`XLEN-1:0] imm_I;
-  logic [`XLEN-1:0] imm_S;
-  logic [`XLEN-1:0] imm_B;
-  logic [`XLEN-1:0] imm_U;
-  logic [`XLEN-1:0] imm_J;
+	logic [XLEN-1:0] imm_I;
+  logic [XLEN-1:0] imm_S;
+  logic [XLEN-1:0] imm_B;
+  logic [XLEN-1:0] imm_U;
+  logic [XLEN-1:0] imm_J;
   
 	// 所有立即数都是符号扩展
-  assign imm_I = {{`XLEN-12{inst_i[31]}}, inst_i[31:20]};
-  assign imm_S = {{`XLEN-12{inst_i[31]}}, inst_i[31:25], inst_i[11:7]};
-  assign imm_B = {{`XLEN-13{inst_i[31]}}, inst_i[31],    inst_i[7],     inst_i[30:25], inst_i[11:8], 1'b0};
-	assign imm_U = {{`XLEN-32{inst_i[31]}}, inst_i[31:12], 12'b0 };
-  assign imm_J = {{`XLEN-21{inst_i[31]}}, inst_i[31],    inst_i[19:12], inst_i[20],    inst_i[30:21], 1'b0};
+  assign imm_I = {{XLEN-12{inst_i[31]}}, inst_i[31:20]};
+  assign imm_S = {{XLEN-12{inst_i[31]}}, inst_i[31:25], inst_i[11:7]};
+  assign imm_B = {{XLEN-13{inst_i[31]}}, inst_i[31],    inst_i[7],     inst_i[30:25], inst_i[11:8], 1'b0};
+	assign imm_U = {{XLEN-32{inst_i[31]}}, inst_i[31:12], 12'b0 };
+  assign imm_J = {{XLEN-21{inst_i[31]}}, inst_i[31],    inst_i[19:12], inst_i[20],    inst_i[30:21], 1'b0};
 
   // imm MUX
 	// NR_KEY: 键值对的数量 KEY_LEN: 键值的位宽
-  MuxKey #(.NR_KEY(6), .KEY_LEN(3), .DATA_LEN(`XLEN))
+  MuxKey #(.NR_KEY(6), .KEY_LEN(3), .DATA_LEN(XLEN))
   imm_mux(
     .out(imm),
     .key(imm_type),

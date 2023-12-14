@@ -1,6 +1,7 @@
-`include "defines.v"
 
-module regfile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
+module regfile import liang_pkg::*;
+#(ADDR_WIDTH = 1, DATA_WIDTH = 1)
+(
     input clk,
     // read
     input [ADDR_WIDTH-1:0] rs1_raddr,

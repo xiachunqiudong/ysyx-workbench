@@ -1,17 +1,15 @@
-`include "defines.v"
-
 module alu import liang_pkg::*;(
   // op number
-  input [`XLEN-1:0]  rs1_i,
-  input [`XLEN-1:0]  rs2_i,
+  input [XLEN-1:0]  rs1_i,
+  input [XLEN-1:0]  rs2_i,
   input uop_info_t   uop_info_i,
   output [XLEN-1:0]  alu_res_o,
   // get the branch result
   output jump_o
 );
 
-	logic [`XLEN-1:0] src1;
-	logic [`XLEN-1:0] src2;
+	logic [XLEN-1:0] src1;
+	logic [XLEN-1:0] src2;
 
   always_comb begin
     src1 = '0;
@@ -35,28 +33,28 @@ module alu import liang_pkg::*;(
   end
 
   logic adder_sub;
-  logic [`XLEN-1:0] adder_src1;
-  logic [`XLEN-1:0] adder_src2;      
-	logic [`XLEN-1:0] adder_res;
+  logic [XLEN-1:0] adder_src1;
+  logic [XLEN-1:0] adder_src2;      
+	logic [XLEN-1:0] adder_res;
   logic             adder_cout;
-	logic [`XLEN-1:0] sll_res;
-	logic [`XLEN-1:0] slt_res;
-	logic [`XLEN-1:0] sltu_res;
-	logic [`XLEN-1:0] xor_res;
-	logic [`XLEN-1:0] srl_res;
-	logic [`XLEN-1:0] sra_res;
-	logic [`XLEN-1:0] or_res;
-	logic [`XLEN-1:0] and_res;
+	logic [XLEN-1:0] sll_res;
+	logic [XLEN-1:0] slt_res;
+	logic [XLEN-1:0] sltu_res;
+	logic [XLEN-1:0] xor_res;
+	logic [XLEN-1:0] srl_res;
+	logic [XLEN-1:0] sra_res;
+	logic [XLEN-1:0] or_res;
+	logic [XLEN-1:0] and_res;
 
 //------------adder------------
   assign adder_sub = uop_info_i.fu_func inside {SUB, SLT, SLTI, SLTU, SLTUI} 
                   || uop_info_i.fu_op == BRANCH;
   assign adder_src1 = src1;
-  assign adder_src2 = {`XLEN{adder_sub}} ^ src2;
-	assign {adder_cout, adder_res} = adder_src1 + adder_src2 + { {`XLEN-1{1'b0}}, adder_sub };
+  assign adder_src2 = {XLEN{adder_sub}} ^ src2;
+	assign {adder_cout, adder_res} = adder_src1 + adder_src2 + { {XLEN-1{1'b0}}, adder_sub };
   assign sll_res = src1 << src2[4:0];
-  assign slt_res  = {{`XLEN-1{1'b0}}, lt};
-  assign sltu_res = {{`XLEN-1{1'b0}}, ltu};
+  assign slt_res  = {{XLEN-1{1'b0}}, lt};
+  assign sltu_res = {{XLEN-1{1'b0}}, ltu};
   assign xor_res = src1 ^ src2;
   assign srl_res = src1 >> src2[4:0];
   assign sra_res = $signed(src1) >>> src2[4:0];
@@ -101,7 +99,7 @@ module alu import liang_pkg::*;(
   
   assign ne  =  (|xor_res);
   assign eq  = ~ne;
-  assign lt  = (src1[`XLEN-1] & ~src2[`XLEN-1]) | (~(src1[`XLEN-1] ^ src2[`XLEN-1]) & adder_res[`XLEN-1]);
+  assign lt  = (src1[XLEN-1] & ~src2[XLEN-1]) | (~(src1[XLEN-1] ^ src2[XLEN-1]) & adder_res[XLEN-1]);
   assign ge  = ~lt | eq;
   assign ltu = ~adder_cout;
   assign geu = adder_cout | eq;
