@@ -80,6 +80,22 @@ package liang_pkg;
     store_type_e     store_type;
   } uop_info_t;
 
+  // pipe
+  typedef struct packed {
+    pc_t   pc;
+    inst_t inst;
+  } ifToId;
+
+    typedef struct packed {
+      pc_t   pc;
+      uop_info_t uop_info;
+    } idToEx;
+
+    typedef struct packed {
+      pc_t   pc;
+      inst_t inst;
+    } exToWb;
+
 endpackage
 
 package utils
