@@ -3,29 +3,23 @@
 BUILD_DIR = ./build
 
 VFLAGS = -cc -trace --exe --build -j 8
-VSRC = $(shell find $(./vsrc/single) -name "*.v" -or -name "*.sv")
-CSRC = $(shell find $(./csrc) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
 
-SINGLE_V += ./vsrc/define/liang.sv
-SINGLE_V += ./vsrc/single/top.sv
-SINGLE_V += ./vsrc/single/ifu.sv
-SINGLE_V += ./vsrc/single/idu.sv
-SINGLE_V += ./vsrc/single/regfile.sv
-SINGLE_V += ./vsrc/single/alu.sv
-SINGLE_V += ./vsrc/single/lsu.sv
-SINGLE_V += ./vsrc/single/wb.sv
+V_INCLUDE  = $(shell find ./vsrc/define/ -name "*.v" -or -name "*.sv")
+V_TEMPLATE = $(shell find ./vsrc/template/ -name "*.v" -or -name "*.sv")
+V_SINGLE   = $(shell find ./vsrc/single    -name "*.v" -or -name "*.sv")
+CSRC = $(shell find $(./csrc) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
 
 sim: clean
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo Verilog file:
-	@echo $(SINGLE_V)
+	@echo $(V_INCLUDE) $(V_TEMPLATE) $(V_SINGLE)
 	@echo Cpp file:
 	@echo $(CSRC)
 	verilator $(VFLAGS) \
 	--top-module top \
 	--Mdir $(BUILD_DIR) \
 	-sv \
-	$(SINGLE_V) $(CSRC) \
+	$(V_INCLUDE) $(V_TEMPLATE) $(V_SINGLE) $(CSRC) \
 	-CFLAGS -I$(NPC_HOME)/csrc/include \
 	-LDFLAGS -"lLLVM-14" \
 	-LDFLAGS -"lreadline"

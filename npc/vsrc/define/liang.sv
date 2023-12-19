@@ -4,6 +4,7 @@ package liang_pkg;
   
   typedef logic [31:0] pc_t;
   typedef logic [31:0] inst_t;
+  typedef logic [31:0] ele_t;
   
   typedef enum logic[2:0] {
     IMM_NONE,

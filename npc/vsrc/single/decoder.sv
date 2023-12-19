@@ -1,4 +1,4 @@
-module idu import liang_pkg::*;
+module decoder import liang_pkg::*;
 (
     input  pc_t           pc_i,
     input  inst_t         inst_i,

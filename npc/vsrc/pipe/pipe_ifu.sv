@@ -13,7 +13,9 @@ module pipe_ifu import liang_pkg::*;
   assign ifToId_o.inst = inst;
   assign ifToId_o.pc   = pc_q;
 
-  pc_t pc_q, pc_d;
+  assign if_valid_o = 1'b1;
+
+  pc_t   pc_d, pc_q;
   inst_t inst;
 	
   assign pc_d = flush_i ? flush_pc_i 
@@ -21,7 +23,7 @@ module pipe_ifu import liang_pkg::*;
   always_ff @(posedge clk_i or posedge rst_i) begin
     if(rst_i)
       pc_q <= 32'h80000000;
-    else
+    else if(id_ready_i)
       pc_q <= pc_d;
   end
 

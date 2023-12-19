@@ -41,8 +41,8 @@ module top import liang_pkg::*;
     .inst_o(inst)
   );
 
-  idu 
-  idu_u(
+  decoder 
+  u_decoder(
     .pc_i       (pc_r),
     .inst_i     (inst),
     .uop_info_o (uop_info)
