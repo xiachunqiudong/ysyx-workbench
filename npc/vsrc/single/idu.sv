@@ -2,8 +2,7 @@ module idu import liang_pkg::*;
 (
     input  pc_t           pc_i,
     input  inst_t         inst_i,
-    output uop_info_t     uop_info_o,
-    output                ebreak_o // exception
+    output uop_info_t     uop_info_o
 );
 
   fu_e         fu;
@@ -11,6 +10,9 @@ module idu import liang_pkg::*;
   fu_func_e    fu_func;
   load_type_e  load_type;
   store_type_e store_type;
+  logic        ebreak;
+  logic        ecall;
+  logic        rd_wen;
   
   assign uop_info_o = '{
                         pc:      pc_i,
@@ -23,7 +25,9 @@ module idu import liang_pkg::*;
                         fu_op:   fu_op, 
                         fu_func: fu_func,
                         load_type:  load_type,
-                        store_type: store_type
+                        store_type: store_type,
+                        ebreak:     ebreak,
+                        ecall:      ecall
                        };
 
   always_comb begin
@@ -37,7 +41,7 @@ module idu import liang_pkg::*;
   logic [4:0] rs1;
   logic [4:0] rs2;
   logic [4:0] rd;
-  logic       rd_wen;
+
   logic [6:0] fun7;
   logic [2:0] fun3;
   logic [6:0] opcode;
@@ -50,8 +54,7 @@ module idu import liang_pkg::*;
   assign opcode = inst_i[6:0];
 
 	assign rd_wen = !(fu_op inside {BRANCH, STORE}) && (rd != 5'b0);
-
-  assign ebreak_o = inst_i[31:20] == 12'b1 && inst_i[19:7] == 13'b0 && opcode == 7'b11100_11;
+  assign ebreak = inst_i[31:20] == 12'b1 && inst_i[19:7] == 13'b0 && opcode == 7'b11100_11;
 
   always_comb begin
     fu_op   = OP_NONE;

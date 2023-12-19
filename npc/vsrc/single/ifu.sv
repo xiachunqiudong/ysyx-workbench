@@ -1,7 +1,7 @@
 
 import "DPI-C" function void inst_read(input int addr, output int rdata);
 
-module ifu import liang_pkg::*;
+module inst_fetcher import liang_pkg::*;
 (
 	input  pc_t   pc_i,
 	output inst_t inst_o

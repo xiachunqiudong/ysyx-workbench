@@ -11,7 +11,7 @@ module top import liang_pkg::*;
   reg [31:0] inst_last;
 
   always @(posedge clk_i) begin
-    pc_last <= pc_r;
+    pc_last   <= pc_r;
     inst_last <= inst;
   end
 
@@ -35,7 +35,7 @@ module top import liang_pkg::*;
   wire [XLEN-1:0] mem_rdata;
   wire [XLEN-1:0] rd_wdata;
 
-  ifu
+  inst_fetcher
   ifu_u(
     .pc_i  (pc),
     .inst_o(inst)
@@ -45,8 +45,7 @@ module top import liang_pkg::*;
   idu_u(
     .pc_i       (pc_r),
     .inst_i     (inst),
-    .uop_info_o (uop_info),
-    .ebreak_o   (ebreak)
+    .uop_info_o (uop_info)
   );
 
   wire [XLEN-1:0] rf_a0;
@@ -92,7 +91,7 @@ module top import liang_pkg::*;
   // ebreak: stop the simulation
   import "DPI-C" function void env_ebreak(input int pc, input int a0);
   always @(*) begin
-    if(ebreak) begin
+    if(uop_info.ebreak) begin
     	env_ebreak(pc_r, rf_a0);
 		end
   end
