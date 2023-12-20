@@ -4,14 +4,14 @@ module regfile import liang_pkg::*;
 (
     input clk,
     // read
-    input [ADDR_WIDTH-1:0] rs1_raddr,
-    input [ADDR_WIDTH-1:0] rs2_raddr,
+    input [ADDR_WIDTH-1:0]  rs1_raddr,
+    input [ADDR_WIDTH-1:0]  rs2_raddr,
     output [DATA_WIDTH-1:0] rs1_rdata,
     output [DATA_WIDTH-1:0] rs2_rdata,
     // write
     input [DATA_WIDTH-1:0] wdata,
     input [ADDR_WIDTH-1:0] waddr,
-    input wen,
+    input                  wen,
     output [DATA_WIDTH-1:0] a0
 );
     

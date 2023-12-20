@@ -2,6 +2,7 @@ module pipe_idu import liang_pkg::*;
 (
     input  loigc      clk_i,
     input  logic      rst_i,
+		input  logic      flush_i,
 		// if-id
     input  ifToId_t   ifToId_i,
 		input  logic      if_valid_i,
@@ -34,7 +35,7 @@ module pipe_idu import liang_pkg::*;
 		if (rst_i || flush_i) begin
 			id_valid_q <= 1'b0;
 			ifToId_q   <= '0;
-		end 
+		end
 		else begin
 			id_valid_q <= id_valid_d;
 			ifToId_q   <= ifToId_d;

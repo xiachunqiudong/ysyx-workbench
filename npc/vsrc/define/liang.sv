@@ -90,8 +90,10 @@ package liang_pkg;
   } ifToId_t;
 
   typedef struct packed {
-    pc_t   pc;
+    pc_t       pc;
     uop_info_t uop_info;
+    ele_t      rs1_raddr;
+    ele_t      rs2_raddr;
   } idToEx_t;
 
   typedef struct packed {
