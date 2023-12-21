@@ -58,8 +58,8 @@ module pipe_top import liang_pkg::*;
   );
   
   assign idToEx.uop_info  = uop_info;
-  assign idToEx.rs1_raddr = rs1_rdata;
-  assign idToEx.rs2_raddr = rs2_rdata;
+  assign idToEx.rs1_rdata = rs1_rdata;
+  assign idToEx.rs2_rdata = rs2_rdata;
 
 
 
