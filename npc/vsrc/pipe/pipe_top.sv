@@ -19,6 +19,12 @@ module pipe_top import liang_pkg::*;
   ele_t rs1_rdata;
   ele_t rs2_rdata;
 
+  exToWb_t exToWb;
+  logic ex_valid;
+  logic wb_ready;
+  wb_req_t wb_req;
+
+
   pipe_ifu
   u_pipe_ifu(
     .clk_i      (clk_i),
@@ -51,9 +57,9 @@ module pipe_top import liang_pkg::*;
     .rs1_rdata (rs1_rdata),
     .rs2_rdata (rs2_rdata),
     // write
-    .waddr     (),
-    .wdata     (),
-    .wen       (),
+    .waddr     (wb_req.rd),
+    .wdata     (wb_req.rd_wdata),
+    .wen       (wb_req.rd_wen),
     .a0        ()
   );
   
@@ -61,10 +67,27 @@ module pipe_top import liang_pkg::*;
   assign idToEx.rs1_rdata = rs1_rdata;
   assign idToEx.rs2_rdata = rs2_rdata;
 
+  pipe_exu
+  u_pipe_exu(
+    .clk_i      (clk_i),
+    .rst_i      (rst_i),
+    .flush_i    (flush_i),
+    .idToEx_i   (idToEx),
+    .ex_ready_o (ex_ready),
+    .exToWb_o   (exToWb),
+    .ex_valid_o (ex_valid),
+    .wb_ready_i (wb_ready)
+  );
 
-
-
-
+  pipe_wb
+  u_pipe_wb(
+    .clk_i      (clk_i),
+    .rst_i      (rst_i),
+    .exToWb_i   (exToWb),
+    .ex_valid_i (ex_valid),
+    .wb_ready_o (wb_ready),
+    .wb_req_o   (wb_req)
+  );
 
 
 endmodule

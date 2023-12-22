@@ -4,6 +4,7 @@ package liang_pkg;
   
   typedef logic [31:0] pc_t;
   typedef logic [31:0] inst_t;
+  typedef logic [31:0] paddr_t;
   typedef logic [31:0] ele_t;
   
   typedef enum logic[2:0] {
@@ -90,16 +91,22 @@ package liang_pkg;
   } ifToId_t;
 
   typedef struct packed {
-    pc_t       pc;
     uop_info_t uop_info;
-    ele_t      rs1_raddr;
-    ele_t      rs2_raddr;
+    ele_t      rs1_rdata;
+    ele_t      rs2_rdata;
   } idToEx_t;
 
   typedef struct packed {
-    pc_t   pc;
-    inst_t inst;
+    uop_info_t uop_info;
+    ele_t      alu_res;
+    ele_t      lsu_res;
   } exToWb_t;
+
+  typedef struct packed {
+    logic       rd_wen;
+    logic [4:0] rd;
+    ele_t       rd_wdata;
+  } wb_req_t;
 
 endpackage
 
