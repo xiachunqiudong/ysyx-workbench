@@ -3,7 +3,7 @@ module pipe_ifu import liang_pkg::*;
   input logic      clk_i,
   input logic      rst_i,
   input logic      flush_i,
-  input logic      flush_pc_i,
+  input pc_t       flush_pc_i,
   // to ID
   output ifToId_t  ifToId_o,
   output logic     if_valid_o,
@@ -32,7 +32,5 @@ module pipe_ifu import liang_pkg::*;
     .pc_i   (pc_q),
     .inst_o (inst)
   );
-
-  assign if_valid = 1'b1;
 
 endmodule

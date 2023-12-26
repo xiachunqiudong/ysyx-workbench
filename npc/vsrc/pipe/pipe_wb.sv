@@ -1,6 +1,6 @@
 module pipe_wb import liang_pkg::*;
 (
-  input loigc clk_i,
+  input logic clk_i,
   input logic rst_i,
   // ex <> wb
   input exToWb_t exToWb_i,

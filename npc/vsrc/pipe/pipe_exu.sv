@@ -1,4 +1,4 @@
-module pipe_exu import liang::*;
+module pipe_exu import liang_pkg::*;
 (
   input logic      clk_i,
   input logic      rst_i,
@@ -36,7 +36,8 @@ module pipe_exu import liang::*;
   always_ff @(posedge clk_i or posedge rst_i) begin
     if(rst_i || flush_i) begin
       ex_valid_q  <= 1'b0;
-    end else if begin
+    end 
+    else begin
       ex_valid_q  <= ex_valid_d;
       idToEx_q    <= idToEx_d;
     end
@@ -60,13 +61,12 @@ module pipe_exu import liang::*;
 
   lsu
   lsu_u(
-    .uop_info_i (idToEx_q.uop_info_q),
+    .uop_info_i (idToEx_q.uop_info),
     .addr_i     (lsu_addr),
-    .wdata_i    (idToEx_q.rs2_rdata_q),
+    .wdata_i    (idToEx_q.rs2_rdata),
     .rdata_o    (exToWb_o.lsu_res)
   );
 
-  assign exToWb_o.uop_info = uop_info_q;
+  assign exToWb_o.uop_info = idToEx.uop_info;
 
-  
 endmodule

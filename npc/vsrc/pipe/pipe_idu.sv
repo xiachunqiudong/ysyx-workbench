@@ -1,6 +1,6 @@
 module pipe_idu import liang_pkg::*;
 (
-    input  loigc      clk_i,
+    input  logic      clk_i,
     input  logic      rst_i,
 		input  logic      flush_i,
 		// if-id
@@ -8,9 +8,9 @@ module pipe_idu import liang_pkg::*;
 		input  logic      if_valid_i,
 		output logic      id_ready_o,
 		// id-ex
-		output loigc id_valid_o,
-		input  logic ex_ready_i,
-		output uop_info_t uop_info_o,
+		output logic      id_valid_o,
+		input  logic      ex_ready_i,
+		output uop_info_t uop_info_o
 );
 
 	ifToId_t ifToId_d,   ifToId_q;
@@ -46,8 +46,7 @@ module pipe_idu import liang_pkg::*;
   u_decoder(
     .pc_i       (ifToId_q.pc),
     .inst_i     (ifToId_q.inst),
-    .uop_info_o (uop_info_o),
-    .ebreak_o   (ebreak)
+    .uop_info_o (uop_info_o)
   );
 
 

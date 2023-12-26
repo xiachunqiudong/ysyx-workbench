@@ -1,4 +1,4 @@
-module pipe_top import liang_pkg::*;
+module top import liang_pkg::*;
 (
   input clk_i,
   input rst_i
@@ -8,8 +8,8 @@ module pipe_top import liang_pkg::*;
   pc_t  flush_pc;
 
   ifToId_t ifToId;
-  loigc    if_valid;
-  loigc    id_ready;
+  logic    if_valid;
+  logic    id_ready;
 
   logic      id_valid;
   logic      ex_ready;
@@ -40,6 +40,7 @@ module pipe_top import liang_pkg::*;
   u_pipe_idu(
     .clk_i      (clk_i),
     .rst_i      (rst_i),
+    .flush_i    (flush),
     .ifToId_i   (ifToId),
     .if_valid_i (if_valid),
     .id_ready_o (id_ready),
@@ -71,8 +72,9 @@ module pipe_top import liang_pkg::*;
   u_pipe_exu(
     .clk_i      (clk_i),
     .rst_i      (rst_i),
-    .flush_i    (flush_i),
+    .flush_i    (flush),
     .idToEx_i   (idToEx),
+    .id_valid_i (id_valid),
     .ex_ready_o (ex_ready),
     .exToWb_o   (exToWb),
     .ex_valid_o (ex_valid),
