@@ -48,8 +48,6 @@ module top import liang_pkg::*;
     .uop_info_o (uop_info)
   );
 
-  wire [XLEN-1:0] rf_a0;
-
   regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(XLEN)) 
   regfile_u(
     .clk       (clk_i),
@@ -59,8 +57,7 @@ module top import liang_pkg::*;
     .rs2_rdata (rs2_rdata),
     .waddr     (uop_info.rd),
     .wdata     (rd_wdata),
-    .wen       (uop_info.rd_wen),
-    .a0        (rf_a0)
+    .wen       (uop_info.rd_wen)
   );
 
   alu
@@ -89,10 +86,10 @@ module top import liang_pkg::*;
   );
 
   // ebreak: stop the simulation
-  import "DPI-C" function void env_ebreak(input int pc, input int a0);
+  import "DPI-C" function void env_ebreak(input int pc);
   always @(*) begin
     if(uop_info.ebreak) begin
-    	env_ebreak(pc_r, rf_a0);
+    	env_ebreak(pc_r);
 		end
   end
 

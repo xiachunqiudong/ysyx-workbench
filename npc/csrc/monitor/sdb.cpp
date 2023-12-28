@@ -19,11 +19,14 @@ extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint3
 
 // EBREAK
 int ret_value = 0;
-extern "C" void env_ebreak(uint32_t pc, uint32_t a0) {
+extern "C" void env_ebreak(uint32_t pc) {
+  // get a0 value
+  ret_value = gpr_val(10);
+  
   char buf[128];
-  sprintf(buf, "The npc sim env has call the ebreak, end the simulation.\n" "ebreak at pc: %08x, code = %u\n", pc, a0);
+  sprintf(buf, "The npc sim env has call the ebreak, end the simulation.\n" "ebreak at pc: %08x, code = %u\n", pc, ret_value);
   npc_info(buf);
-  ret_value = a0;
+
   npc_set_state(NPC_STOP);
 }
 

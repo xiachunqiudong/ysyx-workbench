@@ -11,8 +11,7 @@ module regfile import liang_pkg::*;
     // write
     input [DATA_WIDTH-1:0] wdata,
     input [ADDR_WIDTH-1:0] waddr,
-    input                  wen,
-    output [DATA_WIDTH-1:0] a0
+    input                  wen
 );
     
     reg [DATA_WIDTH-1:0] rf [1:31];
@@ -29,8 +28,5 @@ module regfile import liang_pkg::*;
     initial begin 
         set_gpr_ptr(rf);
     end
-
-    assign a0 = rf[10];
-
 
 endmodule

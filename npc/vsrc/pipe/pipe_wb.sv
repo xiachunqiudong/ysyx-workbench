@@ -13,6 +13,7 @@ module pipe_wb import liang_pkg::*;
   logic wb_valid_d, wb_valid_q;
   exToWb_t exToWb_d, exToWb_q;
 
+  // commit every cycle
   assign wb_ready_o = 1'b1;
 
   always_comb begin
@@ -36,7 +37,18 @@ module pipe_wb import liang_pkg::*;
   assign wb_req_o.rd_wen = exToWb_q.uop_info.rd_wen;
   assign wb_req_o.rd     = exToWb_q.uop_info.rd;
 
-  assign wb_req_o.rd_wdata = exToWb_q.uop_info.fu_op == LOAD ? exToWb_q.lsu_res : exToWb_q.alu_res;
+  assign wb_req_o.rd_wdata = exToWb_q.uop_info.fu_op == LOAD ? exToWb_q.lsu_res 
+                                                             : exToWb_q.alu_res;
 
+
+
+  // ebreak: stop the simulation
+  // return pc and a0
+  import "DPI-C" function void env_ebreak(input int pc);
+  always_ff @(posedge clk_i) begin
+    if(exToWb_q.uop_info.ebreak) begin
+    	env_ebreak(exToWb_q.uop_info.pc);
+		end
+  end
 
 endmodule
