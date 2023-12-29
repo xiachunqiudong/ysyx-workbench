@@ -10,11 +10,13 @@ module pipe_wb import liang_pkg::*;
   output wb_req_t wb_req_o
 );
   
+  pc_t wb_pc;
   logic wb_valid_d, wb_valid_q;
   exToWb_t exToWb_d, exToWb_q;
 
   // commit every cycle
   assign wb_ready_o = 1'b1;
+  assign wb_pc = exToWb_q.uop_info.pc;
 
   always_comb begin
     wb_valid_d = wb_valid_q;
@@ -34,24 +36,32 @@ module pipe_wb import liang_pkg::*;
     end
   end
 
-  assign wb_req_o.rd_wen = wb_valid_q && exToWb_q.uop_info.rd_wen;
-  assign wb_req_o.rd     = exToWb_q.uop_info.rd;
+  logic       rd_wen;
+  logic [4:0] rd;
+  ele_t       rd_wdata;
 
-  assign wb_req_o.rd_wdata = exToWb_q.uop_info.fu_op == LOAD ? exToWb_q.lsu_res 
-                                                             : exToWb_q.alu_res;
+  assign rd_wen = wb_valid_q && exToWb_q.uop_info.rd_wen;
+  assign rd     = exToWb_q.uop_info.rd;
+  assign rd_wdata = exToWb_q.uop_info.fu_op == LOAD ? exToWb_q.lsu_res 
+                                                    : exToWb_q.alu_res;
+  assign wb_req_o = '{
+    rd_wen:   rd_wen,
+    rd:       rd,
+    rd_wdata: rd_wdata
+  };
 
   // ebreak: stop the simulation
   // return pc
   import "DPI-C" function void env_ebreak(input int pc);
 
   // is this cycle has inst commit ?
-  import "DPI-C" function void commit(input logic valid, input int pc);
+  import "DPI-C" function void commit(input logic valid, input int pc, input int inst);
   
   always_ff @(posedge clk_i) begin
     if(exToWb_q.uop_info.ebreak) begin
     	env_ebreak(exToWb_q.uop_info.pc);
 		end
-    commit(wb_valid_q, exToWb_q.uop_info.pc);
+    commit(wb_valid_q, exToWb_q.uop_info.pc, exToWb_q.uop_info.inst);
   end
 
 endmodule

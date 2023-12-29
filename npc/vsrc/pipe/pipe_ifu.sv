@@ -17,20 +17,27 @@ module pipe_ifu import liang_pkg::*;
 
   pc_t   pc_d, pc_q;
   inst_t inst;
+  logic  if_valid_r;
 	
   assign pc_d = flush_i ? flush_pc_i 
                         : (pc_q + 4);
+  
   always_ff @(posedge clk_i or posedge rst_i) begin
-    if(rst_i)
-      pc_q <= 32'h80000000;
-    else if(id_ready_i)
+    if(rst_i) begin
+      pc_q       <= 32'h80000000;
+      if_valid_r <= 1'b1;
+    end
+    else if(id_ready_i) begin
       pc_q <= pc_d;
+    end
   end
 
   inst_fetcher
   u_inst_fetcher(
-    .pc_i   (pc_q),
-    .inst_o (inst)
+    .clk_i      (clk_i),
+    .pc_i       (pc_q),
+    .if_valid_i (if_valid_r),
+    .inst_o     (inst)
   );
 
 endmodule

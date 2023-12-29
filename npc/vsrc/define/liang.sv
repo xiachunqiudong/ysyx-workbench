@@ -70,6 +70,7 @@ package liang_pkg;
 
   typedef struct packed {
     pc_t             pc;
+    inst_t           inst;
     logic [4:0]      rs1;
     logic [4:0]      rs2;
     logic [4:0]      rd;

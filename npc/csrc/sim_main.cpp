@@ -79,7 +79,7 @@ void exec_once() {
 
 }
 
-void stop_sim() {
+void sim_stop() {
   printf("something bad happen, stop sim!\n");
   free();
   exit(0);

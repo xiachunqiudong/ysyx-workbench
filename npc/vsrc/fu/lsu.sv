@@ -3,6 +3,7 @@ import "DPI-C" function void pmem_write(input int waddr, input int wdate, input 
 
 module lsu import liang_pkg::*;
 (
+  input  logic     clk_i,
 	// control signal
   input uop_info_t uop_info_i,
 	// data signal
@@ -16,8 +17,10 @@ module lsu import liang_pkg::*;
 	
 	// LOAD
 	wire [XLEN-1:0] ram_rdata;
-	always @(*) begin
-		pmem_read(ram_addr, ram_rdata);
+	always_ff @(posedge clk_i) begin
+    if (uop_info_i.fu_op == LOAD) begin
+		  pmem_read(ram_addr, ram_rdata);
+    end
 	end
 	
 	// LOAD BYTE

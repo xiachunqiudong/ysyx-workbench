@@ -13,6 +13,9 @@ module pipe_idu import liang_pkg::*;
 		output uop_info_t uop_info_o
 );
 
+	pc_t id_pc;
+	assign id_pc = ifToId_q.pc;
+
 	ifToId_t ifToId_d,   ifToId_q;
 	logic    id_valid_d, id_valid_q;
 	logic fire;

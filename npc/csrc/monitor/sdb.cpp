@@ -12,6 +12,7 @@ static uint32_t this_pc_d1, this_inst_d1, this_pc, this_inst;
 
 static bool     commit_valid;
 static uint32_t commit_pc;
+static uint32_t commit_inst;
 
 extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint32_t inst) {
   this_pc_d1 = pc_d1;
@@ -20,9 +21,10 @@ extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint3
   this_inst = inst;
 }
 
-extern "C" void commit(bool valid, uint32_t pc) {
+extern "C" void commit(bool valid, uint32_t pc, uint32_t inst) {
   commit_valid = valid;
   commit_pc    = pc;
+  commit_inst  = inst;
 }
 
 // EBREAK
@@ -83,24 +85,25 @@ void exec(uint32_t n) {
     } else {
       // for pipe or ooo, only commit when wb is valid
       do {
-        if (commit_valid)
-          printf("commit pc: %08x", commit_pc);
-        else
-          printf("not valid\n");
-        exec_once();
+        if (commit_valid) { // npc will commit a valid inst in next cycly
+          disassemble(disasm, size, commit_pc, (uint8_t *)&commit_inst, 4);
+          sprintf(buf, "[commit] %08x: %s", commit_pc, disasm);
+          log(buf);
+        }
+        exec_once(); // commit
       } while (commit_valid == false);
 
-      #ifdef DIFF
-      if(!difftest_step(this_pc)) {// diff fail
-        npc_set_state(NPC_ERROR_DIFF);
-        ret_value = 1;
+      if (is_batch_mode == false) {
+        printf("%s\n", buf);
       }
+
+      #ifdef DIFF
+        if(!difftest_step(commit_pc)) {// diff fail
+          npc_set_state(NPC_ERROR_DIFF);
+          ret_value = 1;
+        }
       #endif
       
-      // if (is_batch_mode == false) {
-      //   disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
-      //   printf("%08x: %s\n", this_pc_d1, disasm);
-      // }
     }
   }
 
@@ -144,7 +147,7 @@ static int cmd_x(char *args) {
     int n = atoi(arg1);
     paddr_t addr;
     sscanf(arg2, "0x%x", &addr);
-    if(addr_check(addr)) {
+    if(LEGAL_MEM_ADDR(addr)) {
       uint8_t *host_addr = guest_to_host(addr);
       printf("0x%x: ", addr);
       for(int i = n - 1; i >= 0; i--) {

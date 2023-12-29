@@ -16,6 +16,7 @@ module decoder import liang_pkg::*;
   
   assign uop_info_o = '{
                         pc:      pc_i,
+                        inst:    inst_i,
                         rs1:     rs1,
                         rs2:     rs2,
                         rd:      rd, 

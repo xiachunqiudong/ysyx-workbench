@@ -5,48 +5,47 @@
 #include "pmem.h"
 #include "utils.h"
 
-void stop_sim();
+void sim_stop();
 
 uint8_t pmem[MEM_SIZE] = {0};
 
-bool addr_check(int addr) {
-  int result = 0;
-  if(addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
-    result = 1;
-  } else {
-    // printf("MEM -> bad mem access addr, addr = %08x\n", addr);
-    result = 0;
+static void addr_check(int addr) {
+  if(!LEGAL_MEM_ADDR(addr)) {
+    printf("Bad memory address: %08x, stop simulation!\n", addr);
+    sim_stop();
   }
-  return result;
 }
 
 // DPI-C
 #define BUF_SIZE 512
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
   char buf[BUF_SIZE];
-  char *p = buf;
-  printf("inst_read: %08x\n", addr);
-  if (addr_check(addr)) {
-    *inst = *(word_t *)guest_to_host(addr);
-    p += sprintf(p, "%08x: ", addr);
-    int size = BUF_SIZE - (p - buf);
-  }
+  addr_check(addr);
+  *inst = *(word_t *)guest_to_host(addr);
+  sprintf(buf, "[Instrucion fetch] addr: %08x, inst: %08x", addr, *inst);
+  log(buf);
 }
 
 extern "C" void pmem_read(int raddr, int *rdate) {
-  if (addr_check(raddr))
-    *rdate = *(int *)guest_to_host(raddr & ~0x3u);
-  else
-    *rdate = 0;
+  if (!LEGAL_MEM_ADDR(raddr)) {
+    printf("[PMEM READ] bad memory read address: %08x\n", raddr);
+    sim_stop();
+  }
+  char buf[BUF_SIZE];
+  sprintf(buf, "[MEM READ] raddr: %08x", raddr);
+  log(buf);
+  *rdate = *(int *)guest_to_host(raddr & ~0x3u);
 }
 
 extern "C" void pmem_write(int waddr, int wdata, char mask) {
-  if (!addr_check(waddr)) {
-    printf("waddr: %08x\n", waddr);
-    stop_sim();
+  if (!LEGAL_MEM_ADDR(waddr)) {
+    printf("[PMEM WRITE] bad memory write address: %08x\n", waddr);
+    sim_stop();
   }
+  
   char buf[BUF_SIZE];
   char real_mask[9] = {0};
+  
   int i;
   for (i = 0; i < 8; i++) {
     real_mask[7 - i] = (mask >> i & 1) + '0';
@@ -59,7 +58,7 @@ extern "C" void pmem_write(int waddr, int wdata, char mask) {
     *(wp + i) = ((mask >> i) & 1) ? *(((uint8_t *)(&wdata)) + i) : *(base_addr + i);
   }
 
-  sprintf(buf, "(MEM) waddr: %08x, wdata: %08x, mask: %s, real_wdata: %08x\n", 
+  sprintf(buf, "[MEM WRITE] waddr: %08x, wdata: %08x, mask: %s, real_wdata: %08x\n", 
           waddr, wdata, real_mask, real_wdata);
   log(buf);
   

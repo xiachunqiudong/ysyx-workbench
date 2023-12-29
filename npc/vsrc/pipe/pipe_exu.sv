@@ -13,6 +13,12 @@ module pipe_exu import liang_pkg::*;
   input  logic      wb_ready_i
 );
 
+  pc_t ex_pc;
+  ele_t alu_res;
+  ele_t lsu_res;
+  assign ex_pc = idToEx_q.uop_info.pc;
+  assign exToWb_o.alu_res = alu_res;
+
   logic ex_fire;
   logic ex_valid_d, ex_valid_q;
   
@@ -50,7 +56,7 @@ module pipe_exu import liang_pkg::*;
     .rs1_i      (idToEx_q.rs1_rdata),
     .rs2_i      (idToEx_q.rs2_rdata),
     .uop_info_i (idToEx_q.uop_info),
-    .alu_res_o  (exToWb_o.alu_res),
+    .alu_res_o  (alu_res),
     .jump_o     (jump)
   );
 
@@ -61,12 +67,18 @@ module pipe_exu import liang_pkg::*;
 
   lsu
   lsu_u(
+    .clk_i      (clk_i),
     .uop_info_i (idToEx_q.uop_info),
     .addr_i     (lsu_addr),
     .wdata_i    (idToEx_q.rs2_rdata),
     .rdata_o    (exToWb_o.lsu_res)
   );
 
-  assign exToWb_o.uop_info = idToEx.uop_info;
+  assign exToWb_o.uop_info = idToEx_q.uop_info;
+
+
+  initial begin
+    
+  end
 
 endmodule
