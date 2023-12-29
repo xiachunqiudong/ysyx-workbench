@@ -60,8 +60,7 @@ module top import liang_pkg::*;
     // write
     .waddr     (wb_req.rd),
     .wdata     (wb_req.rd_wdata),
-    .wen       (wb_req.rd_wen),
-    .a0        ()
+    .wen       (wb_req.rd_wen)
   );
   
   assign idToEx.uop_info  = uop_info;

@@ -10,11 +10,19 @@
 // DPI-C
 static uint32_t this_pc_d1, this_inst_d1, this_pc, this_inst;
 
+static bool     commit_valid;
+static uint32_t commit_pc;
+
 extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint32_t inst) {
   this_pc_d1 = pc_d1;
   this_inst_d1 = inst_d1;
   this_pc = pc;
   this_inst = inst;
+}
+
+extern "C" void commit(bool valid, uint32_t pc) {
+  commit_valid = valid;
+  commit_pc    = pc;
 }
 
 // EBREAK
@@ -60,6 +68,7 @@ void set_batch_mode() {
 void exec(uint32_t n) {
   int size = 64;
   char disasm[size], buf[128];
+
   for (uint32_t i = 0; i < n; i++) {
     if (npc_get_state() == NPC_STOP) {
       disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
@@ -72,19 +81,29 @@ void exec(uint32_t n) {
       npc_error(buf);
       break;
     } else {
-      exec_once();
+      // for pipe or ooo, only commit when wb is valid
+      do {
+        if (commit_valid)
+          printf("commit pc: %08x", commit_pc);
+        else
+          printf("not valid\n");
+        exec_once();
+      } while (commit_valid == false);
+
       #ifdef DIFF
       if(!difftest_step(this_pc)) {// diff fail
         npc_set_state(NPC_ERROR_DIFF);
         ret_value = 1;
       }
       #endif
-      if (is_batch_mode == false) {
-        disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
-        printf("%08x: %s\n", this_pc_d1, disasm);
-      }
+      
+      // if (is_batch_mode == false) {
+      //   disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
+      //   printf("%08x: %s\n", this_pc_d1, disasm);
+      // }
     }
   }
+
 }
 
 static int cmd_c(char *arg) {

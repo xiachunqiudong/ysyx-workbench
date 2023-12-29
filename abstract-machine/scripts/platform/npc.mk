@@ -16,7 +16,7 @@ CFLAGS += -DMAINARGS=\"$(mainargs)\"
 
 NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
 NPCFLAGS += -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
-NPCFLAGS += -b
+# NPCFLAGS += -b
 
 .PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
 

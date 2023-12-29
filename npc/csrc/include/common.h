@@ -23,7 +23,7 @@ typedef struct {
 void show_cpu_state(cpu_state cpu);
 const char *get_gpr_name(int i);
 
-#define DIFF
+// #define DIFF
 #define LOG
 
 #endif

@@ -34,21 +34,24 @@ module pipe_wb import liang_pkg::*;
     end
   end
 
-  assign wb_req_o.rd_wen = exToWb_q.uop_info.rd_wen;
+  assign wb_req_o.rd_wen = wb_valid_q && exToWb_q.uop_info.rd_wen;
   assign wb_req_o.rd     = exToWb_q.uop_info.rd;
 
   assign wb_req_o.rd_wdata = exToWb_q.uop_info.fu_op == LOAD ? exToWb_q.lsu_res 
                                                              : exToWb_q.alu_res;
 
-
-
   // ebreak: stop the simulation
-  // return pc and a0
+  // return pc
   import "DPI-C" function void env_ebreak(input int pc);
+
+  // is this cycle has inst commit ?
+  import "DPI-C" function void commit(input logic valid, input int pc);
+  
   always_ff @(posedge clk_i) begin
     if(exToWb_q.uop_info.ebreak) begin
     	env_ebreak(exToWb_q.uop_info.pc);
 		end
+    commit(wb_valid_q, exToWb_q.uop_info.pc);
   end
 
 endmodule

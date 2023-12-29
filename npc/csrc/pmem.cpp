@@ -5,6 +5,8 @@
 #include "pmem.h"
 #include "utils.h"
 
+void stop_sim();
+
 uint8_t pmem[MEM_SIZE] = {0};
 
 bool addr_check(int addr) {
@@ -23,12 +25,11 @@ bool addr_check(int addr) {
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
   char buf[BUF_SIZE];
   char *p = buf;
-  if(addr >= MEM_BASE) {
+  printf("inst_read: %08x\n", addr);
+  if (addr_check(addr)) {
     *inst = *(word_t *)guest_to_host(addr);
     p += sprintf(p, "%08x: ", addr);
     int size = BUF_SIZE - (p - buf);
-    disassemble(p, size, addr, (uint8_t *)inst, 4);
-    log(buf);
   }
 }
 
@@ -40,6 +41,10 @@ extern "C" void pmem_read(int raddr, int *rdate) {
 }
 
 extern "C" void pmem_write(int waddr, int wdata, char mask) {
+  if (!addr_check(waddr)) {
+    printf("waddr: %08x\n", waddr);
+    stop_sim();
+  }
   char buf[BUF_SIZE];
   char real_mask[9] = {0};
   int i;

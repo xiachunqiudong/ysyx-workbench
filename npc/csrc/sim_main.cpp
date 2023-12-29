@@ -72,7 +72,19 @@ void exec_once() {
   top->eval();
   tfp->dump(main_time++);
 
+  if (main_time > 10000) {
+    free();
+    exit(0);
+  }
+
 }
+
+void stop_sim() {
+  printf("something bad happen, stop sim!\n");
+  free();
+  exit(0);
+}
+
 
 int main(int argc, char *argv[]) {
 

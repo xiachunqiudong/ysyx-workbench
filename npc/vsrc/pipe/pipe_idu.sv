@@ -20,12 +20,12 @@ module pipe_idu import liang_pkg::*;
 	// handshack success
 	assign fire = id_valid_q && ex_ready_i;
 	assign id_ready_o = fire || ~id_valid_q;
-	assign id_valid_d = id_valid_q;
+	assign id_valid_o = id_valid_q;
 
 	always_comb begin
 		id_valid_d   = id_valid_q;
 		ifToId_d     = ifToId_q;
-		if (fire) begin
+		if (id_ready_o) begin
 			id_valid_d = if_valid_i;
 			ifToId_d   = ifToId_i;
 		end 
