@@ -24,6 +24,10 @@ module top import liang_pkg::*;
   logic wb_ready;
   wb_req_t wb_req;
 
+  // forward
+  logic       wb_fwd_valid;
+  logic [4:0] wb_fwd_rd;
+  ele_t       wb_fwd_data;
 
   pipe_ifu
   u_pipe_ifu(
@@ -77,7 +81,13 @@ module top import liang_pkg::*;
     .ex_ready_o (ex_ready),
     .exToWb_o   (exToWb),
     .ex_valid_o (ex_valid),
-    .wb_ready_i (wb_ready)
+    .wb_ready_i (wb_ready),
+    // fwd from wb
+    .wb_fwd_valid_i (wb_fwd_valid),
+    .wb_fwd_rd_i    (wb_fwd_rd),
+    .wb_fwd_data_i  (wb_fwd_data),
+    .flush_o        (flush),
+    .flush_pc_o     (flush_pc)
   );
 
   pipe_wb
@@ -87,7 +97,10 @@ module top import liang_pkg::*;
     .exToWb_i   (exToWb),
     .ex_valid_i (ex_valid),
     .wb_ready_o (wb_ready),
-    .wb_req_o   (wb_req)
+    .wb_req_o   (wb_req),
+    .wb_fwd_valid_o (wb_fwd_valid),
+    .wb_fwd_rd_o    (wb_fwd_rd),
+    .wb_fwd_data_o  (wb_fwd_data)
   );
 
 

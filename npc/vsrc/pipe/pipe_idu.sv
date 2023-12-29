@@ -23,7 +23,7 @@ module pipe_idu import liang_pkg::*;
 	// handshack success
 	assign fire = id_valid_q && ex_ready_i;
 	assign id_ready_o = fire || ~id_valid_q;
-	assign id_valid_o = id_valid_q;
+	assign id_valid_o = id_valid_q && ~flush_i;
 
 	always_comb begin
 		id_valid_d   = id_valid_q;
@@ -35,7 +35,7 @@ module pipe_idu import liang_pkg::*;
 	end
 
 	always_ff @(posedge clk_i or posedge rst_i) begin
-		if (rst_i || flush_i) begin
+		if (rst_i) begin
 			id_valid_q <= 1'b0;
 			ifToId_q   <= '0;
 		end

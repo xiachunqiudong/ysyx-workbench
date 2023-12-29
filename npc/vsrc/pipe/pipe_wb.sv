@@ -7,7 +7,11 @@ module pipe_wb import liang_pkg::*;
   input logic    ex_valid_i,
   output logic   wb_ready_o,
   // wb > regfile
-  output wb_req_t wb_req_o
+  output wb_req_t wb_req_o,
+  // forward
+  output logic       wb_fwd_valid_o,
+  output logic [4:0] wb_fwd_rd_o,  
+  output ele_t       wb_fwd_data_o
 );
   
   pc_t wb_pc;
@@ -49,6 +53,10 @@ module pipe_wb import liang_pkg::*;
     rd:       rd,
     rd_wdata: rd_wdata
   };
+
+  assign wb_fwd_valid_o = rd_wen;
+  assign wb_fwd_rd_o    = rd;
+  assign wb_fwd_data_o  = rd_wdata;
 
   // ebreak: stop the simulation
   // return pc
