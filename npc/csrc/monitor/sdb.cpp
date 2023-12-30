@@ -12,6 +12,7 @@ static uint32_t this_pc_d1, this_inst_d1, this_pc, this_inst;
 
 static bool     commit_valid;
 static uint32_t commit_pc;
+static uint32_t commit_dnpc;
 static uint32_t commit_inst;
 
 extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint32_t inst) {
@@ -21,10 +22,11 @@ extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint3
   this_inst = inst;
 }
 
-extern "C" void commit(bool valid, uint32_t pc, uint32_t inst) {
+extern "C" void commit(bool valid, uint32_t pc, uint32_t inst, uint32_t dnpc) {
   commit_valid = valid;
   commit_pc    = pc;
   commit_inst  = inst;
+  commit_dnpc  = dnpc;
 }
 
 // EBREAK
@@ -32,7 +34,6 @@ int ret_value = 0;
 extern "C" void env_ebreak(uint32_t pc) {
   // get a0 value
   ret_value = gpr_val(10);
-  
   char buf[128];
   sprintf(buf, "The npc sim env has call the ebreak, end the simulation.\n" "ebreak at pc: %08x, code = %u\n", pc, ret_value);
   npc_info(buf);
@@ -73,13 +74,13 @@ void exec(uint32_t n) {
 
   for (uint32_t i = 0; i < n; i++) {
     if (npc_get_state() == NPC_STOP) {
-      disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
-      sprintf(buf, "npc sim stop caused by ebreak, at %08x: %s\n", this_pc, disasm);
-      npc_info(buf);
+      // disassemble(disasm, size, commit_pc, (uint8_t *)&commit_inst, 4);
+      // sprintf(buf, "npc sim stop caused by ebreak, at %08x: %s\n", commit_pc, disasm);
+      // npc_info(buf);
       break;
     } else if (npc_get_state() == NPC_ERROR_DIFF) {
-      disassemble(disasm, size, this_pc_d1, (uint8_t *)&this_inst_d1, 4);
-      sprintf(buf, "npc sim error caused by difftest fail, at %08x: %s\n", this_pc_d1, disasm);
+      disassemble(disasm, size, commit_pc, (uint8_t *)&commit_inst, 4);
+      sprintf(buf, "npc sim error caused by difftest fail, at %08x: %s\n", commit_pc, disasm);
       npc_error(buf);
       break;
     } else {
@@ -98,7 +99,7 @@ void exec(uint32_t n) {
       }
 
       #ifdef DIFF
-        if(!difftest_step(commit_pc)) {// diff fail
+        if(!difftest_step(commit_dnpc)) {// diff fail
           npc_set_state(NPC_ERROR_DIFF);
           ret_value = 1;
         }

@@ -20,8 +20,13 @@ module regfile import liang_pkg::*;
         if (wen) rf[waddr] <= wdata;
     end
 
-    assign rs1_rdata = rs1_raddr == 5'b0 ? 0 : rf[rs1_raddr];
-    assign rs2_rdata = rs2_raddr == 5'b0 ? 0 : rf[rs2_raddr];
+    assign rs1_rdata = rs1_raddr == 5'b0           ? 0 : 
+                       (wen && waddr == rs1_raddr) ? wdata : 
+                                                     rf[rs1_raddr];
+    
+    assign rs2_rdata = rs2_raddr == 5'b0           ? 0 : 
+                       (wen && waddr == rs2_raddr) ? wdata : 
+                                                     rf[rs2_raddr];
 
     import "DPI-C" function void set_gpr_ptr(input logic [DATA_WIDTH-1:0] a[]);
 

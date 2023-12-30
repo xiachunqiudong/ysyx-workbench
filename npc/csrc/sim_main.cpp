@@ -72,7 +72,7 @@ void exec_once() {
   top->eval();
   tfp->dump(main_time++);
 
-  if (main_time > 10000) {
+  if (main_time > 1000000) {
     free();
     exit(0);
   }

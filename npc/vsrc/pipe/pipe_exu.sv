@@ -20,15 +20,17 @@ module pipe_exu import liang_pkg::*;
 
 );
 
-  pc_t ex_pc;
   uop_info_t uop_info;
-  ele_t alu_res;
-  ele_t lsu_res;
+  pc_t       ex_pc;
+
+  ele_t      alu_res;
+  ele_t      lsu_res;
   
   assign uop_info = idToEx_q.uop_info;
   assign ex_pc    = uop_info.pc;
   
   assign exToWb_o.alu_res = alu_res;
+  assign exToWb_o.lsu_res = lsu_res;
 
   logic ex_fire;
   logic ex_valid_d, ex_valid_q;
@@ -50,7 +52,7 @@ module pipe_exu import liang_pkg::*;
   end
 
   always_ff @(posedge clk_i or posedge rst_i) begin
-    if(rst_i || flush_i) begin
+    if(rst_i) begin
       ex_valid_q  <= 1'b0;
     end 
     else begin
@@ -76,12 +78,11 @@ module pipe_exu import liang_pkg::*;
   assign rs2_data = (wb_fwd_valid_i && wb_fwd_rd_i == rs2) ? wb_fwd_data_i 
                                                            : idToEx_q.rs2_rdata;                                                      
 
-
   alu
   alu_u(
     .rs1_i      (rs1_data),
     .rs2_i      (rs2_data),
-    .uop_info_i (idToEx_q.uop_info),
+    .uop_info_i (uop_info),
     .alu_res_o  (alu_res),
     .jump_o     (jump)
   );
@@ -89,22 +90,25 @@ module pipe_exu import liang_pkg::*;
   // addr gen
   paddr_t lsu_addr;
 
-  assign lsu_addr = idToEx_q.rs1_rdata + idToEx_q.uop_info.imm; 
+  assign lsu_addr = rs1_data + idToEx_q.uop_info.imm;
 
   lsu
   lsu_u(
     .clk_i      (clk_i),
-    .uop_info_i (idToEx_q.uop_info),
+    .valid_i    (ex_valid_o),
+    .uop_info_i (uop_info),
     .addr_i     (lsu_addr),
-    .wdata_i    (idToEx_q.rs2_rdata),
-    .rdata_o    (exToWb_o.lsu_res)
+    .wdata_i    (rs2_data),
+    .rdata_o    (lsu_res)
   );
 
   assign exToWb_o.uop_info = idToEx_q.uop_info;
 
   // flush
-  assign flush_o    = uop_info.fu_op inside {JAL, JALR} || (uop_info.fu_op == BRANCH && jump);
+  assign flush_o    = ex_valid_o && (uop_info.fu_op inside {JAL, JALR} || (uop_info.fu_op == BRANCH && jump));
   assign flush_pc_o = (uop_info.fu_op == JALR ? rs1_data : ex_pc) + uop_info.imm;
 
+ // for difftest
+  assign exToWb_o.uop_info.dnpc = flush_o ? flush_pc_o : ex_pc + 4;
 
 endmodule

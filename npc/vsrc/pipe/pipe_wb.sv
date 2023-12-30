@@ -63,13 +63,20 @@ module pipe_wb import liang_pkg::*;
   import "DPI-C" function void env_ebreak(input int pc);
 
   // is this cycle has inst commit ?
-  import "DPI-C" function void commit(input logic valid, input int pc, input int inst);
+  import "DPI-C" function void commit(input logic valid, input int pc, input int inst, input int dnpc);
   
-  always_ff @(posedge clk_i) begin
-    if(exToWb_q.uop_info.ebreak) begin
+  always_comb begin
+    if(wb_valid_q && exToWb_q.uop_info.ebreak) begin
     	env_ebreak(exToWb_q.uop_info.pc);
-		end
-    commit(wb_valid_q, exToWb_q.uop_info.pc, exToWb_q.uop_info.inst);
+		end 
+    else begin
+
+    end
+    
+  end
+
+  always_ff @(posedge clk_i) begin
+    commit(wb_valid_q, exToWb_q.uop_info.pc, exToWb_q.uop_info.inst, exToWb_q.uop_info.dnpc);
   end
 
 endmodule

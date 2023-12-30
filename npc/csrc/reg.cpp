@@ -43,7 +43,7 @@ void show_cpu_state(cpu_state cpu) {
 
 
 word_t gpr_val(int idx) {
-  return cpu_gpr[idx];
+  return idx == 0 ? 0 : cpu_gpr[idx-1];
 }
 
 const char *get_gpr_name(int i) {

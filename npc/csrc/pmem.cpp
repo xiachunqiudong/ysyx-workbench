@@ -19,22 +19,21 @@ static void addr_check(int addr) {
 // DPI-C
 #define BUF_SIZE 512
 extern "C" void inst_read(paddr_t addr, word_t *inst) {
+  if (!LEGAL_MEM_ADDR(addr)) {
+    printf("[Inst Fetch] bad inst fetch address: %08x\n", addr);
+    sim_stop();
+  }
   char buf[BUF_SIZE];
-  addr_check(addr);
   *inst = *(word_t *)guest_to_host(addr);
-  sprintf(buf, "[Instrucion fetch] addr: %08x, inst: %08x", addr, *inst);
-  log(buf);
 }
 
-extern "C" void pmem_read(int raddr, int *rdate) {
+extern "C" void pmem_read(int raddr, int *rdata) {
   if (!LEGAL_MEM_ADDR(raddr)) {
     printf("[PMEM READ] bad memory read address: %08x\n", raddr);
     sim_stop();
   }
   char buf[BUF_SIZE];
-  sprintf(buf, "[MEM READ] raddr: %08x", raddr);
-  log(buf);
-  *rdate = *(int *)guest_to_host(raddr & ~0x3u);
+  *rdata = *(int *)guest_to_host(raddr & ~0x3u);
 }
 
 extern "C" void pmem_write(int waddr, int wdata, char mask) {
@@ -58,9 +57,9 @@ extern "C" void pmem_write(int waddr, int wdata, char mask) {
     *(wp + i) = ((mask >> i) & 1) ? *(((uint8_t *)(&wdata)) + i) : *(base_addr + i);
   }
 
-  sprintf(buf, "[MEM WRITE] waddr: %08x, wdata: %08x, mask: %s, real_wdata: %08x\n", 
-          waddr, wdata, real_mask, real_wdata);
-  log(buf);
+  // sprintf(buf, "[MEM WRITE] waddr: %08x, wdata: %08x, mask: %s, real_wdata: %08x\n", 
+  //         waddr, wdata, real_mask, real_wdata);
+  // log(buf);
   
   *(int *)base_addr = real_wdata;
 }

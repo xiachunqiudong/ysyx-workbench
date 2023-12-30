@@ -56,15 +56,15 @@ static bool chk_regs(cpu_state ref_state, paddr_t pc) {
   word_t *ref_gpr = ref_state.gpr;
   word_t ref_pc = ref_state.pc;
 
-  // if (ref_state.pc != pc) {
-  //   sprintf(buf, "[difftest] npc pc is wrong, ref: 0x%08x npc: 0x%08x\n", ref_pc, pc);
-  //   npc_error(buf);
-  //   pass = false;
-  // }
+  if (ref_state.pc != pc) {
+    sprintf(buf, "[difftest] npc pc is wrong, ref: 0x%08x npc: 0x%08x\n", ref_pc, pc);
+    npc_error(buf);
+    pass = false;
+  }
   
   for (int i = 1; i < 31; i++) {
-    if (gpr_val(i-1) != ref_gpr[i]) {
-      sprintf(buf, "difftest find the %s is different, ref: 0x%08x npc: 0x%08x\n", get_gpr_name(i), ref_gpr[i], gpr_val(i-1));
+    if (gpr_val(i) != ref_gpr[i]) {
+      sprintf(buf, "difftest find the %s is different, ref: 0x%08x npc: 0x%08x\n", get_gpr_name(i), ref_gpr[i], gpr_val(i));
       npc_error(buf);
       pass = false;
     }

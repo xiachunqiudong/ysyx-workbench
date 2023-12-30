@@ -5,22 +5,24 @@ module lsu import liang_pkg::*;
 (
   input  logic     clk_i,
 	// control signal
+  input logic      valid_i,
   input uop_info_t uop_info_i,
 	// data signal
 	input  [XLEN-1:0] addr_i,
 	input  [XLEN-1:0] wdata_i,
-	output [XLEN-1:0] rdata_o //
+	output [XLEN-1:0] rdata_o
 );
 
-	wire [XLEN-1:0] ram_addr;
+	logic [XLEN-1:0] ram_addr;
 	assign ram_addr = {addr_i[XLEN-1:2], 2'b0};
 	
 	// LOAD
-	wire [XLEN-1:0] ram_rdata;
-	always_ff @(posedge clk_i) begin
+	logic [XLEN-1:0] ram_rdata;
+	always_comb begin
     if (uop_info_i.fu_op == LOAD) begin
 		  pmem_read(ram_addr, ram_rdata);
-    end
+    end else
+      ram_rdata = '0;
 	end
 	
 	// LOAD BYTE
@@ -77,7 +79,7 @@ module lsu import liang_pkg::*;
 	wire [XLEN-1:0] ram_wdata;
 	wire [3:0] ram_mask;
 	always @(*) begin
-		if(uop_info_i.fu_op == STORE) begin
+		if(uop_info_i.fu_op == STORE && valid_i) begin
 			pmem_write(ram_addr, ram_wdata, {4'b0, ram_mask});
 		end
 	end
@@ -155,5 +157,21 @@ module lsu import liang_pkg::*;
       STORE_SW,   4'b1111  // sw
     })
   );
+
+  // DEBUG
+  integer fp;
+  initial begin
+    fp = $fopen("./log/npc_lsu.log");
+  end
+
+  always_ff @(posedge clk_i) begin
+    if (uop_info_i.fu_op == LOAD) begin
+      $fdisplay(fp, "[LOAD ] PC: %08x\t ADDR: %08x\t Data: %08x\t", uop_info_i.pc, addr_i, rdata_o);
+    end
+    else if(uop_info_i.fu_op == STORE) begin
+      $fdisplay(fp, "[STORE] PC: %08x\t ADDR: %08x\t Data: %08x\t", uop_info_i.pc, addr_i, wdata_i);
+    end
+  end
+
 
 endmodule
