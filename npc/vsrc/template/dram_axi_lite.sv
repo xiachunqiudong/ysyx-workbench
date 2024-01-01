@@ -39,7 +39,7 @@ module dram_axi_lite
   logic [DATA_WIDTH-1:0] rdata_d,  rdata_q;
   logic [ADDR_WIDTH-1:0] araddr_d, araddr_q;
   logic raddr_fire;
-  logic read_fire;
+  logic rdata_fire;
 
   assign rdata_o = rdata_q;
   assign raddr_fire = arvalid_i && arready_o;
@@ -47,41 +47,41 @@ module dram_axi_lite
 
   assign araddr_d = raddr_fire ? araddr_i : araddr_q;
 
-  typedef enum logic [2:0] {
+  typedef enum logic [1:0] {
     READ_IDEL, READ_RUN, READ_DONE
   } read_state_e;
 
   read_state_e read_state_d, read_state_q;
 
-  assign arready_o = state_q == IDEL;
-  assign rvalid_o  = state_q == READ_DONE;
+  assign arready_o = read_state_q == READ_IDEL;
+  assign rvalid_o  = read_state_q == READ_DONE;
 
   // READ NEXT STATE
   always_comb begin
     read_state_d = read_state_q;
     case(read_state_q)
-      READ_IDEL: read_state_d = raddr_fire ? READ : IDEL;
+      READ_IDEL: read_state_d = raddr_fire ? READ_RUN : READ_IDEL;
       READ_RUN:  read_state_d = READ_DONE;
-      READ_DONE: read_state_d = rdata_fire ? IDEL : READ_DONE;
-      default:   read_state_d = IDEL;
+      READ_DONE: read_state_d = rdata_fire ? READ_IDEL : READ_DONE;
+      default:   read_state_d = READ_IDEL;
     endcase
   end
 
   always_ff @(posedge clk_i or posedge rst_i) begin
     if (rst_i) begin
-      state_q  <= IDEL;
-      rdata_q  <= '0;
-      araddr_q <= '0;
+      read_state_q  <= READ_IDEL;
+      rdata_q       <= '0;
+      araddr_q      <= '0;
     end
     else begin
-      state_q  <= state_d;
-      rdata_q  <= rdata_d;
-      araddr_q <= araddr_d;
+      read_state_q  <= read_state_d;
+      rdata_q       <= rdata_d;
+      araddr_q      <= araddr_d;
     end
   end
   
   always_comb begin
-    if (state_q == READ) begin
+    if (read_state_q == READ_RUN) begin
       pmem_read(araddr_q, rdata_d);
     end else begin
       rdata_d = rdata_q;

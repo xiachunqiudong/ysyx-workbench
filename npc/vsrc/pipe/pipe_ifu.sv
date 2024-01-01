@@ -11,15 +11,22 @@ module pipe_ifu import liang_pkg::*;
 );
 
   pc_t   pc_d, pc_q;
-  inst_t inst;
-  logic  inst_valid;
+
+  logic  if_req_valid;
+  logic  if_req_ready;
+  inst_t if_resp_inst;
+  logic  if_resp_valid;
+  logic  if_resp_ready;
+  logic  if_req_fire;
+  
   logic  if_valid_q;
   logic  if_fire;
 
-  assign ifToId_o.inst = inst;
+  assign if_req_valid  = if_valid_q;
+  assign ifToId_o.inst = if_resp_inst;
   assign ifToId_o.pc   = pc_q;
-  
-  assign if_valid_o    = if_valid_q & ~flush_i & inst_valid;
+
+  assign if_valid_o    = if_valid_q & ~flush_i & if_resp_valid;
   assign if_fire       = if_valid_o & id_ready_i;
 
   assign pc_d = flush_i ? flush_pc_i 
@@ -35,15 +42,40 @@ module pipe_ifu import liang_pkg::*;
     end
   end
 
-  inst_fetcher
-  u_inst_fetcher(
+  // inst_fetcher
+  // u_inst_fetcher(
+  //   .clk_i           (clk_i),
+  //   .rst_i           (rst_i),
+  //   .flush_i         (flush_i),
+  //   .if_req_valid_i  (if_valid_q),
+  //   .if_req_pc_i     (pc_q),
+  //   .if_resp_valid_o (inst_valid),
+  //   .if_resp_inst_o  (inst)
+  // );
+
+  ifu_axi_lite
+  u_ifu_axi_lite(
     .clk_i           (clk_i),
     .rst_i           (rst_i),
     .flush_i         (flush_i),
-    .if_req_valid_i  (if_valid_q),
     .if_req_pc_i     (pc_q),
-    .if_resp_valid_o (inst_valid),
-    .if_resp_inst_o  (inst)
+    .if_req_valid_i  (if_req_valid),
+    .if_resp_inst_o  (if_resp_inst),
+    .if_resp_valid_o (if_resp_valid),
+    .if_resp_ready_i (id_ready_i)
   );
+
+  integer fp;
+
+  initial begin
+    fp = $fopen("./log/npc_ifu.log");
+  end
+
+  always_ff @(posedge clk_i) begin
+    if (if_fire) begin
+      $fdisplay(fp, "%08x: %08x", pc_q, if_resp_inst);
+    end
+  end
+
 
 endmodule

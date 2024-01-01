@@ -1,6 +1,3 @@
-import "DPI-C" function void pmem_read(input int raddr, output int rdate);
-import "DPI-C" function void pmem_write(input int waddr, input int wdate, input byte wmask);
-
 module lsu import liang_pkg::*;
 (
   input  logic     clk_i,
