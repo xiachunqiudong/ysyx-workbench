@@ -5,8 +5,9 @@ import "DPI-C" function void pmem_write(input int waddr, input int wdate, input 
 // AXI-LITE SLAVE
 module dram_axi_lite
 #(
-  parameter int unsigned DATA_WIDTH = 32,
-  parameter int unsigned ADDR_WIDTH = 32
+  parameter int unsigned DATA_WIDTH  = 32,
+  parameter int unsigned ADDR_WIDTH  = 32,
+  parameter int unsigned STRB_WIDTH = DATA_WIDTH/8
 )
 (
   input  logic clk_i,
@@ -25,11 +26,11 @@ module dram_axi_lite
   output logic                  awready_o,
   // WRITE DATA CHANNEL
   input  logic [DATA_WIDTH-1:0] wdata_i,
-  input  logic [3:0]            wstrb_i,
-  input  logic [3:0]            wvalid_i,
+  input  logic [STRB_WIDTH-1:0] wstrb_i,
+  input  logic                  wvalid_i,
   output logic                  wready_o,
   // WRITE RESP CHANNEL
-  output logic                  bresp_o,
+  output logic [1:0]            bresp_o,
   output logic                  bvalid_o,
   input  logic                  bready_i
 );
