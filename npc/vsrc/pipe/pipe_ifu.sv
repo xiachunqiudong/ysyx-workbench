@@ -13,11 +13,8 @@ module pipe_ifu import liang_pkg::*;
   pc_t   pc_d, pc_q;
 
   logic  if_req_valid;
-  logic  if_req_ready;
   inst_t if_resp_inst;
   logic  if_resp_valid;
-  logic  if_resp_ready;
-  logic  if_req_fire;
   
   logic  if_valid_q;
   logic  if_fire;

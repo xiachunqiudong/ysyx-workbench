@@ -10,13 +10,17 @@ module lsu import liang_pkg::*;
 	output [XLEN-1:0] rdata_o
 );
 
+  logic is_load;
+  logic is_store;
 	logic [XLEN-1:0] ram_addr;
+  assign is_load  = uop_info_i.fu_op == LOAD  && valid_i;
+  assign is_store = uop_info_i.fu_op == STORE && valid_i;
 	assign ram_addr = {addr_i[XLEN-1:2], 2'b0};
 	
 	// LOAD
 	logic [XLEN-1:0] ram_rdata;
 	always_comb begin
-    if (uop_info_i.fu_op == LOAD) begin
+    if (is_load) begin
 		  pmem_read(ram_addr, ram_rdata);
     end else
       ram_rdata = '0;
@@ -76,7 +80,7 @@ module lsu import liang_pkg::*;
 	wire [XLEN-1:0] ram_wdata;
 	wire [3:0] ram_mask;
 	always @(*) begin
-		if(uop_info_i.fu_op == STORE && valid_i) begin
+		if(is_store) begin
 			pmem_write(ram_addr, ram_wdata, {4'b0, ram_mask});
 		end
 	end

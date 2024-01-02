@@ -95,7 +95,7 @@ module pipe_exu import liang_pkg::*;
   lsu
   lsu_u(
     .clk_i      (clk_i),
-    .valid_i    (ex_valid_o),
+    .valid_i    (ex_valid_q),
     .uop_info_i (uop_info),
     .addr_i     (lsu_addr),
     .wdata_i    (rs2_data),

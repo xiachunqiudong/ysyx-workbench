@@ -13,7 +13,7 @@ VerilatedVcdC *tfp;
 Vtop *top;
 vluint64_t main_time = 0;
 
-double sc_time_stamp() {
+double sim_time_stamp() {
 	return main_time;
 }
 

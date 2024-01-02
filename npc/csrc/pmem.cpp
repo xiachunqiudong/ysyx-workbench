@@ -6,12 +6,13 @@
 #include "utils.h"
 
 void sim_stop();
+double sim_time_stamp();
 
 uint8_t pmem[MEM_SIZE] = {0};
 
 static void addr_check(int addr) {
   if(!LEGAL_MEM_ADDR(addr)) {
-    printf("Bad memory address: %08x, stop simulation!\n", addr);
+    printf("Bad memory address: %08x at %f, stop simulation!\n", addr, sim_time_stamp());
     sim_stop();
   }
 }
@@ -29,8 +30,9 @@ extern "C" void inst_read(paddr_t addr, word_t *inst) {
 
 extern "C" void pmem_read(int raddr, int *rdata) {
   if (!LEGAL_MEM_ADDR(raddr)) {
-    printf("[PMEM READ] bad memory read address: %08x\n", raddr);
-    sim_stop();
+    printf("[PMEM READ] [%d] bad memory read address: %08x\n", (int)sim_time_stamp(), raddr);
+    return;
+    //sim_stop();
   }
   char buf[BUF_SIZE];
   *rdata = *(int *)guest_to_host(raddr & ~0x3u);

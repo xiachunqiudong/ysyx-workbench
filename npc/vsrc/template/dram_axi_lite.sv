@@ -34,7 +34,10 @@ module dram_axi_lite
   input  logic                  bready_i
 );
 
-  
+  logic [3:0] read_cnt_d, read_cnt_q;
+  logic can_read;
+
+
   //-----------READ------------//
   logic [DATA_WIDTH-1:0] rdata_d,  rdata_q;
   logic [ADDR_WIDTH-1:0] araddr_d, araddr_q;
@@ -46,6 +49,12 @@ module dram_axi_lite
   assign rdata_fire = rvalid_o  && rready_i;
 
   assign araddr_d = raddr_fire ? araddr_i : araddr_q;
+
+  assign read_cnt_d = raddr_fire || can_read   ? 0 :
+                      read_state_q == READ_RUN ? read_cnt_q + 1 :
+                                                 read_cnt_q;
+
+  assign can_read = read_cnt_q == 10;
 
   typedef enum logic [1:0] {
     READ_IDEL, READ_RUN, READ_DONE
@@ -61,7 +70,7 @@ module dram_axi_lite
     read_state_d = read_state_q;
     case(read_state_q)
       READ_IDEL: read_state_d = raddr_fire ? READ_RUN : READ_IDEL;
-      READ_RUN:  read_state_d = READ_DONE;
+      READ_RUN:  read_state_d = can_read   ? READ_DONE : READ_RUN;
       READ_DONE: read_state_d = rdata_fire ? READ_IDEL : READ_DONE;
       default:   read_state_d = READ_IDEL;
     endcase
@@ -72,16 +81,18 @@ module dram_axi_lite
       read_state_q  <= READ_IDEL;
       rdata_q       <= '0;
       araddr_q      <= '0;
+      read_cnt_q    <= '0;
     end
     else begin
       read_state_q  <= read_state_d;
       rdata_q       <= rdata_d;
       araddr_q      <= araddr_d;
+      read_cnt_q    <= read_cnt_d;
     end
   end
   
   always_comb begin
-    if (read_state_q == READ_RUN) begin
+    if (read_state_q == READ_RUN && can_read) begin
       pmem_read(araddr_q, rdata_d);
     end else begin
       rdata_d = rdata_q;
@@ -90,8 +101,21 @@ module dram_axi_lite
   
   //-----------WRITE------------//
 
-  
 
 
+
+
+
+
+  //-----------DEBUG------------//
+  integer fp;
+  initial begin
+    fp = $fopen("./log/npc_axi_lite.log");
+  end
+  always_ff @(posedge clk_i) begin
+    if (read_state_q == READ_RUN) begin
+      $fdisplay(fp, "read addr: %08x", araddr_q);
+    end
+  end
 
 endmodule
