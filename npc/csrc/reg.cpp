@@ -1,5 +1,5 @@
 #include "verilated_dpi.h"
-#include "common.h"
+#include "npc.h"
 
 word_t *cpu_gpr = nullptr;
 
@@ -31,7 +31,6 @@ void reg_display() {
 }
 
 void show_cpu_state(cpu_state cpu) {
-  // printf("pc: 0x%08x\n", cpu.pc);
   int i;
   for(i = 0; i < 32; i++) {
     printf("%s = 0x%08x\t", regs[i], cpu.gpr[i]);
@@ -40,7 +39,6 @@ void show_cpu_state(cpu_state cpu) {
     }
   }
 }
-
 
 word_t gpr_val(int idx) {
   return idx == 0 ? 0 : cpu_gpr[idx-1];

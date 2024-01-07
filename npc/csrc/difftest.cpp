@@ -1,5 +1,7 @@
 #include <dlfcn.h>
-#include "common.h"
+#include <stdio.h>
+#include <assert.h>
+#include "npc.h"
 #include "difftest.h"
 #include "utils.h"
 #include "pmem.h"
