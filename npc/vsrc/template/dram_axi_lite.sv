@@ -38,7 +38,6 @@ module dram_axi_lite
   logic [3:0] read_cnt_d, read_cnt_q;
   logic can_read;
 
-
   //-----------READ------------//
   logic [DATA_WIDTH-1:0] rdata_d,  rdata_q;
   logic [ADDR_WIDTH-1:0] araddr_d, araddr_q;
@@ -101,12 +100,52 @@ module dram_axi_lite
   end
   
   //-----------WRITE------------//
+  logic waddr_fire;
+  logic wdata_fire;
+  logic bresp_fire;
+  logic waddr_valid_d, waddr_valid_q;
+  logic wdata_valid_d, wdata_valid_q;
+  logic [ADDR_WIDTH-1:0] waddr_d, waddr_q;
+  logic [DATA_WIDTH-1:0] wdata_d, wdata_q;
 
+  assign waddr_fire = awvalid_i && awready_o;
+  assign wdata_fire = wvalid_i  && wready_o;
+  assign bresp_fire = bvalid_o  && bready_i;
 
+  assign waddr_valid_d = waddr_fire ? 1 :
+                         bresp_fire ? 0 :
+                                      waddr_valid_q;
+  
+  assign wdata_valid_d = wdata_fire ? 1 :
+                         bresp_fire ? 0 :
+                                      waddr_valid_q;
+  
+  assign waddr_d = waddr_fire ? awaddr_i : awaddr_q;
+  assign wdata_d = wdata_fire ? wdata_i  : wdata_q;
 
+  always_ff @(posedge clk_i or posedge rst_i) begin
+    if (rst_i) begin
+      waddr_valid_q <= '0;
+      wdata_valid_q <= '0;
+      waddr_q       <= '0;
+      wdata_q       <= '0;
+    end
+    else begin
+      waddr_valid_q <= waddr_valid_d;
+      wdata_valid_q <= wdata_valid_d;
+      waddr_q       <= waddr_d;
+      wdata_q       <= wdata_d;    
+    end
+  end
 
-
-
+  //-----------LSFR------------//
+  logic [3:0] lat;
+  lfsr
+  u_lfsr(
+    .clk_i  (clk_i),
+    .rst_i  (rst_i),
+    .data_o (lat)
+  );
 
   //-----------DEBUG------------//
   integer fp;
@@ -114,6 +153,7 @@ module dram_axi_lite
     fp = $fopen("./log/npc_axi_lite.log");
   end
   always_ff @(posedge clk_i) begin
+    $fdisplay(fp, "lat: %d", lat);
     if (read_state_q == READ_RUN) begin
       $fdisplay(fp, "read addr: %08x", araddr_q);
     end
