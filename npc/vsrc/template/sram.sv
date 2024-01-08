@@ -1,7 +1,3 @@
-
-// DPI-C
-import "DPI-C" function void inst_read(input int addr, output int rdata);
-
 module ifu_sram(
   input         clk_i,
   input         ren_i,
@@ -19,7 +15,7 @@ module ifu_sram(
 
   always_comb begin
     if (ren_i) begin
-      inst_read(raddr_i, rdata_d);
+      pmem_read(raddr_i, rdata_d);
     end
     else begin
       rdata_d = '0;

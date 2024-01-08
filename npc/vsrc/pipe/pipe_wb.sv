@@ -14,13 +14,18 @@ module pipe_wb import liang_pkg::*;
   output ele_t       wb_fwd_data_o
 );
   
-  pc_t wb_pc;
-  logic wb_valid_d, wb_valid_q;
-  exToWb_t exToWb_d, exToWb_q;
+  pc_t     commit_pc;
+  logic    wb_valid_d, wb_valid_q;
+  exToWb_t exToWb_d,   exToWb_q;
+  wire        commit_valid;
+  logic       rd_wen;
+  logic [4:0] rd;
+  ele_t       rd_wdata;
 
   // commit every cycle
-  assign wb_ready_o = 1'b1;
-  assign wb_pc = exToWb_q.uop_info.pc;
+  assign commit_valid = wb_valid_q;
+  assign wb_ready_o   = 1'b1;
+  assign commit_pc    = exToWb_q.uop_info.pc;
 
   always_comb begin
     wb_valid_d = wb_valid_q;
@@ -40,11 +45,7 @@ module pipe_wb import liang_pkg::*;
     end
   end
 
-  logic       rd_wen;
-  logic [4:0] rd;
-  ele_t       rd_wdata;
-
-  assign rd_wen = wb_valid_q && exToWb_q.uop_info.rd_wen;
+  assign rd_wen = commit_valid && exToWb_q.uop_info.rd_wen;
   assign rd     = exToWb_q.uop_info.rd;
   assign rd_wdata = exToWb_q.uop_info.fu_op == LOAD ? exToWb_q.lsu_res 
                                                     : exToWb_q.alu_res;
@@ -66,8 +67,8 @@ module pipe_wb import liang_pkg::*;
   import "DPI-C" function void commit(input logic valid, input int pc, input int inst, input int dnpc);
   
   always_comb begin
-    if(wb_valid_q && exToWb_q.uop_info.ebreak) begin
-    	env_ebreak(exToWb_q.uop_info.pc);
+    if(commit_valid && exToWb_q.uop_info.ebreak) begin
+    	env_ebreak(commit_pc);
 		end 
     else begin
 
@@ -76,7 +77,7 @@ module pipe_wb import liang_pkg::*;
   end
 
   always_ff @(posedge clk_i) begin
-    commit(wb_valid_q, exToWb_q.uop_info.pc, exToWb_q.uop_info.inst, exToWb_q.uop_info.dnpc);
+    commit(commit_valid, commit_pc, exToWb_q.uop_info.inst, exToWb_q.uop_info.dnpc);
   end
 
 endmodule

@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <getopt.h>
-
-#include "common.h"
+#include <assert.h>
+#include "npc.h"
 #include "monitor.h"
 #include "utils.h"
 #include "pmem.h"
@@ -11,6 +11,7 @@
 
 char *img_file;
 char *log_file;
+char *mem_log_file;
 char *diff_file;
 
 static int parse_args(int argc, char *argv[]) {
@@ -19,16 +20,18 @@ static int parse_args(int argc, char *argv[]) {
     {"batch"    , no_argument      , NULL, 'b'},  
     {"diff"     , required_argument, NULL, 'd'},          
     {"log"      , required_argument, NULL, 'l'},
+    {"mem log"  , required_argument, NULL, 'm'},
     {0          , 0                , NULL,  0 },// must all zero
   };
   int o;
   // e: e选项后面需要有参数
-  while ( (o = getopt_long(argc, argv, "-bl:d:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bl:d:m:", table, NULL)) != -1) {
     switch (o) {
       case 'b': set_batch_mode(); break;
-      case 'd': diff_file = optarg; break;
-      case 'l': log_file = optarg; break;
-      case 1:   img_file = optarg; return 0;
+      case 'd': diff_file    = optarg; break;
+      case 'l': log_file     = optarg; break;
+      case 'm': mem_log_file = optarg; break;
+      case 1:   img_file     = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");
@@ -84,6 +87,8 @@ void init_monitor(int argc, char *argv[]) {
   init_disasm("riscv32-pc-linux-gnu");
   
   init_log(log_file);
+
+  init_mem_log(mem_log_file);
 
   int img_size = load_img();
 

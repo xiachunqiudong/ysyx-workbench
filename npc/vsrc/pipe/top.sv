@@ -20,8 +20,8 @@ module top import liang_pkg::*;
   ele_t rs2_rdata;
 
   exToWb_t exToWb;
-  logic ex_valid;
-  logic wb_ready;
+  logic    ex_valid;
+  logic    wb_ready;
   wb_req_t wb_req;
 
   // forward

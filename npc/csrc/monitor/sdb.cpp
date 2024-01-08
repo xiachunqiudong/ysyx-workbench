@@ -8,25 +8,8 @@
 #include "utils.h"
 
 // DPI-C
-static uint32_t this_pc_d1, this_inst_d1, this_pc, this_inst;
-
-static bool     commit_valid;
-static uint32_t commit_pc;
-static uint32_t commit_dnpc;
-static uint32_t commit_inst;
-
-extern "C" void get_pc_inst(uint32_t pc_d1, uint32_t inst_d1, uint32_t pc, uint32_t inst) {
-  this_pc_d1 = pc_d1;
-  this_inst_d1 = inst_d1;
-  this_pc = pc;
-  this_inst = inst;
-}
-
 extern "C" void commit(bool valid, uint32_t pc, uint32_t inst, uint32_t dnpc) {
-  commit_valid = valid;
-  commit_pc    = pc;
-  commit_inst  = inst;
-  commit_dnpc  = dnpc;
+  npc_commit(valid, pc, inst, dnpc);
 }
 
 // EBREAK
@@ -37,7 +20,6 @@ extern "C" void env_ebreak(uint32_t pc) {
   char buf[128];
   sprintf(buf, "The npc sim env has call the ebreak, end the simulation.\n" "ebreak at pc: %08x, code = %u\n", pc, ret_value);
   npc_info(buf);
-
   npc_set_state(NPC_STOP);
 }
 
@@ -71,35 +53,37 @@ void set_batch_mode() {
 void exec(uint32_t n) {
   int size = 64;
   char disasm[size], buf[128];
-
+  commit_info_t commit_info;
+  
   for (uint32_t i = 0; i < n; i++) {
+    commit_info = npc_commit_info();
     if (npc_get_state() == NPC_STOP) {
       // disassemble(disasm, size, commit_pc, (uint8_t *)&commit_inst, 4);
       // sprintf(buf, "npc sim stop caused by ebreak, at %08x: %s\n", commit_pc, disasm);
       // npc_info(buf);
       break;
     } else if (npc_get_state() == NPC_ERROR_DIFF) {
-      disassemble(disasm, size, commit_pc, (uint8_t *)&commit_inst, 4);
-      sprintf(buf, "npc sim error caused by difftest fail, at %08x: %s\n", commit_pc, disasm);
+      disassemble(disasm, size, commit_info.commit_pc, (uint8_t *)&commit_info.commit_inst, 4);
+      sprintf(buf, "npc sim error caused by difftest fail, at %08x: %s\n", commit_info.commit_pc, disasm);
       npc_error(buf);
       break;
     } else {
       // for pipe or ooo, only commit when wb is valid
       do {
-        if (commit_valid) { // npc will commit a valid inst in next cycly
-          disassemble(disasm, size, commit_pc, (uint8_t *)&commit_inst, 4);
-          sprintf(buf, "[commit] %08x: %s", commit_pc, disasm);
+        if (commit_info.commit_valid) { // npc will commit a valid inst in next cycly
+          disassemble(disasm, size, commit_info.commit_pc, (uint8_t *)&commit_info.commit_inst, 4);
+          sprintf(buf, "[commit] %08x: %s", commit_info.commit_pc, disasm);
           log(buf);
         }
         exec_once(); // commit
-      } while (commit_valid == false);
+      } while (commit_info.commit_valid == false);
 
       if (is_batch_mode == false) {
         printf("%s\n", buf);
       }
 
       #ifdef DIFF
-        if(!difftest_step(commit_dnpc)) {// diff fail
+        if(!difftest_step(commit_info.commit_dnpc)) {// diff fail
           npc_set_state(NPC_ERROR_DIFF);
           ret_value = 1;
         }

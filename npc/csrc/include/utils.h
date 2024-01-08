@@ -1,21 +1,20 @@
 #ifndef __UTILS__
 #define __UTILS__
 
-#include "common.h"
+#include <stdint.h>
 
 void init_disasm(const char *triple);
 int disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 void init_log(const char *log_file);
+void init_mem_log(const char *mem_log_file);
 
-// reg
-void reg_display();
-word_t gpr_val(int idx);
 // bit helper
 bool is_digit(const char *str, char type);
 
 //--------------log----------------
 void log(char *str);
+void mem_log(char *str);
 void npc_info(char *str);
 void npc_error(char *str);
 

@@ -14,7 +14,8 @@ LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
 LDFLAGS   += --gc-sections -e _start
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 
-NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+NPCFLAGS += -l $(NPC_HOME)/log/npc-log.txt
+NPCFLAGS += -m $(NPC_HOME)/log/npc-mem-log.txt
 NPCFLAGS += -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 NPCFLAGS += -b
 
