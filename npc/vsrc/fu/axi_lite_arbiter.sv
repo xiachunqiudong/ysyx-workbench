@@ -2,7 +2,7 @@ module axi_lite_arbiter
 #(
   parameter int unsigned DATA_WIDTH  = 32,
   parameter int unsigned ADDR_WIDTH  = 32,
-  parameter int unsigned STRB_WIDTH = DATA_WIDTH/8
+  parameter int unsigned STRB_WIDTH  = DATA_WIDTH/8
 )
 (
   input wire clk_i,
@@ -67,11 +67,12 @@ module axi_lite_arbiter
   always_comb begin
     state_d = state_q;
     case(state_q)
-      IDEL: begin
+      IDEL: 
+      begin
         state_d = lsu_req_valid ? LSU_RUN :
                   ifu_req_valid ? IFU_RUN : 
                   IDEL;
-      end;
+      end
       IFU_RUN: state_d = ifu_done ? IDEL : IFU_RUN;
       LSU_RUN: state_d = lsu_done ? IDEL : LSU_RUN;
       default: state_d = state_q;
@@ -99,16 +100,17 @@ module axi_lite_arbiter
   assign lsu_bvalid_o  = sel_lsu               & bvalid_i;
   assign lsu_bresp_o   = {2{sel_lsu}}          & bresp_i;
 
-  assign arvalid_o = sel_ifu & ifu_arvalid_i
-                   | sel_lsu & lsu_arvalid_i;
-  assign araddr_o  = sel_ifu & ifu_araddr_i
-                   | sel_lsu & lsu_araddr_i;
+  assign arvalid_o = sel_ifu               & ifu_arvalid_i
+                   | sel_lsu               & lsu_arvalid_i;
+  
+  assign araddr_o  = {ADDR_WIDTH{sel_ifu}} & ifu_araddr_i
+                   | {ADDR_WIDTH{sel_lsu}} & lsu_araddr_i;
 
-  assign awaddr_o = {ADDR_WIDTH{sel_lsu}} & lsu_awaddr_i;            
-  assign wvalid_o = sel_lsu               & lsu_wvalid_i;
-  assign wdata_o  = {DATA_WIDTH{sel_lsu}} & lsu_wdata_i;
-  assign wstrb_o  = {STRB_WIDTH{sel_ifu}} & lsu_wstrb_i;
-  assign bready_o = sel_lsu               & lsu_bready_i;
+  assign awaddr_o  = {ADDR_WIDTH{sel_lsu}} & lsu_awaddr_i;            
+  assign wvalid_o  = sel_lsu               & lsu_wvalid_i;
+  assign wdata_o   = {DATA_WIDTH{sel_lsu}} & lsu_wdata_i;
+  assign wstrb_o   = {STRB_WIDTH{sel_ifu}} & lsu_wstrb_i;
+  assign bready_o  = sel_lsu               & lsu_bready_i;
          
   
 endmodule

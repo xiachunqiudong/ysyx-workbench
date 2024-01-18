@@ -30,37 +30,61 @@ module top import liang_pkg::*;
   ele_t       wb_fwd_data;
 
   // IFU <> AXI LITE ARBITER
-  logic ifu_araddr;
-  logic ifu_arvalid;
-  logic ifu_arready;
-  logic ifu_rdata;
-  logic ifu_rvalid;
-  logic ifu_rready;
-  
+  logic [ADDR_WIDTH-1:0] ifu_araddr;
+  logic                  ifu_arvalid;
+  logic                  ifu_arready;
+  logic [DATA_WIDTH-1:0] ifu_rdata;
+  logic                  ifu_rvalid;
+  logic                  ifu_rready;
   // LSU <> AXI LITE ARBITER
-  logic lsu_araddr;
-  logic lsu_arvalid;
-  logic lsu_arready;
-  logic lsu_awaddr;
-  logic lsu_awvalid;
-  logic lsu_awready;
-  logic lsu_wdata;
-  logic lsu_wstrb;
-  logic lsu_wvalid;
-  logic lsu_wready;
-  logic lsu_bresp;
-  logic lsu_bresp;
-  logic lsu_bready;
+  logic [ADDR_WIDTH-1:0] lsu_araddr;
+  logic                  lsu_arvalid;
+  logic                  lsu_arready;
+  logic [DATA_WIDTH-1:0] lsu_rdata;
+  logic                  lsu_awaddr;
+  logic                  lsu_awvalid;
+  logic                  lsu_awready;
+  logic [DATA_WIDTH-1:0] lsu_wdata;
+  logic [STRB_WIDTH-1:0] lsu_wstrb;
+  logic                  lsu_wvalid;
+  logic                  lsu_wready;
+  logic [1:0]            lsu_bresp;
+  logic                  lsu_bvalid;
+  logic                  lsu_bready;
+  // AXI LITE ARBITER <> AXI
+  logic [ADDR_WIDTH-1:0] araddr;
+  logic                  arvalid;
+  logic                  arready;
+  logic [DATA_WIDTH-1:0] rdata;
+  logic                  rvalid;
+  logic                  rready;
+  logic [ADDR_WIDTH-1:0] awaddr;
+  logic                  awvalid;
+  logic                  awready;
+  logic [DATA_WIDTH-1:0] wdata;
+  logic [STRB_WIDTH-1:0] wstrb;
+  logic                  wvalid;
+  logic                  wready;
+  logic [1:0]            bresp;
+  logic                  bvalid;
+  logic                  bready;
+
 
   pipe_ifu
   u_pipe_ifu(
-    .clk_i      (clk_i),
-    .rst_i      (rst_i),
-    .flush_i    (flush),
-    .flush_pc_i (flush_pc),
-    .ifToId_o   (ifToId),
-    .if_valid_o (if_valid),
-    .id_ready_i (id_ready)
+    .clk_i         (clk_i),
+    .rst_i         (rst_i),
+    .flush_i       (flush),
+    .flush_pc_i    (flush_pc),
+    .ifu_araddr_o  (ifu_araddr),
+    .ifu_arvalid_o (ifu_arvalid),
+    .ifu_arready_i (ifu_arready),
+    .ifu_rdata_i   (ifu_rdata),
+    .ifu_rvalid_i  (ifu_rvalid),
+    .ifu_rready_o  (ifu_rready),
+    .ifToId_o      (ifToId),
+    .if_valid_o    (if_valid),
+    .id_ready_i    (id_ready)
   );
 
   pipe_idu
@@ -139,6 +163,9 @@ module top import liang_pkg::*;
     .lsu_araddr_i  (),
     .lsu_arvalid_i (),
     .lsu_arready_o (),
+    .lsu_rdata_o   (),
+    .lsu_rvalid_o  (),
+    .lsu_rready_i  (),
     .lsu_awaddr_i  (),
     .lsu_awvalid_i (),
     .lsu_awready_o (),
@@ -147,9 +174,46 @@ module top import liang_pkg::*;
     .lsu_wvalid_i  (),
     .lsu_wready_o  (),
     .lsu_bresp_o   (),
-    .lsu_bresp_o   (),
-    .lsu_bready_i  ()
+    .lsu_bvalid_o  (),
+    .lsu_bready_i  (),
+    .araddr_o      (araddr),
+    .arvalid_o     (arvalid),
+    .arready_i     (arready),
+    .rdata_i       (rdata),
+    .rvalid_i      (rvalid),
+    .rready_o      (rready),
+    .awaddr_o      (awaddr),
+    .awvalid_o     (awvalid),
+    .awready_i     (awready),
+    .wdata_o       (wdata),
+    .wstrb_o       (wstrb),
+    .wvalid_o      (wvalid),
+    .wready_i      (wready),
+    .bresp_i       (bresp),
+    .bvalid_i      (bvalid),
+    .bready_o      (bready)
   );
 
+  dram_axi_lite
+  u_dram_axi_lite(
+    .clk_i     (clk_i),
+    .rst_i     (rst_i),
+    .araddr_i  (araddr),
+    .arvalid_i (arvalid),
+    .arready_o (arready),
+    .rdata_o   (rdata),
+    .rvalid_o  (rvalid),
+    .rready_i  (rready),
+    .awaddr_i  (awaddr),
+    .awvalid_i (awvalid),
+    .awready_o (awready),
+    .wdata_i   (wdata),
+    .wstrb_i   (wstrb),
+    .wvalid_i  (wvalid),
+    .wready_o  (wready),
+    .bresp_o   (bresp),
+    .bvalid_o  (bvalid),
+    .bready_i  (bready)
+  );
 
 endmodule

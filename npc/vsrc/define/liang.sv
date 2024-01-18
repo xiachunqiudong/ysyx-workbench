@@ -1,6 +1,9 @@
 package liang_pkg;
 
   localparam int unsigned XLEN = 32;
+  localparam int unsigned ADDR_WIDTH = 32;
+  localparam int unsigned DATA_WIDTH = 32;
+  localparam int unsigned STRB_WIDTH = DATA_WIDTH/8;
   
   typedef logic [31:0] pc_t;
   typedef logic [31:0] inst_t;
