@@ -50,11 +50,11 @@ module dram_axi_lite
 
   assign araddr_d = raddr_fire ? araddr_i : araddr_q;
 
-  assign read_cnt_d = raddr_fire || can_read   ? 0 :
-                      read_state_q == READ_RUN ? read_cnt_q + 1 :
+  assign read_cnt_d = raddr_fire               ? lat :
+                      read_state_q == READ_RUN ? read_cnt_q - 1 :
                                                  read_cnt_q;
 
-  assign can_read = read_cnt_q == 10;
+  assign can_read = read_cnt_q == 0;
 
   typedef enum logic [1:0] {
     READ_IDEL, READ_RUN, READ_DONE
@@ -100,6 +100,11 @@ module dram_axi_lite
   end
   
   //-----------WRITE------------//
+  typedef enum logic [1:0] {
+    WRITE_IDEL, WRITE_RUN, WRITE_DONE
+  } write_state_e;
+  
+  write_state_e w_state_d, w_state_q;
   logic waddr_fire;
   logic wdata_fire;
   logic bresp_fire;
@@ -108,6 +113,9 @@ module dram_axi_lite
   logic [ADDR_WIDTH-1:0] waddr_d, waddr_q;
   logic [DATA_WIDTH-1:0] wdata_d, wdata_q;
 
+  assign awready_o  = !waddr_valid_q;
+  assign wready_o   = !wdata_valid_q;
+  assign bvalid_o   = w_state_q == WRITE_DONE;
   assign waddr_fire = awvalid_i && awready_o;
   assign wdata_fire = wvalid_i  && wready_o;
   assign bresp_fire = bvalid_o  && bready_i;
@@ -120,8 +128,17 @@ module dram_axi_lite
                          bresp_fire ? 0 :
                                       waddr_valid_q;
   
-  assign waddr_d = waddr_fire ? awaddr_i : awaddr_q;
+  assign waddr_d = waddr_fire ? awaddr_i : waddr_q;
   assign wdata_d = wdata_fire ? wdata_i  : wdata_q;
+
+  always_comb begin
+    case(w_state_q)
+      WRITE_IDEL: w_state_d = (awvalid_i || wvalid_i)          ? WRITE_RUN : WRITE_IDEL;
+      WRITE_RUN:  w_state_d = (wdata_valid_q && waddr_valid_q) ? WRITE_DONE : WRITE_RUN;
+      WRITE_DONE: w_state_d = bresp_fire                       ? WRITE_IDEL : WRITE_DONE;
+      default: w_state_d = WRITE_IDEL;
+    endcase
+  end
 
   always_ff @(posedge clk_i or posedge rst_i) begin
     if (rst_i) begin
@@ -129,12 +146,14 @@ module dram_axi_lite
       wdata_valid_q <= '0;
       waddr_q       <= '0;
       wdata_q       <= '0;
+      w_state_q     <= WRITE_IDEL;
     end
     else begin
       waddr_valid_q <= waddr_valid_d;
       wdata_valid_q <= wdata_valid_d;
       waddr_q       <= waddr_d;
-      wdata_q       <= wdata_d;    
+      wdata_q       <= wdata_d; 
+      w_state_q     <= w_state_d;   
     end
   end
 

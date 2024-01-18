@@ -39,14 +39,15 @@ module pipe_wb import liang_pkg::*;
   always_ff @(posedge clk_i or posedge rst_i) begin
     if (rst_i || rst_i) begin
       wb_valid_q <= 1'b0;
+      exToWb_q   <= '0;
     end begin
       wb_valid_q <= wb_valid_d;
       exToWb_q   <= exToWb_d;
     end
   end
 
-  assign rd_wen = commit_valid && exToWb_q.uop_info.rd_wen;
-  assign rd     = exToWb_q.uop_info.rd;
+  assign rd_wen   = commit_valid && exToWb_q.uop_info.rd_wen;
+  assign rd       = exToWb_q.uop_info.rd;
   assign rd_wdata = exToWb_q.uop_info.fu_op == LOAD ? exToWb_q.lsu_res 
                                                     : exToWb_q.alu_res;
   assign wb_req_o = '{

@@ -29,6 +29,29 @@ module top import liang_pkg::*;
   logic [4:0] wb_fwd_rd;
   ele_t       wb_fwd_data;
 
+  // IFU <> AXI LITE ARBITER
+  logic ifu_araddr;
+  logic ifu_arvalid;
+  logic ifu_arready;
+  logic ifu_rdata;
+  logic ifu_rvalid;
+  logic ifu_rready;
+  
+  // LSU <> AXI LITE ARBITER
+  logic lsu_araddr;
+  logic lsu_arvalid;
+  logic lsu_arready;
+  logic lsu_awaddr;
+  logic lsu_awvalid;
+  logic lsu_awready;
+  logic lsu_wdata;
+  logic lsu_wstrb;
+  logic lsu_wvalid;
+  logic lsu_wready;
+  logic lsu_bresp;
+  logic lsu_bresp;
+  logic lsu_bready;
+
   pipe_ifu
   u_pipe_ifu(
     .clk_i      (clk_i),
@@ -73,15 +96,15 @@ module top import liang_pkg::*;
 
   pipe_exu
   u_pipe_exu(
-    .clk_i      (clk_i),
-    .rst_i      (rst_i),
-    .flush_i    (flush),
-    .idToEx_i   (idToEx),
-    .id_valid_i (id_valid),
-    .ex_ready_o (ex_ready),
-    .exToWb_o   (exToWb),
-    .ex_valid_o (ex_valid),
-    .wb_ready_i (wb_ready),
+    .clk_i          (clk_i),
+    .rst_i          (rst_i),
+    .flush_i        (flush),
+    .idToEx_i       (idToEx),
+    .id_valid_i     (id_valid),
+    .ex_ready_o     (ex_ready),
+    .exToWb_o       (exToWb),
+    .ex_valid_o     (ex_valid),
+    .wb_ready_i     (wb_ready),
     // fwd from wb
     .wb_fwd_valid_i (wb_fwd_valid),
     .wb_fwd_rd_i    (wb_fwd_rd),
@@ -92,15 +115,40 @@ module top import liang_pkg::*;
 
   pipe_wb
   u_pipe_wb(
-    .clk_i      (clk_i),
-    .rst_i      (rst_i),
-    .exToWb_i   (exToWb),
-    .ex_valid_i (ex_valid),
-    .wb_ready_o (wb_ready),
-    .wb_req_o   (wb_req),
+    .clk_i          (clk_i),
+    .rst_i          (rst_i),
+    .exToWb_i       (exToWb),
+    .ex_valid_i     (ex_valid),
+    .wb_ready_o     (wb_ready),
+    .wb_req_o       (wb_req),
     .wb_fwd_valid_o (wb_fwd_valid),
     .wb_fwd_rd_o    (wb_fwd_rd),
     .wb_fwd_data_o  (wb_fwd_data)
+  );
+
+  axi_lite_arbiter
+  u_axi_lite_arbiter(
+    .clk_i         (clk_i),
+    .rst_i         (rst_i),
+    .ifu_araddr_i  (ifu_araddr),
+    .ifu_arvalid_i (ifu_arvalid),
+    .ifu_arready_o (ifu_arready),
+    .ifu_rdata_o   (ifu_rdata),
+    .ifu_rvalid_o  (ifu_rvalid),
+    .ifu_rready_i  (ifu_rready),
+    .lsu_araddr_i  (),
+    .lsu_arvalid_i (),
+    .lsu_arready_o (),
+    .lsu_awaddr_i  (),
+    .lsu_awvalid_i (),
+    .lsu_awready_o (),
+    .lsu_wdata_i   (),
+    .lsu_wstrb_i   (),
+    .lsu_wvalid_i  (),
+    .lsu_wready_o  (),
+    .lsu_bresp_o   (),
+    .lsu_bresp_o   (),
+    .lsu_bready_i  ()
   );
 
 
