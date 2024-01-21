@@ -41,7 +41,9 @@ module top import liang_pkg::*;
   logic                  lsu_arvalid;
   logic                  lsu_arready;
   logic [DATA_WIDTH-1:0] lsu_rdata;
-  logic                  lsu_awaddr;
+  logic                  lsu_rvalid;
+  logic                  lsu_rready;
+  logic [ADDR_WIDTH-1:0] lsu_awaddr;
   logic                  lsu_awvalid;
   logic                  lsu_awready;
   logic [DATA_WIDTH-1:0] lsu_wdata;
@@ -134,7 +136,24 @@ module top import liang_pkg::*;
     .wb_fwd_rd_i    (wb_fwd_rd),
     .wb_fwd_data_i  (wb_fwd_data),
     .flush_o        (flush),
-    .flush_pc_o     (flush_pc)
+    .flush_pc_o     (flush_pc),
+    // LSU <> AXI LITE ARBITER
+    .lsu_araddr_o   (lsu_araddr),
+    .lsu_arvalid_o  (lsu_arvalid),
+    .lsu_arready_i  (lsu_arready),
+    .lsu_rdata_i    (lsu_rdata),
+    .lsu_rvalid_i   (lsu_rvalid),
+    .lsu_rready_o   (lsu_rready),
+    .lsu_awaddr_o   (lsu_awaddr),
+    .lsu_awvalid_o  (lsu_awvalid),
+    .lsu_awready_i  (lsu_awready),
+    .lsu_wdata_o    (lsu_wdata),
+    .lsu_wstrb_o    (lsu_wstrb),
+    .lsu_wvalid_o   (lsu_wvalid),
+    .lsu_wready_i   (lsu_wready),
+    .lsu_bresp_i    (lsu_bresp),
+    .lsu_bvalid_i   (lsu_bvalid),
+    .lsu_bready_o   (lsu_bready)
   );
 
   pipe_wb
@@ -160,22 +179,22 @@ module top import liang_pkg::*;
     .ifu_rdata_o   (ifu_rdata),
     .ifu_rvalid_o  (ifu_rvalid),
     .ifu_rready_i  (ifu_rready),
-    .lsu_araddr_i  (),
-    .lsu_arvalid_i (),
-    .lsu_arready_o (),
-    .lsu_rdata_o   (),
-    .lsu_rvalid_o  (),
-    .lsu_rready_i  (),
-    .lsu_awaddr_i  (),
-    .lsu_awvalid_i (),
-    .lsu_awready_o (),
-    .lsu_wdata_i   (),
-    .lsu_wstrb_i   (),
-    .lsu_wvalid_i  (),
-    .lsu_wready_o  (),
-    .lsu_bresp_o   (),
-    .lsu_bvalid_o  (),
-    .lsu_bready_i  (),
+    .lsu_araddr_i  (lsu_araddr),
+    .lsu_arvalid_i (lsu_arvalid),
+    .lsu_arready_o (lsu_arready),
+    .lsu_rdata_o   (lsu_rdata),
+    .lsu_rvalid_o  (lsu_rvalid),
+    .lsu_rready_i  (lsu_rready),
+    .lsu_awaddr_i  (lsu_awaddr),
+    .lsu_awvalid_i (lsu_awvalid),
+    .lsu_awready_o (lsu_awready),
+    .lsu_wdata_i   (lsu_wdata),
+    .lsu_wstrb_i   (lsu_wstrb),
+    .lsu_wvalid_i  (lsu_wvalid),
+    .lsu_wready_o  (lsu_wready),
+    .lsu_bresp_o   (lsu_bresp),
+    .lsu_bvalid_o  (lsu_bvalid),
+    .lsu_bready_i  (lsu_bready),
     .araddr_o      (araddr),
     .arvalid_o     (arvalid),
     .arready_i     (arready),

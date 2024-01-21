@@ -1,109 +1,178 @@
 module lsu import liang_pkg::*;
 (
-  input  logic     clk_i,
-	// control signal
-  input logic      valid_i,
-  input uop_info_t uop_info_i,
-	// data signal
-	input  [XLEN-1:0] addr_i,
-	input  [XLEN-1:0] wdata_i,
-	output [XLEN-1:0] rdata_o
+  input                    clk_i,
+  input                    rst_i,
+  // EXU <> LSU
+  input                    lsu_req_valid_i,
+  output                   lsu_req_ready_o,
+  input load_type_e        lsu_req_load_type_i,            
+  input store_type_e       lsu_req_store_type_i,            
+  input                    lsu_req_type_i,
+  input [ADDR_WIDTH-1:0]   lsu_req_addr_i,
+  input [ADDR_WIDTH-1:0]   lsu_req_wdata_i,
+  output                   lsu_resp_valid_o,
+  input                    lsu_resp_ready_i,
+  output [ADDR_WIDTH-1:0]  lsu_resp_rdata_o,
+  // LSU <> ARBITER
+  output  [ADDR_WIDTH-1:0] lsu_araddr_o,
+  output                   lsu_arvalid_o,
+  input                    lsu_arready_i,
+  input [DATA_WIDTH-1:0]   lsu_rdata_i,
+  input                    lsu_rvalid_i,
+  output                   lsu_rready_o, 
+  output  [ADDR_WIDTH-1:0] lsu_awaddr_o,
+  output                   lsu_awvalid_o,
+  input                    lsu_awready_i,
+  output  [ADDR_WIDTH-1:0] lsu_wdata_o,
+  output  [STRB_WIDTH-1:0] lsu_wstrb_o,
+  output                   lsu_wvalid_o,
+  input                    lsu_wready_i,
+  input [1:0]              lsu_bresp_i,
+  input                    lsu_bvalid_i,
+  output                   lsu_bready_o
 );
 
-  logic is_load;
-  logic is_store;
-	logic [XLEN-1:0] ram_addr;
-  assign is_load  = uop_info_i.fu_op == LOAD  && valid_i;
-  assign is_store = uop_info_i.fu_op == STORE && valid_i;
-	assign ram_addr = {addr_i[XLEN-1:2], 2'b0};
+  typedef enum logic {
+    LSU_IDEL, LSU_RUN
+  } lsu_state_e;
+
+  //-----------LSU SIGNALS------------//
+  lsu_state_e            lsu_state_d, lsu_state_q;
+  logic                  lsu_type_d, lsu_type_q; // | 0: LOAD | 1: STORE |
+  logic                  lsu_is_load;
+  logic                  lsu_is_store;
+  logic                  lsu_valid;
+  logic                  lsu_req_fire;
+  logic                  lsu_resp_fire;
+  logic [ADDR_WIDTH-1:0] lsu_addr;
+  logic [ADDR_WIDTH-1:0] lsu_addr_d, lsu_addr_q;
+
+  //-----------LOAD SIGNALS------------//
+  load_type_e            load_type_d, load_type_q;
+  logic [7:0]            lb_data;
+  logic [15:0]           lh_data;
+  logic [31:0]           lw_data;
+  logic [DATA_WIDTH-1:0] lb_ext_data;
+	logic [DATA_WIDTH-1:0] lb_sext_data;
+  logic [DATA_WIDTH-1:0] lh_ext_data;
+	logic [DATA_WIDTH-1:0] lh_sext_data;
+
+  //-----------STORE SIGNALS------------//
+	logic [DATA_WIDTH-1:0] lsu_wdata_d, lsu_wdata_q;
+  logic [DATA_WIDTH-1:0] lsu_sb_wdata;
+  logic [DATA_WIDTH-1:0] lsu_sh_wdata;
+  logic [STRB_WIDTH-1:0] lsu_strb_d,  lsu_strb_q;
+  logic [DATA_WIDTH-1:0] lsu_wdata;
+  logic [STRB_WIDTH-1:0] lsu_sb_strb;
+  logic [STRB_WIDTH-1:0] lsu_sh_strb;
+  logic [STRB_WIDTH-1:0] lsu_strb;
 	
-	// LOAD
-	logic [XLEN-1:0] ram_rdata;
-	always_comb begin
-    if (is_load) begin
-		  pmem_read(ram_addr, ram_rdata);
-    end else
-      ram_rdata = '0;
-	end
-	
-	// LOAD BYTE
-	wire [7:0] lb_data;
+  //-----------LSU------------//
+  always_comb begin
+    case(lsu_state_q)
+      LSU_IDEL: lsu_state_d = lsu_req_fire ?  LSU_RUN : LSU_IDEL;
+      LSU_RUN:  lsu_state_d = lsu_resp_fire ? LSU_IDEL : LSU_RUN;
+      default:  lsu_state_d = LSU_IDEL;
+    endcase
+  end
+
+  assign lsu_valid        = lsu_state_q == LSU_RUN;
+  assign lsu_is_load      = lsu_type_q  == 1'b0;
+  assign lsu_is_store     = lsu_type_q  == 1'b1;
+  assign lsu_req_ready_o  = lsu_state_q == LSU_IDEL;
+  assign lsu_req_fire     = lsu_req_valid_i  && lsu_req_ready_o;
+  assign lsu_resp_valid_o = lsu_valid && (lsu_is_load && lsu_rvalid_i || lsu_is_store && lsu_bvalid_i);
+  assign lsu_resp_fire    = lsu_resp_valid_o && lsu_resp_ready_i;
+  // Accept new inst
+  assign lsu_addr        = {lsu_req_addr_i[ADDR_WIDTH-1:2], 2'b00};
+  assign lsu_type_d      = lsu_req_fire ? lsu_req_type_i : lsu_type_q;
+  assign lsu_addr_d      = lsu_req_fire ? lsu_addr       : lsu_addr_q;
+  assign lsu_strb_d      = lsu_req_fire ? lsu_strb       : lsu_strb_q;
+  assign lsu_wdata_d     = lsu_req_fire ? lsu_wdata      : lsu_wdata_q;
+
+  //-----------LSU x AXI LITE------------//
+  assign lsu_araddr_o  = lsu_addr_q;
+  assign lsu_arvalid_o = lsu_valid && lsu_is_load;
+  assign lsu_araddr_o  = lsu_addr_q;
+  assign lsu_rready_o  = lsu_resp_ready_i;
+  
+  assign lsu_awvalid_o = lsu_valid && lsu_is_store;
+  assign lsu_awaddr_o  = lsu_addr_q;
+  assign lsu_wvalid_o  = lsu_valid && lsu_is_store;
+  assign lsu_wdata_o   = lsu_wdata_q;
+  assign lsu_wstrb_o   = lsu_strb_q;
+  assign lsu_bready_o  = lsu_resp_ready_i;
+
+  //-----------LOAD------------//
+  assign load_type_d  = lsu_req_fire ? lsu_req_load_type_i : load_type_q;
+	assign lb_ext_data  = {{XLEN-8{1'b0}},         lb_data};
+	assign lb_sext_data = {{XLEN-8{lb_data[7]}},   lb_data};
+  assign lh_ext_data  = {{XLEN-16{1'b0}},        lh_data};
+	assign lh_sext_data = {{XLEN-16{lh_data[15]}}, lh_data};
+
 	MuxKey #(.NR_KEY(4), .KEY_LEN(2), .DATA_LEN(8))
   lb_mux(
       .out(lb_data),
-      .key(addr_i[1:0]),
+      .key(lsu_addr_q[1:0]),
       .lut({
-        2'b00, ram_rdata[7:0],
-        2'b01, ram_rdata[15:8],
-        2'b10, ram_rdata[23:16],
-        2'b11, ram_rdata[31:24]
+        2'b00, lsu_rdata_i[7:0],
+        2'b01, lsu_rdata_i[15:8],
+        2'b10, lsu_rdata_i[23:16],
+        2'b11, lsu_rdata_i[31:24]
       })
   );
-
-	wire [XLEN-1:0] lb_ext_data;
-	wire [XLEN-1:0] lb_sext_data;
-	assign lb_ext_data  = {{XLEN-8{1'b0}}, lb_data};
-	assign lb_sext_data = {{XLEN-8{lb_data[7]}}, lb_data};
-
-	// LOAD HALF
-	wire [15:0] lh_data;
+  
 	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(16))
   lh_mux(
       .out(lh_data),
-      .key(addr_i[1]),
+      .key(lsu_addr_q[1]),
       .lut({
-        1'b0, ram_rdata[15:0],
-        1'b1, ram_rdata[31:16]
+        1'b0, lsu_rdata_i[15:0],
+        1'b1, lsu_rdata_i[31:16]
       })
   );
 
-	wire [XLEN-1:0] lh_ext_data;
-	wire [XLEN-1:0] lh_sext_data;
-	assign lh_ext_data  = {{XLEN-16{1'b0}}, lh_data};
-	assign lh_sext_data = {{XLEN-16{lh_data[15]}}, lh_data};
-  
 	MuxKey #(.NR_KEY(6), .KEY_LEN(3), .DATA_LEN(XLEN))
   rdata_mux(
-      .out(rdata_o),
-      .key(uop_info_i.load_type),
+      .out(lsu_resp_rdata_o),
+      .key(load_type_q),
       .lut({
         LOAD_NONE, {XLEN{1'b0}},
         LOAD_LB,   lb_sext_data, // lb
         LOAD_LH,   lh_sext_data, // lh
-        LOAD_LW,   ram_rdata,    // lw
+        LOAD_LW,   lsu_rdata_i,  // lw
         LOAD_LBU,  lb_ext_data,  // lbu
         LOAD_LHU,  lh_ext_data   // lhu
       })
   );
 
 	// STORE
-	wire [XLEN-1:0] ram_wdata;
-	wire [3:0] ram_mask;
-	always @(*) begin
-		if(is_store) begin
-			pmem_write(ram_addr, ram_wdata, {4'b0, ram_mask});
-		end
-	end
-
-	// STORE BYTE
-	wire [XLEN-1:0] sb_data;
 	MuxKey #(.NR_KEY(4), .KEY_LEN(2), .DATA_LEN(XLEN))
   sb_mux(
-    .out(sb_data),
-    .key(addr_i[1:0]),
+    .out(lsu_sb_wdata),
+    .key(lsu_addr[1:0]),
     .lut({
-      2'b00, {8'b0,         8'b0,         8'b0,         wdata_i[7:0]},
-      2'b01, {8'b0,         8'b0,         wdata_i[7:0], 8'b0},
-      2'b10, {8'b0,         wdata_i[7:0], 8'b0,         8'b0},
-      2'b11, {wdata_i[7:0], 8'b0,         8'b0,         8'b0}
+      2'b00, {8'b0,                 8'b0,                 8'b0,                 lsu_req_wdata_i[7:0]},
+      2'b01, {8'b0,                 8'b0,                 lsu_req_wdata_i[7:0], 8'b0                },
+      2'b10, {8'b0,                 lsu_req_wdata_i[7:0], 8'b0,                 8'b0                },
+      2'b11, {lsu_req_wdata_i[7:0], 8'b0,                 8'b0,                 8'b0                }
     })
   );
 
-	wire [3:0] sb_mask;
+	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(XLEN))
+  sh_mux(
+    .out(lsu_sh_wdata),
+    .key(lsu_addr[1]),
+    .lut({
+      1'b0, {16'b0,         lsu_req_wdata_i[15:0]},
+      1'b1, {lsu_req_wdata_i[15:0], 16'b0}
+    })
+  );
+
 	MuxKey #(.NR_KEY(4), .KEY_LEN(2), .DATA_LEN(4))
   sb_mask_mux(
-    .out(sb_mask),
-    .key(addr_i[1:0]),
+    .out(lsu_sb_strb),
+    .key(lsu_addr[1:0]),
     .lut({
       2'b00, 4'b0001,
       2'b01, 4'b0010,
@@ -112,52 +181,58 @@ module lsu import liang_pkg::*;
     })
   );
 
-	// STORE HALF
-	wire [XLEN-1:0] sh_data;
-	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(XLEN))
-  sh_mux(
-    .out(sh_data),
-    .key(addr_i[1]),
-    .lut({
-      1'b0, {16'b0,         wdata_i[15:0]},
-      1'b1, {wdata_i[15:0], 16'b0}
-    })
-  );
-
-	wire [3:0] sh_mask;
 	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(4))
   sh_mask_mux(
-    .out(sh_mask),
-    .key(addr_i[1]),
+    .out(lsu_sh_strb),
+    .key(lsu_addr[1]),
     .lut({
       1'b0, 4'b0011,
       1'b1, 4'b1100
     })
   );
 
-	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(XLEN))
+	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(DATA_WIDTH))
   wdata_mux(
-    .out(ram_wdata),
-    .key(uop_info_i.store_type),
+    .out(lsu_wdata),
+    .key(lsu_req_store_type_i),
     .lut({
-      STORE_NONE, {XLEN{1'b0}},
-      STORE_SB,    sb_data, // sb
-      STORE_SH,    sh_data, // sh
-      STORE_SW,    wdata_i  // sw
+      STORE_NONE, {DATA_WIDTH{1'b0}},
+      STORE_SB,    lsu_sb_wdata,    // sb
+      STORE_SH,    lsu_sh_wdata,    // sh
+      STORE_SW,    lsu_req_wdata_i  // sw
     })
   );
 
-	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(4))
+	MuxKey #(.NR_KEY(4), .KEY_LEN(3), .DATA_LEN(STRB_WIDTH))
   wmask_mux(
-    .out(ram_mask),
-    .key(uop_info_i.store_type),
+    .out(lsu_strb),
+    .key(lsu_req_store_type_i),
     .lut({
       STORE_NONE, 4'b0000,
-      STORE_SB,   sb_mask, // sb
-      STORE_SH,   sh_mask, // sh
-      STORE_SW,   4'b1111  // sw
+      STORE_SB,   lsu_sb_strb, // sb
+      STORE_SH,   lsu_sh_strb, // sh
+      STORE_SW,   4'b1111      // sw
     })
   );
+
+  always_ff @(posedge clk_i or posedge rst_i) begin
+    if (rst_i) begin
+      lsu_state_q <= LSU_IDEL;
+      lsu_type_q  <= '0;
+      lsu_addr_q  <= '0;
+      lsu_wdata_q <= '0;
+      lsu_strb_q  <= '0;
+      load_type_q <= '0;
+    end
+    else begin
+      lsu_state_q <= lsu_state_d;
+      lsu_type_q  <= lsu_type_d;
+      lsu_addr_q  <= lsu_addr_d;
+      lsu_wdata_q <= lsu_wdata_d;
+      lsu_strb_q  <= lsu_strb_d;
+      load_type_q <= load_type_d;
+    end
+  end
 
   // DEBUG
   integer fp;
@@ -166,13 +241,12 @@ module lsu import liang_pkg::*;
   end
 
   always_ff @(posedge clk_i) begin
-    if (uop_info_i.fu_op == LOAD) begin
-      $fdisplay(fp, "[LOAD ] PC: %08x\t ADDR: %08x\t Data: %08x\t", uop_info_i.pc, addr_i, rdata_o);
+    if (lsu_resp_fire && lsu_is_load) begin
+      $fdisplay(fp, "[LOAD ] ADDR: %08x\t DATA: %08x\t", lsu_addr_q, lsu_rdata_i);
     end
-    else if(uop_info_i.fu_op == STORE) begin
-      $fdisplay(fp, "[STORE] PC: %08x\t ADDR: %08x\t Data: %08x\t", uop_info_i.pc, addr_i, wdata_i);
+    else if(lsu_resp_fire && lsu_is_store) begin
+      $fdisplay(fp, "[STORE] ADDR: %08x\t DATA: %08x\t STRB: %4b\t", lsu_addr_q, lsu_wdata_q, lsu_strb_q);
     end
   end
-
 
 endmodule
