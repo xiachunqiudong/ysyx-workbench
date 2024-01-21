@@ -1,51 +1,56 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Tue Jan  2 01:34:53 2024
+[*] Sun Jan 21 04:28:31 2024
 [*]
 [dumpfile] "/home/xia/project/chip/ysyx-workbench/npc/wave.vcd"
-[dumpfile_mtime] "Tue Jan  2 01:27:58 2024"
-[dumpfile_size] 713652
+[dumpfile_mtime] "Sun Jan 21 04:19:54 2024"
+[dumpfile_size] 461426184
 [savefile] "/home/xia/project/chip/ysyx-workbench/npc/npc.gtkw"
-[timestart] 0
-[size] 2560 1332
+[timestart] 48
+[size] 1920 1140
 [pos] -1 -1
-*-3.000000 9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-2.000000 63 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.top.
 [treeopen] TOP.top.u_pipe_exu.lsu_u.
 [treeopen] TOP.top.u_pipe_ifu.
-[treeopen] TOP.top.u_pipe_ifu.u_ifu_axi_lite.
 [sst_width] 388
-[signals_width] 405
+[signals_width] 410
 [sst_expanded] 1
-[sst_vpaned_height] 374
+[sst_vpaned_height] 298
 @28
 TOP.clk_i
 TOP.rst_i
 @22
 TOP.top.u_pipe_ifu.pc_q[31:0]
-@28
-TOP.top.u_pipe_ifu.u_ifu_axi_lite.u_dram_axi_lite.raddr_fire
-TOP.top.u_pipe_ifu.u_ifu_axi_lite.u_dram_axi_lite.rdata_fire
-@24
-TOP.top.u_pipe_ifu.u_ifu_axi_lite.state_q[1:0]
-@28
-TOP.top.u_pipe_ifu.if_req_valid
 [color] 3
-TOP.top.u_pipe_ifu.if_resp_valid
-@22
-[color] 3
-TOP.top.u_pipe_ifu.if_resp_inst[31:0]
-@23
 TOP.top.u_pipe_idu.id_pc[31:0]
 @28
 TOP.top.u_pipe_ifu.if_valid_o
+@22
+TOP.top.u_pipe_ifu.if_inst[31:0]
+@28
+[color] 2
+TOP.top.u_pipe_ifu.ifu_arvalid_o
+[color] 2
+TOP.top.u_pipe_ifu.ifu_arready_i
+[color] 7
+TOP.top.u_axi_lite_arbiter.state_q[1:0]
+TOP.top.u_axi_lite_arbiter.ifu_rready_i
+TOP.top.u_axi_lite_arbiter.ifu_rvalid_o
+TOP.top.u_axi_lite_arbiter.ifu_done
+[color] 7
+TOP.top.u_axi_lite_arbiter.arvalid_o
+[color] 7
+TOP.top.u_axi_lite_arbiter.arready_i
+@22
+TOP.top.u_pipe_ifu.ifu_araddr_o[31:0]
+@28
 [color] 3
 TOP.top.u_pipe_ifu.id_ready_i
 TOP.top.u_pipe_idu.id_valid_q
 @22
 TOP.top.u_pipe_idu.id_pc[31:0]
-TOP.top.u_pipe_ifu.u_ifu_axi_lite.u_dram_axi_lite.araddr_q[31:0]
 @28
 TOP.top.u_pipe_exu.lsu_u.is_load
 @22
@@ -56,5 +61,8 @@ TOP.top.u_pipe_exu.id_valid_i
 TOP.top.u_pipe_exu.ex_valid_q
 TOP.top.u_pipe_exu.ex_fire
 TOP.top.u_pipe_exu.wb_ready_i
+TOP.top.u_axi_lite_arbiter.ifu_arvalid_i
+@22
+TOP.top.u_axi_lite_arbiter.ifu_araddr_i[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

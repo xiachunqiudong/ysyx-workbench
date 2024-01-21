@@ -89,28 +89,42 @@ module axi_lite_arbiter
   assign sel_ifu = state_q == IFU_RUN;
   assign sel_lsu = state_q == LSU_RUN;
   
-  assign ifu_arready_o = arready_i & sel_ifu;
-  assign ifu_rvalid_o  = rvalid_i  & sel_ifu;
+  assign ifu_arready_o = sel_ifu               & arready_i;
+  assign ifu_rvalid_o  = sel_ifu               & rvalid_i;
   assign ifu_rdata_o   = {DATA_WIDTH{sel_ifu}} & rdata_i;
-  
+
   assign lsu_arready_o = sel_lsu               & arready_i;
   assign lsu_rvalid_o  = sel_lsu               & rvalid_i;
   assign lsu_rdata_o   = {DATA_WIDTH{sel_lsu}} & rdata_i;
+
   assign lsu_awready_o = sel_lsu               & awready_i;
   assign lsu_bvalid_o  = sel_lsu               & bvalid_i;
   assign lsu_bresp_o   = {2{sel_lsu}}          & bresp_i;
 
-  assign arvalid_o = sel_ifu               & ifu_arvalid_i
-                   | sel_lsu               & lsu_arvalid_i;
-  
   assign araddr_o  = {ADDR_WIDTH{sel_ifu}} & ifu_araddr_i
                    | {ADDR_WIDTH{sel_lsu}} & lsu_araddr_i;
 
-  assign awaddr_o  = {ADDR_WIDTH{sel_lsu}} & lsu_awaddr_i;            
-  assign wvalid_o  = sel_lsu               & lsu_wvalid_i;
+  assign arvalid_o = sel_ifu               & ifu_arvalid_i
+                   | sel_lsu               & lsu_arvalid_i;
+
+  assign rready_o  = sel_ifu               & ifu_rready_i
+                   | sel_lsu               & lsu_rready_i;
+
+  assign awaddr_o  = {ADDR_WIDTH{sel_lsu}} & lsu_awaddr_i;
+  assign awvalid_o = sel_lsu               & lsu_awvalid_i;            
   assign wdata_o   = {DATA_WIDTH{sel_lsu}} & lsu_wdata_i;
-  assign wstrb_o   = {STRB_WIDTH{sel_ifu}} & lsu_wstrb_i;
-  assign bready_o  = sel_lsu               & lsu_bready_i;
+  assign wstrb_o   = {STRB_WIDTH{sel_lsu}} & lsu_wstrb_i;
+  assign wvalid_o  = sel_lsu               & lsu_wvalid_i;
+  assign bready_o  = sel_lsu               & lsu_bready_i; 
+
+  always_ff @(posedge clk_i or posedge rst_i) begin
+    if (rst_i) begin
+      state_q <= IDEL;
+    end 
+    else begin
+      state_q <= state_d;
+    end
+  end
          
   
 endmodule

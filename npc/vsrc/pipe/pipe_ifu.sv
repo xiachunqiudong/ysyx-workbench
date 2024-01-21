@@ -5,9 +5,9 @@ module pipe_ifu import liang_pkg::*;
   input  logic                  flush_i,
   input  pc_t                   flush_pc_i,
   // IFU <> AXI LITE ARBITER
+  output logic [ADDR_WIDTH-1:0] ifu_araddr_o,
   output logic                  ifu_arvalid_o,
   input  logic                  ifu_arready_i,
-  output logic [ADDR_WIDTH-1:0] ifu_araddr_o,
   input  logic                  ifu_rvalid_i,
   input  logic [DATA_WIDTH-1:0] ifu_rdata_i,
   output logic                  ifu_rready_o, 
@@ -27,6 +27,7 @@ module pipe_ifu import liang_pkg::*;
   assign ifToId_o.pc   = pc_q;
   assign ifToId_o.inst = if_inst;
 
+  assign ifu_araddr_o  = pc_q;
   assign ifu_arvalid_o = if_valid_q;
   assign ifu_rready_o  = id_ready_i;
   assign if_inst       = ifu_rdata_i;
