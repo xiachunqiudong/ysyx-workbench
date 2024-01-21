@@ -15,6 +15,7 @@ module pipe_wb import liang_pkg::*;
 );
   
   pc_t     commit_pc;
+  pc_t     dnpc;
   logic    wb_valid_d, wb_valid_q;
   exToWb_t exToWb_d,   exToWb_q;
   wire        commit_valid;
@@ -26,6 +27,7 @@ module pipe_wb import liang_pkg::*;
   assign commit_valid = wb_valid_q;
   assign wb_ready_o   = 1'b1;
   assign commit_pc    = exToWb_q.uop_info.pc;
+  assign dnpc         = exToWb_q.dnpc;
 
   always_comb begin
     wb_valid_d = wb_valid_q;
@@ -77,8 +79,16 @@ module pipe_wb import liang_pkg::*;
     
   end
 
+  integer fp;
+  initial begin
+    fp = $fopen("./log/npc_wb.log");
+  end
+
   always_ff @(posedge clk_i) begin
-    commit(commit_valid, commit_pc, exToWb_q.uop_info.inst, exToWb_q.uop_info.dnpc);
+    commit(commit_valid, commit_pc, exToWb_q.uop_info.inst, dnpc);
+    if (commit_valid) begin
+      $fdisplay(fp, "PC: %08x commit, dnpc: %08x", commit_pc, dnpc);
+    end
   end
 
 endmodule

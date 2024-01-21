@@ -56,7 +56,6 @@ void exec(uint32_t n) {
   commit_info_t commit_info;
   
   for (uint32_t i = 0; i < n; i++) {
-    commit_info = npc_commit_info();
     if (npc_get_state() == NPC_STOP) {
       // disassemble(disasm, size, commit_pc, (uint8_t *)&commit_inst, 4);
       // sprintf(buf, "npc sim stop caused by ebreak, at %08x: %s\n", commit_pc, disasm);
@@ -70,10 +69,12 @@ void exec(uint32_t n) {
     } else {
       // for pipe or ooo, only commit when wb is valid
       do {
+        commit_info = npc_commit_info();
         if (commit_info.commit_valid) { // npc will commit a valid inst in next cycly
           disassemble(disasm, size, commit_info.commit_pc, (uint8_t *)&commit_info.commit_inst, 4);
           sprintf(buf, "[commit] %08x: %s", commit_info.commit_pc, disasm);
           log(buf);
+          printf("commit \n");
         }
         exec_once(); // commit
       } while (commit_info.commit_valid == false);
@@ -83,10 +84,12 @@ void exec(uint32_t n) {
       }
 
       #ifdef DIFF
-        if(!difftest_step(commit_info.commit_dnpc)) {// diff fail
-          npc_set_state(NPC_ERROR_DIFF);
-          ret_value = 1;
-        }
+      if(!difftest_step(commit_info.commit_dnpc)) {// diff fail
+        npc_set_state(NPC_ERROR_DIFF);
+        ret_value = 1;
+      } else {
+        printf("difftest pass\n");
+      }
       #endif
       
     }

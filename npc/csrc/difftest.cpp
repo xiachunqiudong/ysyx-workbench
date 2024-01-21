@@ -59,7 +59,7 @@ static bool chk_regs(cpu_state ref_state, paddr_t pc) {
   word_t ref_pc = ref_state.pc;
 
   if (ref_state.pc != pc) {
-    sprintf(buf, "[difftest] npc pc is wrong, ref: 0x%08x npc: 0x%08x\n", ref_pc, pc);
+    sprintf(buf, "[difftest] Npc PC is wrong, ref: 0x%08x npc: 0x%08x\n", ref_pc, pc);
     npc_error(buf);
     pass = false;
   }
@@ -96,8 +96,6 @@ bool difftest_step(paddr_t pc) {
   ref_difftest_exec(1);
 
   ref_difftest_regcpy((void *)&ref_state, false);
-
-  // printf("pc = %08x\n", ref_state.pc);
 
   return chk_regs(ref_state, pc);
   

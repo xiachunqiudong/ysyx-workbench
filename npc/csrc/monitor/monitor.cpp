@@ -81,6 +81,8 @@ void sdb_mainloop();
 void cpu_rst();
 
 void init_monitor(int argc, char *argv[]) {
+
+  char buf[128];
   
   parse_args(argc, argv);
 
@@ -94,6 +96,8 @@ void init_monitor(int argc, char *argv[]) {
 
   #ifdef DIFF
   init_difftest(diff_file, img_size, 0);
+  sprintf(buf, "Difftest is on\n");
+  npc_info(buf);
   #endif
 
   cpu_rst();

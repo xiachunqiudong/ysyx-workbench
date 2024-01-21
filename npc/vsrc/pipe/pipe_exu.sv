@@ -67,9 +67,10 @@ module pipe_exu import liang_pkg::*;
   logic                  jump;
 
   // output
-  assign exToWb_o.alu_res  = alu_res;
-  assign exToWb_o.lsu_res  = lsu_resp_rdata;
-  assign exToWb_o.uop_info = idToEx_q.uop_info;
+  assign exToWb_o.alu_res       = alu_res;
+  assign exToWb_o.lsu_res       = lsu_resp_rdata;
+  assign exToWb_o.uop_info      = uop_info;
+  assign exToWb_o.dnpc          = flush_o ? flush_pc_o : ex_pc + 4;
   // exu
   assign uop_info         = idToEx_q.uop_info;
   assign ex_pc            = uop_info.pc;
@@ -160,6 +161,5 @@ module pipe_exu import liang_pkg::*;
   assign flush_pc_o = (uop_info.fu_op == JALR ? rs1_data : ex_pc) + uop_info.imm;
 
  // for difftest
-  assign exToWb_o.uop_info.dnpc = flush_o ? flush_pc_o : ex_pc + 4;
 
 endmodule

@@ -73,7 +73,6 @@ package liang_pkg;
 
   typedef struct packed {
     pc_t             pc;
-    pc_t             dnpc;
     inst_t           inst;
     logic [4:0]      rs1;
     logic [4:0]      rs2;
@@ -103,6 +102,7 @@ package liang_pkg;
 
   typedef struct packed {
     uop_info_t uop_info;
+    pc_t       dnpc;
     ele_t      alu_res;
     ele_t      lsu_res;
   } exToWb_t;
