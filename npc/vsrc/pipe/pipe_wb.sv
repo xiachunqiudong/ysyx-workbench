@@ -84,7 +84,7 @@ module pipe_wb import liang_pkg::*;
     fp = $fopen("./log/npc_wb.log");
   end
 
-  always_ff @(posedge clk_i) begin
+  always_comb begin
     commit(commit_valid, commit_pc, exToWb_q.uop_info.inst, dnpc);
     if (commit_valid) begin
       $fdisplay(fp, "PC: %08x commit, dnpc: %08x", commit_pc, dnpc);
