@@ -49,6 +49,7 @@ module pipe_exu import liang_pkg::*;
   ele_t                  rs2_data;
   // EX <> ALU
   ele_t                  alu_res;
+  
   //-----------EXU x LSU------------//
   logic                  ex_is_load;
   logic                  ex_is_store;

@@ -48,7 +48,7 @@ module lsu import liang_pkg::*;
   logic [ADDR_WIDTH-1:0] lsu_addr_d, lsu_addr_q;
 
   //-----------LOAD SIGNALS------------//
-  load_type_e            load_type_d, load_type_q;
+  logic [2:0]            load_type_d, load_type_q;
   logic [7:0]            lb_data;
   logic [15:0]           lh_data;
   logic [31:0]           lw_data;
