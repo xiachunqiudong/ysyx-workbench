@@ -31,23 +31,23 @@ module alu import liang_pkg::*;(
   assign imm   = uop_info_i.imm;
   
   assign src1 = (fu_op inside {AUIPC, JAL, JALR}) ? uop_info_i.pc :
-                (uop_info_i.fu_op inside {LUI})   ? '0 :
+                (uop_info_i.fu_op inside {LUI})   ? '0            :
                                                     rs1_i;
 
   assign src2 = (uop_info_i.fu_op inside {ALR, BRANCH}) ? rs2_i :
-                (uop_info_i.fu_op inside {JAL, JALR})   ? 4 :
+                (uop_info_i.fu_op inside {JAL, JALR})   ? 4     :
                                                           imm;
-
 
 
   //------------adder------------//
   assign adder_sub               = (uop_info_i.fu_func inside {SUB, SLT, SLTI, SLTU, SLTUI}) 
                                 || (uop_info_i.fu_op == BRANCH);
-  //------------adder------------//
+
   assign adder_src1              = src1;
   assign adder_src2              = {XLEN{adder_sub}} ^ src2;
 	assign {adder_cout, adder_res} = adder_src1 + adder_src2 + {{XLEN-1{1'b0}}, adder_sub};
   
+  //------------alu------------//
   assign sll_res  = src1 << src2[4:0];
   assign slt_res  = {{XLEN-1{1'b0}}, lt};
   assign sltu_res = {{XLEN-1{1'b0}}, ltu};
@@ -61,8 +61,6 @@ module alu import liang_pkg::*;(
     alu_res_o = '0;
     if (uop_info_i.fu_op inside {[LOAD:LUI]} || uop_info_i.fu_func inside {ADD, ADDI, SUB}) begin
       alu_res_o = adder_res;
-    end else if (uop_info_i.fu_func inside {SLL, SLLI}) begin
-      alu_res_o = sll_res;
     end 
     else if (uop_info_i.fu_func inside {SLL, SLLI}) begin
       alu_res_o = sll_res;
