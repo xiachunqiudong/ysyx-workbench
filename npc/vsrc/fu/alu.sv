@@ -32,12 +32,13 @@ module alu import liang_pkg::*;(
       src2 = uop_info_i.imm;
   end
 
-  logic adder_sub;
+  logic            adder_sub;
   logic [XLEN-1:0] adder_src1;
   logic [XLEN-1:0] adder_src2;      
 	logic [XLEN-1:0] adder_res;
-  logic             adder_cout;
-	logic [XLEN-1:0] sll_res;
+  logic            adder_cout;
+	
+  logic [XLEN-1:0] sll_res;
 	logic [XLEN-1:0] slt_res;
 	logic [XLEN-1:0] sltu_res;
 	logic [XLEN-1:0] xor_res;
@@ -47,19 +48,21 @@ module alu import liang_pkg::*;(
 	logic [XLEN-1:0] and_res;
 
 //------------adder------------
-  assign adder_sub = uop_info_i.fu_func inside {SUB, SLT, SLTI, SLTU, SLTUI} 
-                  || uop_info_i.fu_op == BRANCH;
-  assign adder_src1 = src1;
-  assign adder_src2 = {XLEN{adder_sub}} ^ src2;
-	assign {adder_cout, adder_res} = adder_src1 + adder_src2 + { {XLEN-1{1'b0}}, adder_sub };
-  assign sll_res = src1 << src2[4:0];
+  assign adder_sub               = (uop_info_i.fu_func inside {SUB, SLT, SLTI, SLTU, SLTUI}) 
+                                || (uop_info_i.fu_op == BRANCH);
+  
+  assign adder_src1              = src1;
+  assign adder_src2              = {XLEN{adder_sub}} ^ src2;
+	assign {adder_cout, adder_res} = adder_src1 + adder_src2 + {{XLEN-1{1'b0}}, adder_sub};
+  
+  assign sll_res  = src1 << src2[4:0];
   assign slt_res  = {{XLEN-1{1'b0}}, lt};
   assign sltu_res = {{XLEN-1{1'b0}}, ltu};
-  assign xor_res = src1 ^ src2;
-  assign srl_res = src1 >> src2[4:0];
-  assign sra_res = $signed(src1) >>> src2[4:0];
-  assign or_res  = src1 | src2;
-  assign and_res = src1 & src2;
+  assign xor_res  = src1 ^ src2;
+  assign srl_res  = src1 >> src2[4:0];
+  assign sra_res  = $signed(src1) >>> src2[4:0];
+  assign or_res   = src1 | src2;
+  assign and_res  = src1 & src2;
 
   always_comb begin
     alu_res_o = '0;
@@ -107,12 +110,12 @@ module alu import liang_pkg::*;(
   always_comb begin
     jump_o = '0;  
     case(uop_info_i.fu_func)
-      BEQ:  jump_o = eq;
-      BNE:  jump_o = ne;
-      BLT:  jump_o = lt;
-      BGE:  jump_o = ge;
-      BLTU: jump_o = ltu;
-      BGEU: jump_o = geu;
+      BEQ:     jump_o = eq;
+      BNE:     jump_o = ne;
+      BLT:     jump_o = lt;
+      BGE:     jump_o = ge;
+      BLTU:    jump_o = ltu;
+      BGEU:    jump_o = geu;
       default: jump_o = '0;
     endcase
   end
