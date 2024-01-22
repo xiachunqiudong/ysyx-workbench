@@ -54,7 +54,7 @@ module pipe_ifu import liang_pkg::*;
       has_flush_q <= has_flush_d;
     end
   end
-  
+
   always_ff @(posedge clk_i or posedge rst_i) begin
     if(rst_i) begin
       has_flush_q <= '0;
@@ -64,14 +64,30 @@ module pipe_ifu import liang_pkg::*;
     end
   end
 
+
+//-----------DEBUG------------//
   integer fp;
   initial begin
     fp = $fopen("./log/npc_ifu.log");
   end
 
-  always_ff @(posedge clk_i) begin
+  logic [9:0] ifu_cnt;
+  
+  always_ff @(posedge clk_i or posedge rst_i) begin
+    if (rst_i) begin
+      ifu_cnt <= '0;
+    end
+    else if (if_fire) begin
+      ifu_cnt <= '0;
+    end
+    else begin
+      ifu_cnt <= ifu_cnt + 1;
+    end
+  end
+
+  always_comb begin
     if (if_fire) begin
-      $fdisplay(fp, "%08x: %08x", pc_q, if_inst);
+      $fdisplay(fp, "[IFU] {PC: %08x, Inst: %08x}, take this inst take %d cycle.", pc_q, if_inst, ifu_cnt);
     end
   end
 
