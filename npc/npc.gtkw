@@ -1,108 +1,28 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Sun Jan 21 10:34:16 2024
+[*] Mon Jan 22 02:16:50 2024
 [*]
 [dumpfile] "/home/xia/project/chip/ysyx-workbench/npc/wave.vcd"
-[dumpfile_mtime] "Sun Jan 21 10:22:09 2024"
-[dumpfile_size] 21012489
+[dumpfile_mtime] "Mon Jan 22 02:11:37 2024"
+[dumpfile_size] 100492
 [savefile] "/home/xia/project/chip/ysyx-workbench/npc/npc.gtkw"
-[timestart] 156
-[size] 1920 1140
-[pos] -1 -1
-*-5.000000 201 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 0
+[size] 1704 931
+[pos] -51 -51
+*-3.559792 27 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.top.
-[treeopen] TOP.top.u_pipe_exu.
-[treeopen] TOP.top.u_pipe_exu.lsu_u.
-[treeopen] TOP.top.u_pipe_ifu.
-[sst_width] 388
-[signals_width] 410
+[sst_width] 233
+[signals_width] 172
 [sst_expanded] 1
-[sst_vpaned_height] 298
+[sst_vpaned_height] 235
 @28
-TOP.clk_i
-TOP.rst_i
+TOP.top.u_pipe_ifu.clk_i
 @22
 TOP.top.u_pipe_ifu.pc_q[31:0]
-[color] 3
-TOP.top.u_pipe_idu.id_pc[31:0]
 @28
 TOP.top.u_pipe_ifu.if_valid_o
-@22
+@23
 TOP.top.u_pipe_ifu.if_inst[31:0]
-@28
-[color] 2
-TOP.top.u_pipe_ifu.ifu_arvalid_o
-[color] 2
-TOP.top.u_pipe_ifu.ifu_arready_i
-[color] 7
-TOP.top.u_axi_lite_arbiter.state_q[1:0]
-TOP.top.u_axi_lite_arbiter.ifu_rready_i
-TOP.top.u_axi_lite_arbiter.ifu_rvalid_o
-TOP.top.u_axi_lite_arbiter.ifu_done
-[color] 7
-TOP.top.u_axi_lite_arbiter.arvalid_o
-[color] 7
-TOP.top.u_axi_lite_arbiter.arready_i
-@22
-TOP.top.u_pipe_ifu.ifu_araddr_o[31:0]
-@28
-[color] 3
-TOP.top.u_pipe_ifu.id_ready_i
-TOP.top.u_pipe_idu.id_valid_q
-@22
-TOP.top.u_pipe_idu.id_pc[31:0]
-@28
-TOP.top.u_pipe_exu.id_valid_i
-TOP.top.u_pipe_exu.ex_valid_q
-TOP.top.u_pipe_exu.ex_fire
-TOP.top.u_pipe_exu.wb_ready_i
-TOP.top.u_axi_lite_arbiter.ifu_arvalid_i
-@c00022
-TOP.top.u_pipe_exu.ex_pc[31:0]
-@28
-(0)TOP.top.u_pipe_exu.ex_pc[31:0]
-(1)TOP.top.u_pipe_exu.ex_pc[31:0]
-(2)TOP.top.u_pipe_exu.ex_pc[31:0]
-(3)TOP.top.u_pipe_exu.ex_pc[31:0]
-(4)TOP.top.u_pipe_exu.ex_pc[31:0]
-(5)TOP.top.u_pipe_exu.ex_pc[31:0]
-(6)TOP.top.u_pipe_exu.ex_pc[31:0]
-(7)TOP.top.u_pipe_exu.ex_pc[31:0]
-(8)TOP.top.u_pipe_exu.ex_pc[31:0]
-(9)TOP.top.u_pipe_exu.ex_pc[31:0]
-(10)TOP.top.u_pipe_exu.ex_pc[31:0]
-(11)TOP.top.u_pipe_exu.ex_pc[31:0]
-(12)TOP.top.u_pipe_exu.ex_pc[31:0]
-(13)TOP.top.u_pipe_exu.ex_pc[31:0]
-(14)TOP.top.u_pipe_exu.ex_pc[31:0]
-(15)TOP.top.u_pipe_exu.ex_pc[31:0]
-(16)TOP.top.u_pipe_exu.ex_pc[31:0]
-(17)TOP.top.u_pipe_exu.ex_pc[31:0]
-(18)TOP.top.u_pipe_exu.ex_pc[31:0]
-(19)TOP.top.u_pipe_exu.ex_pc[31:0]
-(20)TOP.top.u_pipe_exu.ex_pc[31:0]
-(21)TOP.top.u_pipe_exu.ex_pc[31:0]
-(22)TOP.top.u_pipe_exu.ex_pc[31:0]
-(23)TOP.top.u_pipe_exu.ex_pc[31:0]
-(24)TOP.top.u_pipe_exu.ex_pc[31:0]
-(25)TOP.top.u_pipe_exu.ex_pc[31:0]
-(26)TOP.top.u_pipe_exu.ex_pc[31:0]
-(27)TOP.top.u_pipe_exu.ex_pc[31:0]
-(28)TOP.top.u_pipe_exu.ex_pc[31:0]
-(29)TOP.top.u_pipe_exu.ex_pc[31:0]
-(30)TOP.top.u_pipe_exu.ex_pc[31:0]
-(31)TOP.top.u_pipe_exu.ex_pc[31:0]
-@1401200
--group_end
-@29
-TOP.top.u_pipe_exu.lsu_u.lsu_valid
-@28
-[color] 1
-TOP.top.u_pipe_exu.lsu_u.lsu_req_fire
-[color] 1
-TOP.top.u_pipe_exu.lsu_u.lsu_resp_fire
-TOP.top.u_pipe_exu.lsu_u.lsu_is_store
-TOP.top.u_pipe_exu.lsu_u.lsu_is_load
 [pattern_trace] 1
 [pattern_trace] 0

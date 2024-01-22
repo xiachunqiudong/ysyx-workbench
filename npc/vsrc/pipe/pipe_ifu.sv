@@ -18,7 +18,7 @@ module pipe_ifu import liang_pkg::*;
 );
 
   pc_t   pc_d, pc_q;
-  
+  logic  has_flush_d, has_flush_q; 
   logic  if_valid_q;
   logic  if_fire;
   logic  if_inst_valid;
@@ -32,7 +32,12 @@ module pipe_ifu import liang_pkg::*;
   assign ifu_rready_o  = id_ready_i;
   assign if_inst       = ifu_rdata_i;
   assign if_inst_valid = ifu_rvalid_i;
-  assign if_valid_o    = if_valid_q & ~flush_i & if_inst_valid;
+
+  assign has_flush_d   = ifu_rvalid_i ? 1'b0 :
+                         flush_i      ? 1'b1 :
+                                        has_flush_q;
+
+  assign if_valid_o    = if_valid_q & !flush_i & has_flush_q & if_inst_valid;
   assign if_fire       = if_valid_o & id_ready_i;
 
   assign pc_d = flush_i ? flush_pc_i 
@@ -40,11 +45,13 @@ module pipe_ifu import liang_pkg::*;
   
   always_ff @(posedge clk_i or posedge rst_i) begin
     if(rst_i) begin
-      pc_q       <= 32'h80000000;
-      if_valid_q <= 1'b1;
+      pc_q        <= 32'h80000000;
+      if_valid_q  <= 1'b1;
+      has_flush_q <= '0;
     end
     else if(if_fire || flush_i) begin
-      pc_q <= pc_d;
+      pc_q        <= pc_d;
+      has_flush_q <= has_flush_d;
     end
   end
 
