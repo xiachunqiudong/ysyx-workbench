@@ -151,7 +151,7 @@ module lsu import liang_pkg::*;
 	MuxKey #(.NR_KEY(4), .KEY_LEN(2), .DATA_LEN(XLEN))
   sb_mux(
     .out(lsu_sb_wdata),
-    .key(lsu_addr[1:0]),
+    .key(lsu_rdata_i[1:0]),
     .lut({
       2'b00, {8'b0,                 8'b0,                 8'b0,                 lsu_req_wdata_i[7:0]},
       2'b01, {8'b0,                 8'b0,                 lsu_req_wdata_i[7:0], 8'b0                },
@@ -163,7 +163,7 @@ module lsu import liang_pkg::*;
 	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(XLEN))
   sh_mux(
     .out(lsu_sh_wdata),
-    .key(lsu_addr[1]),
+    .key(lsu_rdata_i[1]),
     .lut({
       1'b0, {16'b0,         lsu_req_wdata_i[15:0]},
       1'b1, {lsu_req_wdata_i[15:0], 16'b0}
@@ -173,7 +173,7 @@ module lsu import liang_pkg::*;
 	MuxKey #(.NR_KEY(4), .KEY_LEN(2), .DATA_LEN(4))
   sb_mask_mux(
     .out(lsu_sb_strb),
-    .key(lsu_addr[1:0]),
+    .key(lsu_rdata_i[1:0]),
     .lut({
       2'b00, 4'b0001,
       2'b01, 4'b0010,
@@ -185,7 +185,7 @@ module lsu import liang_pkg::*;
 	MuxKey #(.NR_KEY(2), .KEY_LEN(1), .DATA_LEN(4))
   sh_mask_mux(
     .out(lsu_sh_strb),
-    .key(lsu_addr[1]),
+    .key(lsu_rdata_i[1]),
     .lut({
       1'b0, 4'b0011,
       1'b1, 4'b1100
