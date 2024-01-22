@@ -87,7 +87,7 @@ module pipe_ifu import liang_pkg::*;
 
   always_comb begin
     if (if_fire) begin
-      $fdisplay(fp, "[IFU] {PC: %08x, Inst: %08x}, take this inst take %d cycle.", pc_q, if_inst, ifu_cnt);
+      $fdisplay(fp, "[IFU] {PC: %08x, Inst: %08x}, take this inst cost %d cycle.", pc_q, if_inst, ifu_cnt);
     end
   end
 
