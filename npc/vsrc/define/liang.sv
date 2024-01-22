@@ -32,6 +32,19 @@ package liang_pkg;
     LUI
   } fu_op_e;
 
+  typedef enum logic [3:0] {
+    ALU_SUB,
+    ALU_ADD,
+    ALU_SLL,
+    ALU_SLT,
+    ALU_SLTU,
+    ALU_XOR,
+    ALU_SRL,
+    ALU_SRA,
+    ALU_OR,
+    ALU_AND
+  } alu_fun_e;
+
   typedef enum logic [2:0] {
     LOAD_NONE,
     LOAD_LB,

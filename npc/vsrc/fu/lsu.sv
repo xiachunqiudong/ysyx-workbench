@@ -70,7 +70,7 @@ module lsu import liang_pkg::*;
   //-----------LSU------------//
   always_comb begin
     case(lsu_state_q)
-      LSU_IDEL: lsu_state_d = lsu_req_fire ?  LSU_RUN : LSU_IDEL;
+      LSU_IDEL: lsu_state_d = lsu_req_fire  ?  LSU_RUN : LSU_IDEL;
       LSU_RUN:  lsu_state_d = lsu_resp_fire ? LSU_IDEL : LSU_RUN;
       default:  lsu_state_d = LSU_IDEL;
     endcase
@@ -84,27 +84,28 @@ module lsu import liang_pkg::*;
   assign lsu_resp_valid_o = lsu_valid && (lsu_is_load && lsu_rvalid_i || lsu_is_store && lsu_bvalid_i);
   assign lsu_resp_fire    = lsu_resp_valid_o && lsu_resp_ready_i;
   // Accept new inst
-  assign lsu_addr        = {lsu_req_addr_i[ADDR_WIDTH-1:2], 2'b00};
+  assign lsu_addr        = {lsu_addr_q[ADDR_WIDTH-1:2], 2'b00};
   assign lsu_type_d      = lsu_req_fire ? lsu_req_type_i : lsu_type_q;
-  assign lsu_addr_d      = lsu_req_fire ? lsu_addr       : lsu_addr_q;
+  assign lsu_addr_d      = lsu_req_fire ? lsu_req_addr_i : lsu_addr_q;
   assign lsu_strb_d      = lsu_req_fire ? lsu_strb       : lsu_strb_q;
   assign lsu_wdata_d     = lsu_req_fire ? lsu_wdata      : lsu_wdata_q;
 
   //-----------LSU x AXI LITE------------//
-  assign lsu_araddr_o  = lsu_addr_q;
+  assign lsu_araddr_o  = lsu_addr;
   assign lsu_arvalid_o = lsu_valid && lsu_is_load;
   assign lsu_araddr_o  = lsu_addr_q;
   assign lsu_rready_o  = lsu_resp_ready_i;
   
   assign lsu_awvalid_o = lsu_valid && lsu_is_store;
-  assign lsu_awaddr_o  = lsu_addr_q;
+  assign lsu_awaddr_o  = lsu_addr;
   assign lsu_wvalid_o  = lsu_valid && lsu_is_store;
   assign lsu_wdata_o   = lsu_wdata_q;
   assign lsu_wstrb_o   = lsu_strb_q;
   assign lsu_bready_o  = lsu_resp_ready_i;
 
   //-----------LOAD------------//
-  assign load_type_d  = lsu_req_fire ? lsu_req_load_type_i : load_type_q;
+  assign load_type_d  = lsu_req_fire ? lsu_req_load_type_i : 
+                                       load_type_q;
 	assign lb_ext_data  = {{XLEN-8{1'b0}},         lb_data};
 	assign lb_sext_data = {{XLEN-8{lb_data[7]}},   lb_data};
   assign lh_ext_data  = {{XLEN-16{1'b0}},        lh_data};

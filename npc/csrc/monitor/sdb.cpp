@@ -74,7 +74,6 @@ void exec(uint32_t n) {
           disassemble(disasm, size, commit_info.commit_pc, (uint8_t *)&commit_info.commit_inst, 4);
           sprintf(buf, "[commit] %08x: %s", commit_info.commit_pc, disasm);
           log(buf);
-          printf("commit \n");
         }
         exec_once(); // commit
       } while (commit_info.commit_valid == false);
@@ -87,8 +86,6 @@ void exec(uint32_t n) {
       if(!difftest_step(commit_info.commit_dnpc)) {// diff fail
         npc_set_state(NPC_ERROR_DIFF);
         ret_value = 1;
-      } else {
-        printf("difftest pass\n");
       }
       #endif
       
