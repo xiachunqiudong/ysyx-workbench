@@ -54,6 +54,15 @@ module pipe_ifu import liang_pkg::*;
       has_flush_q <= has_flush_d;
     end
   end
+  
+  always_ff @(posedge clk_i or posedge rst_i) begin
+    if(rst_i) begin
+      has_flush_q <= '0;
+    end
+    else begin
+      has_flush_q <= has_flush_d;
+    end
+  end
 
   integer fp;
   initial begin
