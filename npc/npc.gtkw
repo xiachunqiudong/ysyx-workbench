@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Mon Jan 22 06:56:20 2024
+[*] Mon Jan 22 09:05:39 2024
 [*]
 [dumpfile] "/home/xia/project/chip/ysyx-workbench/npc/wave.vcd"
-[dumpfile_mtime] "Mon Jan 22 06:34:48 2024"
-[dumpfile_size] 555136
+[dumpfile_mtime] "Mon Jan 22 08:48:02 2024"
+[dumpfile_size] 683925
 [savefile] "/home/xia/project/chip/ysyx-workbench/npc/npc.gtkw"
-[timestart] 614
+[timestart] 1648
 [size] 2048 1146
 [pos] -1 -1
-*-4.559792 675 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-2.559792 1679 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.top.
 [treeopen] TOP.top.u_pipe_exu.
@@ -51,6 +51,7 @@ TOP.top.u_axi_lite_arbiter.ifu_araddr_i[31:0]
 TOP.top.u_pipe_exu.ex_pc[31:0]
 @28
 TOP.top.u_pipe_exu.ex_valid_q
+TOP.top.u_pipe_exu.ex_done
 TOP.top.u_pipe_exu.lsu_req_load_type[2:0]
 @200
 -LSU
@@ -58,15 +59,30 @@ TOP.top.u_pipe_exu.lsu_req_load_type[2:0]
 TOP.top.u_pipe_exu.ex_pc[31:0]
 @28
 TOP.top.u_pipe_exu.ex_valid_q
-TOP.top.u_pipe_exu.lsu_u.lsu_req_fire
-TOP.top.u_pipe_exu.lsu_u.lsu_req_load_type_i[2:0]
+[color] 1
+TOP.top.u_pipe_exu.ex_done
 @29
-TOP.top.u_pipe_exu.lsu_u.lsu_type_d
+TOP.top.u_pipe_exu.lsu_u.lsu_addr_q[31:0]
+@28
+TOP.top.u_pipe_exu.lsu_u.lsu_req_fire
+TOP.top.u_pipe_exu.lsu_u.load_type_q[2:0]
+@22
+[color] 6
+TOP.top.u_pipe_exu.lsu_u.lsu_rdata_i[31:0]
+@28
+TOP.top.u_pipe_exu.lsu_u.lsu_addr_q[31:0]
+@22
+TOP.top.u_pipe_exu.lsu_u.lb_data[7:0]
+TOP.top.u_pipe_exu.lsu_u.lh_data[15:0]
 @28
 TOP.top.u_pipe_exu.lsu_u.lsu_is_load
 TOP.top.u_pipe_exu.lsu_u.lsu_is_store
 TOP.top.u_pipe_exu.lsu_u.lsu_arvalid_o
 TOP.top.u_pipe_exu.lsu_u.lsu_arready_i
+@22
+[color] 6
+TOP.top.u_pipe_exu.lsu_u.lsu_rdata_i[31:0]
+@28
 [color] 6
 TOP.top.u_pipe_exu.lsu_u.lsu_rvalid_i
 [color] 6
@@ -74,11 +90,9 @@ TOP.top.u_pipe_exu.lsu_u.lsu_rready_o
 @22
 [color] 6
 TOP.top.u_pipe_exu.lsu_u.lsu_rdata_i[31:0]
-@28
-TOP.top.u_pipe_exu.lsu_u.lsu_type_q
-@22
 TOP.top.u_pipe_exu.lsu_u.lsu_resp_rdata_o[31:0]
 @28
+TOP.top.u_pipe_exu.lsu_u.lsu_type_q
 TOP.top.u_pipe_exu.lsu_u.lsu_resp_valid_o
 @200
 -LSU <> AXI ARB
