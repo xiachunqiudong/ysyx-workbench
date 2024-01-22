@@ -104,7 +104,8 @@ module lsu import liang_pkg::*;
   assign lsu_bready_o  = lsu_resp_ready_i;
 
   //-----------LOAD------------//
-  assign load_type_d  = lsu_req_fire ? lsu_req_load_type_i : load_type_q;
+  assign load_type_d  = lsu_req_fire ? lsu_req_load_type_i : 
+                                       load_type_q;
 	assign lb_ext_data  = {{XLEN-8{1'b0}},         lb_data};
 	assign lb_sext_data = {{XLEN-8{lb_data[7]}},   lb_data};
   assign lh_ext_data  = {{XLEN-16{1'b0}},        lh_data};
