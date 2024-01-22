@@ -1,36 +1,27 @@
 module alu import liang_pkg::*;(
-  // op number
-  input [XLEN-1:0]  rs1_i,
-  input [XLEN-1:0]  rs2_i,
+  input [XLEN-1:0]   rs1_i,
+  input [XLEN-1:0]   rs2_i,
   input uop_info_t   uop_info_i,
   output [XLEN-1:0]  alu_res_o,
-  // get the branch result
-  output jump_o
+  output             jump_o
 );
 
+  //-----------ALU SIGNALS------------//
 	logic [XLEN-1:0] src1;
 	logic [XLEN-1:0] src2;
+	logic [XLEN-1:0] imm;
+  fu_op_e          fu_op;
 
-  always_comb begin
-    src1 = '0;
-    src2 = '0;
+  assign fu_op = uop_info_i.fu_op;
+  assign imm   = uop_info_i.imm;
+  
+  assign src1 = (fu_op inside {AUIPC, JAL, JALR}) ? uop_info_i.pc :
+                (uop_info_i.fu_op inside {LUI})   ? '0 :
+                                                    rs1_i;
 
-    // SRC1
-    if (uop_info_i.fu_op inside {AUIPC, JAL, JALR})
-      src1 = uop_info_i.pc;
-    else if (uop_info_i.fu_op inside {LUI})
-      src1 = '0;
-    else
-      src1 = rs1_i;
-
-    // SRC2
-    if (uop_info_i.fu_op inside {ALR, BRANCH})
-      src2 = rs2_i;
-    else if (uop_info_i.fu_op inside {JAL, JALR})
-      src2 = 4;
-    else
-      src2 = uop_info_i.imm;
-  end
+  assign src2 = (uop_info_i.fu_op inside {ALR, BRANCH}) ? rs2_i :
+                (uop_info_i.fu_op inside {JAL, JALR})   ? 4 :
+                                                          imm;
 
   logic            adder_sub;
   logic [XLEN-1:0] adder_src1;
