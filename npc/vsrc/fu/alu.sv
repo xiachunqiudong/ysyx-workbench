@@ -40,7 +40,7 @@ module alu import liang_pkg::*;(
 
 
 
-//------------adder------------
+  //------------adder------------//
   assign adder_sub               = (uop_info_i.fu_func inside {SUB, SLT, SLTI, SLTU, SLTUI}) 
                                 || (uop_info_i.fu_op == BRANCH);
   
