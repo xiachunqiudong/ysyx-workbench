@@ -12,17 +12,6 @@ module alu import liang_pkg::*;(
 	logic [XLEN-1:0] imm;
   fu_op_e          fu_op;
 
-  assign fu_op = uop_info_i.fu_op;
-  assign imm   = uop_info_i.imm;
-  
-  assign src1 = (fu_op inside {AUIPC, JAL, JALR}) ? uop_info_i.pc :
-                (uop_info_i.fu_op inside {LUI})   ? '0 :
-                                                    rs1_i;
-
-  assign src2 = (uop_info_i.fu_op inside {ALR, BRANCH}) ? rs2_i :
-                (uop_info_i.fu_op inside {JAL, JALR})   ? 4 :
-                                                          imm;
-
   logic            adder_sub;
   logic [XLEN-1:0] adder_src1;
   logic [XLEN-1:0] adder_src2;      
@@ -37,6 +26,19 @@ module alu import liang_pkg::*;(
 	logic [XLEN-1:0] sra_res;
 	logic [XLEN-1:0] or_res;
 	logic [XLEN-1:0] and_res;
+
+  assign fu_op = uop_info_i.fu_op;
+  assign imm   = uop_info_i.imm;
+  
+  assign src1 = (fu_op inside {AUIPC, JAL, JALR}) ? uop_info_i.pc :
+                (uop_info_i.fu_op inside {LUI})   ? '0 :
+                                                    rs1_i;
+
+  assign src2 = (uop_info_i.fu_op inside {ALR, BRANCH}) ? rs2_i :
+                (uop_info_i.fu_op inside {JAL, JALR})   ? 4 :
+                                                          imm;
+
+
 
 //------------adder------------
   assign adder_sub               = (uop_info_i.fu_func inside {SUB, SLT, SLTI, SLTU, SLTUI}) 
