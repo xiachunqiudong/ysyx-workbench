@@ -87,8 +87,6 @@ void exec(uint32_t n) {
       if(!difftest_step(commit_info.commit_dnpc)) {// diff fail
         npc_set_state(NPC_ERROR_DIFF);
         ret_value = 1;
-      } else {
-        printf("difftest pass\n");
       }
       #endif
       
