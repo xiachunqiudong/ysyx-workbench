@@ -37,7 +37,7 @@ module pipe_ifu import liang_pkg::*;
                          flush_i      ? 1'b1 :
                                         has_flush_q;
 
-  assign if_valid_o    = if_valid_q & !flush_i & has_flush_q & if_inst_valid;
+  assign if_valid_o    = if_valid_q & !flush_i & !has_flush_q & if_inst_valid;
   assign if_fire       = if_valid_o & id_ready_i;
 
   assign pc_d = flush_i ? flush_pc_i 
