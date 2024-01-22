@@ -17,7 +17,7 @@ module alu import liang_pkg::*;(
   logic [XLEN-1:0] adder_src2;      
 	logic [XLEN-1:0] adder_res;
   logic            adder_cout;
-	
+	//-----------ALU RES SIGNALS------------//
   logic [XLEN-1:0] sll_res;
 	logic [XLEN-1:0] slt_res;
 	logic [XLEN-1:0] sltu_res;
