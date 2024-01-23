@@ -125,7 +125,6 @@ module pipe_exu import liang_pkg::*;
   lsu_u(
     .clk_i                (clk_i),
     .rst_i                (rst_i),
-  // EXU <> LSU,
     .lsu_req_valid_i      (lsu_req_valid),
     .lsu_req_ready_o      (lsu_req_ready),
     .lsu_req_load_type_i  (lsu_req_load_type),           
@@ -136,7 +135,6 @@ module pipe_exu import liang_pkg::*;
     .lsu_resp_valid_o     (lsu_resp_valid),
     .lsu_resp_ready_i     (lsu_resp_ready),
     .lsu_resp_rdata_o     (lsu_resp_rdata),
-  // LSU <> ARBITE(),
     .lsu_araddr_o         (lsu_araddr_o),
     .lsu_arvalid_o        (lsu_arvalid_o),
     .lsu_arready_i        (lsu_arready_i),
@@ -156,7 +154,6 @@ module pipe_exu import liang_pkg::*;
   );
 
   
-
   // flush
   assign flush_o    = ex_valid_o && (uop_info.fu_op inside {JAL, JALR} || (uop_info.fu_op == BRANCH && jump));
   assign flush_pc_o = (uop_info.fu_op == JALR ? rs1_data : ex_pc) + uop_info.imm;
