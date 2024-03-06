@@ -45,7 +45,7 @@ module alu import liang_pkg::*;(
 
   assign adder_src1              = src1;
   assign adder_src2              = {XLEN{adder_sub}} ^ src2;
-	assign {adder_cout, adder_res} = adder_src1 + adder_src2 + {{XLEN-1{1'b0}}, adder_sub} + 10;
+	assign {adder_cout, adder_res} = adder_src1 + adder_src2 + {{XLEN-1{1'b0}}, adder_sub};
   
   //------------alu------------//
   assign sll_res  = src1 << src2[4:0];
