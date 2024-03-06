@@ -241,12 +241,28 @@ module lsu import liang_pkg::*;
     fp = $fopen("./log/npc_lsu.log");
   end
 
-  always_ff @(posedge clk_i) begin
-    if (lsu_resp_fire && lsu_is_load) begin
-      $fdisplay(fp, "[LOAD ] ADDR: %08x\t DATA: %08x\t", lsu_addr_q, lsu_rdata_i);
+  logic [9:0] lsu_count;
+
+  always_ff @(posedge clk_i or posedge rst_i) begin
+    if (rst_i) begin
+      lsu_count <= '0;
     end
-    else if(lsu_resp_fire && lsu_is_store) begin
-      $fdisplay(fp, "[STORE] ADDR: %08x\t DATA: %08x\t STRB: %4b\t", lsu_addr_q, lsu_wdata_q, lsu_strb_q);
+    else if (lsu_req_fire) begin
+      lsu_count <= '0;
+    end
+    else begin
+      lsu_count <= lsu_count + 1;
+    end
+  end
+
+  always_comb begin
+    if (lsu_resp_fire) begin
+      if (lsu_is_load) begin
+        $fdisplay(fp, "[LOAD ] ADDR: %08x\t DATA: %08x\t CYCLE: %d\t", lsu_addr_q, lsu_rdata_i, lsu_count);
+      end
+      else if(lsu_is_store) begin
+        $fdisplay(fp, "[STORE] ADDR: %08x\t DATA: %08x\t STRB: %4b\t CYCLE: %d\t", lsu_addr_q, lsu_wdata_q, lsu_strb_q, lsu_count);
+      end
     end
   end
 

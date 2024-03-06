@@ -4,25 +4,25 @@ module top import liang_pkg::*;
   input rst_i
 );
 
-  logic flush;
-  pc_t  flush_pc;
+  logic       flush;
+  pc_t        flush_pc;
 
-  ifToId_t ifToId;
-  logic    if_valid;
-  logic    id_ready;
+  ifToId_t    ifToId;
+  logic       if_valid;
+  logic       id_ready;
 
-  logic      id_valid;
-  logic      ex_ready;
-  uop_info_t uop_info;
-  idToEx_t   idToEx;
+  logic       id_valid;
+  logic       ex_ready;
+  uop_info_t  uop_info;
+  idToEx_t    idToEx;
 
-  ele_t rs1_rdata;
-  ele_t rs2_rdata;
+  ele_t       rs1_rdata;
+  ele_t       rs2_rdata;
 
-  exToWb_t exToWb;
-  logic    ex_valid;
-  logic    wb_ready;
-  wb_req_t wb_req;
+  exToWb_t    exToWb;
+  logic       ex_valid;
+  logic       wb_ready;
+  wb_req_t    wb_req;
 
   // forward
   logic       wb_fwd_valid;
