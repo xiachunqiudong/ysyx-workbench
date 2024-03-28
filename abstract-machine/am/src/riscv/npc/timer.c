@@ -1,10 +1,12 @@
 #include <am.h>
 
+#define RTC_BASE 0xa0000048
+
 void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = 0;
+  uptime->us = *(uint32_t *)RTC_BASE;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

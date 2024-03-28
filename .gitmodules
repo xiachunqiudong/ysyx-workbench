@@ -1,3 +1,6 @@
 [submodule "xia"]
 	path = xia
 	url = git@github.com:xiachunqiudong/Xia.git
+[submodule "fceux-am"]
+	path = fceux-am
+	url = https://github.com/NJU-ProjectN/fceux-am.git
