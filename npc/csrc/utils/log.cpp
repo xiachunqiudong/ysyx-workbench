@@ -44,7 +44,6 @@ void init_mem_log(const char *mem_log_file) {
 
 }
 
-
 void log(char *str) {
   fprintf(log_fp, "%s\n", str);
   fflush(log_fp);
@@ -56,7 +55,7 @@ void mem_log(char *str) {
 }
 
 void npc_info(char *str) {
-  printf(ANSI_FG_CYAN "[NPC info] %s" ANSI_NONE, str);
+  printf(ANSI_FG_GREEN "[NPC info] %s" ANSI_NONE, str);
 }
 
 void npc_error(char *str) {

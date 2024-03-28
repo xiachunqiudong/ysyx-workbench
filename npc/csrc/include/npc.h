@@ -3,16 +3,13 @@
 
 #include <stdint.h>
 
-// memory config
-#define MEM_SIZE  0x8000000
-#define MEM_BASE  0x80000000
 #define RESET_VEC 0x80000000
 
 // npc data type
 typedef uint32_t word_t;
 typedef uint32_t paddr_t;
 
-#define DIFF
+// #define DIFF
 #define LOG
 
 // NPC state

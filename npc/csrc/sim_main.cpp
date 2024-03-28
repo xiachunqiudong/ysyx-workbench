@@ -12,6 +12,7 @@ VerilatedContext *contextp;
 VerilatedVcdC *tfp;
 Vtop *top;
 vluint64_t main_time = 0;
+uint64_t MAX_SIM_TIME = 10000000;
 
 double sim_time_stamp() {
 	return main_time;
@@ -72,10 +73,14 @@ void exec_once() {
   top->eval();
   tfp->dump(main_time++);
 
-  if (main_time > 1000000) {
-    free();
-    exit(0);
-  }
+  // Reach the max simulation time.
+  // if (main_time > MAX_SIM_TIME) {
+  //   char buf[128];
+  //   sprintf(buf, "Reach the max simulation time, stop sim.\n");
+  //   npc_info(buf);
+  //   free();
+  //   exit(0);
+  // }
 
 }
 
@@ -84,7 +89,6 @@ void sim_stop() {
   free();
   exit(0);
 }
-
 
 int main(int argc, char *argv[]) {
 

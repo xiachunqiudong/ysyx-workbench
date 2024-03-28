@@ -132,7 +132,7 @@ static int cmd_x(char *args) {
     int n = atoi(arg1);
     paddr_t addr;
     sscanf(arg2, "0x%x", &addr);
-    if(LEGAL_MEM_ADDR(addr)) {
+    if(IN_MEM(addr)) {
       uint8_t *host_addr = guest_to_host(addr);
       printf("0x%x: ", addr);
       for(int i = n - 1; i >= 0; i--) {

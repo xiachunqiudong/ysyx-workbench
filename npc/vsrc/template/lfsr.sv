@@ -18,6 +18,6 @@ module lfsr(
       data_q <= data_d;
   end
 
-  assign data_o = data_q;
+  assign data_o = {2'b00, data_q[1:0]};
 
 endmodule

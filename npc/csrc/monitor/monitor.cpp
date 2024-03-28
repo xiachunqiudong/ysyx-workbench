@@ -92,6 +92,8 @@ void init_monitor(int argc, char *argv[]) {
 
   init_mem_log(mem_log_file);
 
+  init_pmem();
+
   int img_size = load_img();
 
   #ifdef DIFF
