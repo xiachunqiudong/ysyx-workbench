@@ -45,11 +45,23 @@ void init_mem_log(const char *mem_log_file) {
 }
 
 void log(char *str) {
+  char buf[256];
+  if (log_fp == nullptr) {
+    sprintf(buf, "log fp is null, please check!\n");
+    npc_error(buf);
+    assert(0);
+  } 
   fprintf(log_fp, "%s\n", str);
   fflush(log_fp);
 }
 
 void mem_log(char *str) {
+  char buf[256];
+  if (mem_log_fp == nullptr) {
+    sprintf(buf, "mem log fp is null, please check!\n");
+    npc_error(buf);
+    assert(0);
+  } 
   fprintf(mem_log_fp, "%s\n", str);
   fflush(mem_log_fp);
 }

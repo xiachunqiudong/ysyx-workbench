@@ -63,8 +63,10 @@ void exec(uint32_t n) {
       break;
     } else if (npc_get_state() == NPC_ERROR_DIFF) {
       disassemble(disasm, size, commit_info.commit_pc, (uint8_t *)&commit_info.commit_inst, 4);
+      #ifdef LOG
       sprintf(buf, "npc sim error caused by difftest fail, at %08x: %s\n", commit_info.commit_pc, disasm);
       npc_error(buf);
+      #endif
       break;
     } else {
       // for pipe or ooo, only commit when wb is valid
@@ -72,8 +74,10 @@ void exec(uint32_t n) {
         commit_info = npc_commit_info();
         if (commit_info.commit_valid) { // npc will commit a valid inst in next cycly
           disassemble(disasm, size, commit_info.commit_pc, (uint8_t *)&commit_info.commit_inst, 4);
+          #ifdef LOG
           sprintf(buf, "[commit] %08x: %s", commit_info.commit_pc, disasm);
           log(buf);
+          #endif
         }
         exec_once(); // commit
       } while (commit_info.commit_valid == false);

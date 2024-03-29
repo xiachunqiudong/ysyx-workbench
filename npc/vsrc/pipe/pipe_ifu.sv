@@ -66,6 +66,7 @@ module pipe_ifu import liang_pkg::*;
 
 
 //-----------DEBUG------------//
+`ifdef DEBUG
   integer fp;
   initial begin
     fp = $fopen("./log/npc_ifu.log");
@@ -90,5 +91,6 @@ module pipe_ifu import liang_pkg::*;
       $fdisplay(fp, "[IFU] {PC: %08x, Inst: %08x, Cycle: %0d}", pc_q, if_inst, ifu_cnt);
     end
   end
+`endif
 
 endmodule

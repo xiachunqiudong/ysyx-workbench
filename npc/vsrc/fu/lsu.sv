@@ -236,6 +236,7 @@ module lsu import liang_pkg::*;
   end
 
   // DEBUG
+  `ifdef DEBUG
   integer fp;
   initial begin
     fp = $fopen("./log/npc_lsu.log");
@@ -265,5 +266,6 @@ module lsu import liang_pkg::*;
       end
     end
   end
+  `endif
 
 endmodule

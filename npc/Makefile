@@ -47,6 +47,7 @@ wave: run
 clean:
 	rm -rf $(BUILD_DIR) 
 	rm -f *.wave
+	rm -rf ./log
 
 test:
 	gcc ${OBJS} -o prog -lLLVM-14

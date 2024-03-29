@@ -10,7 +10,7 @@ typedef uint32_t word_t;
 typedef uint32_t paddr_t;
 
 // #define DIFF
-#define LOG
+// #define LOG
 
 // NPC state
 enum NPC_STATE {

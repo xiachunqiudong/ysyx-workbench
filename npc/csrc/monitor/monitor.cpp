@@ -88,9 +88,10 @@ void init_monitor(int argc, char *argv[]) {
 
   init_disasm("riscv32-pc-linux-gnu");
   
+#ifdef LOG
   init_log(log_file);
-
   init_mem_log(mem_log_file);
+#endif
 
   init_pmem();
 

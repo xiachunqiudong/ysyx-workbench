@@ -1,5 +1,7 @@
 package liang_pkg;
 
+  //`define DEBUG
+
   localparam int unsigned XLEN = 32;
   localparam int unsigned ADDR_WIDTH = 32;
   localparam int unsigned DATA_WIDTH = 32;

@@ -194,6 +194,7 @@ module dram_axi_lite
   end
 
   //-----------DEBUG------------//
+`ifdef DEBUG
   integer fp;
   initial begin
     fp = $fopen("./log/npc_axi_lite.log");
@@ -204,5 +205,6 @@ module dram_axi_lite
       $fdisplay(fp, "read addr: %08x", araddr_q);
     end
   end
+`endif
 
 endmodule

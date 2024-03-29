@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "config.h"
 #include "monitor.h"
 #include "sdb.h"
 #include "utils.h"
@@ -21,13 +22,15 @@ double sim_time_stamp() {
 void init_verilator(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  
   top = new Vtop{contextp};
   
+#ifdef WAVE
   Verilated::traceEverOn(true);
   tfp = new VerilatedVcdC;
   top->trace(tfp, 0);
   tfp->open("wave.vcd");
+#endif
+
 }
 
 void free() {
@@ -53,26 +56,33 @@ void cpu_rst() {
   top->clk_i = 0;
   top->rst_i = 0;
   top->eval();
-  tfp->dump(main_time++);
+  
+  if (tfp != nullptr)
+    tfp->dump(main_time++);
   
   // reset
   top->clk_i = 1;
   top->rst_i = 1;
   top->eval();
-  tfp->dump(main_time++);
+  
+  if (tfp != nullptr)
+    tfp->dump(main_time++);
 }
 
 void exec_once() {
   top->clk_i = 0;
   top->rst_i = 0;
   top->eval();
-  tfp->dump(main_time++);
+  
+  if (tfp != nullptr)
+    tfp->dump(main_time++);
   
   top->clk_i = 1;
   top->rst_i = 0;
   top->eval();
-  tfp->dump(main_time++);
 
+  if (tfp != nullptr)
+    tfp->dump(main_time++);
   // Reach the max simulation time.
   // if (main_time > MAX_SIM_TIME) {
   //   char buf[128];
