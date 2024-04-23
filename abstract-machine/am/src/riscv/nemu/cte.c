@@ -2,19 +2,21 @@
 #include <riscv/riscv.h>
 #include <klib.h>
 
+// @return: Context*
+// @parameter: Event, Context*
 static Context* (*user_handler)(Event, Context*) = NULL;
 
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+      case 11: ev.event = EVENT_YIELD; c->mepc = c->mepc + 4; break;
       default: ev.event = EVENT_ERROR; break;
     }
-
+    //printf("mcause: %d, mstatus: %d, mepc: %x\n", c->mcause, c->mstatus, c->mepc);
     c = user_handler(ev, c);
     assert(c != NULL);
   }
-
   return c;
 }
 
