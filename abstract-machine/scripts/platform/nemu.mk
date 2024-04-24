@@ -15,6 +15,7 @@ LDFLAGS   += --gc-sections -e _start
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 NEMUFLAGS += -i $(shell dirname $(IMAGE).elf)/nemu-iring.txt
 NEMUFLAGS += -m $(shell dirname $(IMAGE).elf)/nemu-memlog.txt
+NEMUFLAGS += -s $(shell dirname $(IMAGE).elf)/nemu-syslog.txt
 NEMUFLAGS += -e $(IMAGE).elf
 NEMUFLAGS += -b 
 

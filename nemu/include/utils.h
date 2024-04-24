@@ -89,4 +89,12 @@ uint64_t get_time();
     fflush(memlog_fp); \
   } while (0) \
 
+#define SYS_LOG(str) \
+  do { \
+    extern FILE* syslog_fp; \
+    assert(syslog_fp); \
+    fprintf(syslog_fp, "%s\n", str); \
+    fflush(syslog_fp); \
+  } while (0) \
+
 #endif

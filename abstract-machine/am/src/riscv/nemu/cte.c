@@ -7,17 +7,21 @@
 static Context* (*user_handler)(Event, Context*) = NULL;
 
 Context* __am_irq_handle(Context *c) {
+  Context *next = NULL;
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      case 11: ev.event = EVENT_YIELD; c->mepc = c->mepc + 4; break;
+      case 11: 
+        ev.event = EVENT_YIELD; 
+        c->mepc = c->mepc + 4;
+        break;
       default: ev.event = EVENT_ERROR; break;
     }
-    //printf("mcause: %d, mstatus: %d, mepc: %x\n", c->mcause, c->mstatus, c->mepc);
-    c = user_handler(ev, c);
-    assert(c != NULL);
+    // printf("mcause: %d, mstatus: %d, mepc: %x\n", c->mcause, c->mstatus, c->mepc);
+    next = user_handler(ev, c);
   }
-  return c;
+  assert(next != NULL);
+  return next;
 }
 
 extern void __am_asm_trap(void);
@@ -33,7 +37,13 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  void *start = kstack.start;
+  void *end = kstack.end;
+  Context *kctx = (Context *)end - 1;
+  memset(kctx, 0, sizeof(Context));
+  kctx->mepc = (uintptr_t)entry;
+  *(Context **)start = kctx;
+  return kctx;
 }
 
 void yield() {

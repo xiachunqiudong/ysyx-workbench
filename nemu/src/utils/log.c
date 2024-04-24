@@ -19,6 +19,7 @@ extern uint64_t g_nr_guest_inst;
 FILE *log_fp = NULL;
 FILE *iring_fp = NULL;
 FILE *memlog_fp = NULL;
+FILE *syslog_fp = NULL;
 
 void init_log(const char *log_file) {
   // itrace
@@ -50,8 +51,17 @@ void init_memlog(const char *memlog_file) {
     FILE *fp = fopen(memlog_file, "w");
     Assert(fp, "Can not open '%s'", memlog_file);
     memlog_fp = fp;
+    Log("Memlog is written to %s", memlog_file);
   }
-  Log("Memlog is written to %s", memlog_file);
+}
+
+void init_syslog(const char *syslog_file) {
+  if (syslog_file != NULL) {
+    FILE *fp = fopen(syslog_file, "w");
+    Assert(fp, "Can not open '%s'", syslog_file);
+    syslog_fp = fp;
+    Log("Syslog is written to %s", syslog_file);
+  }
 }
 
 
