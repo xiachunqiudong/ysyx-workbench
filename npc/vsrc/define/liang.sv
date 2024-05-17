@@ -100,7 +100,6 @@ package liang_pkg;
     load_type_e      load_type;
     store_type_e     store_type;
     logic            ebreak;
-    logic            ecall;
   } uop_info_t;
 
   // pipe

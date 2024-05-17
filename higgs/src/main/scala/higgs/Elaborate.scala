@@ -1,11 +1,11 @@
 package higgs
 
 import circt.stage._
-import higgs.backend.regfile._
+import higgs.gadd._
 
 object Elaborate extends App {
   println("Start Elaborate!")
-  def top = new Regfile(4, 64, 5)
+  def top = new VGaddModule()
   val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => top))
   (new ChiselStage).execute(args, generator :+ CIRCTTargetAnnotation(CIRCTTarget.Verilog))
 }

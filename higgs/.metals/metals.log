@@ -1,0 +1,15 @@
+2024.05.09 17:31:24 INFO  Started: Metals version 1.3.0 in folders '/home/xia/project/chip/ysyx-workbench/higgs' for client Visual Studio Code 1.84.2.[0m
+SLF4J: Class path contains multiple SLF4J providers.
+SLF4J: Found provider [scribe.slf4j.ScribeServiceProvider@3a66e089]
+SLF4J: Found provider [ch.qos.logback.classic.spi.LogbackServiceProvider@71c05eb4]
+SLF4J: See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual provider is of type [scribe.slf4j.ScribeServiceProvider@3a66e089]
+2024.05.09 17:31:25 WARN  Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.[0m
+DanglingParentheses: top-level presets deprecated; use 'preset' subsection
+2024.05.09 17:31:36 INFO  no build target found for /home/xia/project/chip/ysyx-workbench/higgs/build.sc. Using presentation compiler with project's scala-library version: 3.3.3[0m
+May 09, 2024 5:31:37 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 7
+2024.05.09 17:31:40 INFO  time: code lens generation in 2.84s[0m
+2024.05.09 17:31:40 INFO  time: code lens generation in 2.78s[0m
+May 10, 2024 7:33:02 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 29

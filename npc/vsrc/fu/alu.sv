@@ -18,6 +18,16 @@ module alu import liang_pkg::*;(
 	logic [XLEN-1:0] adder_res;
   logic            adder_cout;
   //-----------ALU RES SIGNALS------------//
+  wire alu_res_sel_add;
+  wire alu_res_sel_sll;
+  wire alu_res_sel_slt;
+  wire alu_res_sel_sltu;
+  wire alu_res_sel_xor;
+  wire alu_res_sel_srl;
+  wire alu_res_sel_sra;
+  wire alu_res_sel_or;
+  wire alu_res_sel_and;
+
   logic [XLEN-1:0] sll_res;
 	logic [XLEN-1:0] slt_res;
 	logic [XLEN-1:0] sltu_res;
@@ -27,6 +37,8 @@ module alu import liang_pkg::*;(
 	logic [XLEN-1:0] or_res;
 	logic [XLEN-1:0] and_res;
 
+  logic ne, eq, lt, ge, ltu, geu;
+  
   assign fu_op = uop_info_i.fu_op;
   assign imm   = uop_info_i.imm;
   
@@ -57,40 +69,29 @@ module alu import liang_pkg::*;(
   assign or_res   = src1 | src2;
   assign and_res  = src1 & src2;
 
-  always_comb begin
-    alu_res_o = '0;
-    if (uop_info_i.fu_op inside {[LOAD:LUI]} || uop_info_i.fu_func inside {ADD, ADDI, SUB}) begin
-      alu_res_o = adder_res;
-    end 
-    else if (uop_info_i.fu_func inside {SLL, SLLI}) begin
-      alu_res_o = sll_res;
-    end
-    else if (uop_info_i.fu_func inside {SLT, SLTI}) begin
-      alu_res_o = slt_res;
-    end
-    else if (uop_info_i.fu_func inside {SLTU, SLTUI}) begin
-      alu_res_o = sltu_res;
-    end
-    else if (uop_info_i.fu_func inside {XOR, XORI}) begin
-      alu_res_o = xor_res;
-    end
-    else if (uop_info_i.fu_func inside {SRL, SRLI}) begin
-      alu_res_o = srl_res;
-    end
-    else if (uop_info_i.fu_func inside {SRA, SRAI}) begin
-      alu_res_o = sra_res;
-    end
-    else if (uop_info_i.fu_func inside {OR, ORI}) begin
-      alu_res_o = or_res;
-    end
-    else if (uop_info_i.fu_func inside {AND, ANDI}) begin
-      alu_res_o = and_res;
-    end
-  end
 
-//---------------branch--------------------
-  logic ne, eq, lt, ge, ltu, geu;
-  
+  assign alu_res_sel_add = uop_info_i.fu_op inside {[LOAD:LUI]} 
+                        || uop_info_i.fu_func inside {ADD, ADDI, SUB};
+  assign alu_res_sel_sll = uop_info_i.fu_func inside {SLL, SLLI};
+  assign alu_res_sel_slt = uop_info_i.fu_func inside {SLTU, SLTUI};
+  assign alu_res_sel_xor = uop_info_i.fu_func inside {XOR, XORI};
+  assign alu_res_sel_srl = uop_info_i.fu_func inside {SRL, SRLI};
+  assign alu_res_sel_sra = uop_info_i.fu_func inside {SRA, SRAI};
+  assign alu_res_sel_or  = uop_info_i.fu_func inside {OR, ORI};
+  assign alu_res_sel_and = uop_info_i.fu_func inside {AND, ANDI};
+
+  assign alu_res_o[XLEN-1:0] = {XLEN{alu_res_sel_add}} & adder_res[XLEN-1:0]
+                             | {XLEN{alu_res_sel_sll}} & sll_res[XLEN-1:0]
+                             | {XLEN{alu_res_sel_slt}} & slt_res[XLEN-1:0]
+                             | {XLEN{alu_res_sel_xor}} & xor_res[XLEN-1:0]
+                             | {XLEN{alu_res_sel_srl}} & srl_res[XLEN-1:0]
+                             | {XLEN{alu_res_sel_sra}} & sra_res[XLEN-1:0]
+                             | {XLEN{alu_res_sel_or}}  & or_res[XLEN-1:0]
+                             | {XLEN{alu_res_sel_and}} & and_res[XLEN-1:0];
+
+//=================================================
+// Branch Inst Compare
+//=================================================
   assign ne  =  (|xor_res);
   assign eq  = ~ne;
   assign lt  = (src1[XLEN-1] & ~src2[XLEN-1]) | (~(src1[XLEN-1] ^ src2[XLEN-1]) & adder_res[XLEN-1]);

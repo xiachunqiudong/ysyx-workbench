@@ -1,9 +1,21 @@
 module decoder import liang_pkg::*;
 (
-    input  pc_t           pc_i,
-    input  inst_t         inst_i,
-    output uop_info_t     uop_info_o
+  input  pc_t           pc_i,
+  input  inst_t         inst_i,
+  output uop_info_t     uop_info_o,
+  output wire           id_csr_wen_o,
+  output wire [11:0]    id_csr_id_o,
+  output wire           id_ecall_o,
+  output wire           id_ebreak_o,
+  output wire           id_mret_o
 );
+
+  logic [4:0]  rs1;
+  logic [4:0]  rs2;
+  logic [4:0]  rd;
+  logic [6:0]  fun7;
+  logic [2:0]  fun3;
+  logic [6:0]  opcode;
 
   fu_e         fu;
   fu_op_e      fu_op;
@@ -11,7 +23,6 @@ module decoder import liang_pkg::*;
   load_type_e  load_type;
   store_type_e store_type;
   logic        ebreak;
-  logic        ecall;
   logic        rd_wen;
   
   assign uop_info_o = '{
@@ -27,8 +38,7 @@ module decoder import liang_pkg::*;
                         fu_func: fu_func,
                         load_type:  load_type,
                         store_type: store_type,
-                        ebreak:     ebreak,
-                        ecall:      ecall
+                        ebreak:     ebreak
                        };
 
   always_comb begin
@@ -39,23 +49,21 @@ module decoder import liang_pkg::*;
       fu = FU_ALU;
   end
 
-  logic [4:0] rs1;
-  logic [4:0] rs2;
-  logic [4:0] rd;
+  assign rs1[4:0]     = inst_i[19:15];
+  assign rs2[4:0]     = inst_i[24:20];
+  assign rd[4:0]      = inst_i[11:7];
+  assign fun7[6:0]    = inst_i[31:25];
+  assign fun3[2:0]    = inst_i[14:12];
+  assign opcode[6:0]  = inst_i[6:0];
+  
+	assign rd_wen  = !(fu_op inside {BRANCH, STORE}) && (rd != 5'b0);
 
-  logic [6:0] fun7;
-  logic [2:0] fun3;
-  logic [6:0] opcode;
-
-  assign rs1    = inst_i[19:15];
-  assign rs2    = inst_i[24:20];
-  assign rd     = inst_i[11:7];
-  assign fun7   = inst_i[31:25];
-  assign fun3   = inst_i[14:12];
-  assign opcode = inst_i[6:0];
-
-	assign rd_wen = !(fu_op inside {BRANCH, STORE}) && (rd != 5'b0);
-  assign ebreak = inst_i[31:20] == 12'b1 && inst_i[19:7] == 13'b0 && opcode == 7'b11100_11;
+  assign id_csr_id_o[11:0] = inst_i[31:20];
+  
+  assign ebreak      = inst_i[31:20] == 12'h1 && inst_i[19:7] == 13'h0 && opcode == 7'b11100_11;
+  assign id_ebreak_o = inst_i[31:20] == 12'h1 && inst_i[19:7] == 13'h0 && opcode == 7'b11100_11;
+  assign id_ecall_o  = inst_i[31:7 ] == 25'h0 && opcode == 7'b11100_11;
+  assign id_mret_o   = fun7 == 7'b0011000 && inst_i[24:20] == 5'b00010 && inst_i[19:7] == 13'h0 && opcode == 7'b11100_11;
 
   always_comb begin
     fu_op   = OP_NONE;

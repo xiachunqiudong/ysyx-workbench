@@ -4,9 +4,14 @@ module pipe_exu import liang_pkg::*;
   input logic              rst_i,
   input logic              flush_i,
   // id <> ex
-  input  idToEx_t          idToEx_i,
   input  logic             id_valid_i,
   output logic             ex_ready_o,
+  input  idToEx_t          idToEx_i,
+  input  wire              idu_csr_wen_i,
+  input  wire [11:0]       idu_csr_id_i,
+  input  wire              idu_ecall_i,
+  input  wire              idu_ebreak_i,
+  input  wire              idu_mret_i,
   // ex <> wb
   output exToWb_t          exToWb_o,
   output logic             ex_valid_o,
@@ -112,6 +117,9 @@ module pipe_exu import liang_pkg::*;
     end
   end                                                     
 
+//====================================================
+// ALU
+//====================================================
   alu
   alu_u(
     .rs1_i      (rs1_data),
@@ -121,6 +129,9 @@ module pipe_exu import liang_pkg::*;
     .jump_o     (jump)
   );
 
+//====================================================
+// LSU
+//====================================================
   lsu
   lsu_u(
     .clk_i                (clk_i),
@@ -153,7 +164,12 @@ module pipe_exu import liang_pkg::*;
     .lsu_bready_o         (lsu_bready_o)
   );
 
+//====================================================
+// CSR Read
+//====================================================  
+
   
+
   // flush
   assign flush_o    = ex_valid_o && (uop_info.fu_op inside {JAL, JALR} || (uop_info.fu_op == BRANCH && jump));
   assign flush_pc_o = (uop_info.fu_op == JALR ? rs1_data : ex_pc) + uop_info.imm;

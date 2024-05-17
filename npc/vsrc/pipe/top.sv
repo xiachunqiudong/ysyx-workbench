@@ -15,6 +15,11 @@ module top import liang_pkg::*;
   logic       ex_ready;
   uop_info_t  uop_info;
   idToEx_t    idToEx;
+  wire        idu_csr_wen;
+  wire [11:0] idu_csr_id;
+  wire        idu_ecall;
+  wire        idu_ebreak;
+  wire        idu_mret;
 
   ele_t       rs1_rdata;
   ele_t       rs2_rdata;
@@ -91,15 +96,20 @@ module top import liang_pkg::*;
 
   pipe_idu
   u_pipe_idu(
-    .clk_i      (clk_i),
-    .rst_i      (rst_i),
-    .flush_i    (flush),
-    .ifToId_i   (ifToId),
-    .if_valid_i (if_valid),
-    .id_ready_o (id_ready),
-    .id_valid_o (id_valid),
-    .ex_ready_i (ex_ready),
-    .uop_info_o (uop_info)
+    .clk_i        (clk_i),
+    .rst_i        (rst_i),
+    .flush_i      (flush),
+    .ifToId_i     (ifToId),
+    .if_valid_i   (if_valid),
+    .id_ready_o   (id_ready),
+    .id_valid_o   (id_valid),
+    .ex_ready_i   (ex_ready),
+    .uop_info_o   (uop_info),
+		.idu_csr_id_o (idu_csr_id),
+		.idu_csr_wen_o(idu_csr_wen),
+		.idu_ecall_o  (idu_ecall),
+		.idu_ebreak_o (idu_ebreak),
+		.idu_mret_o   (idu_mret)
   );
 
 	regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(XLEN)) 
@@ -126,6 +136,11 @@ module top import liang_pkg::*;
     .rst_i          (rst_i),
     .flush_i        (flush),
     .idToEx_i       (idToEx),
+		.idu_csr_id_i   (idu_csr_id),
+		.idu_csr_wen_i  (idu_csr_wen),
+		.idu_ecall_i    (idu_ecall),
+		.idu_ebreak_i   (idu_ebreak),
+		.idu_mret_i     (idu_mret),
     .id_valid_i     (id_valid),
     .ex_ready_o     (ex_ready),
     .exToWb_o       (exToWb),
@@ -233,6 +248,22 @@ module top import liang_pkg::*;
     .bresp_o   (bresp),
     .bvalid_o  (bvalid),
     .bready_i  (bready)
+  );
+
+  csr
+  u_csr(
+  .clk_i                  (),
+  .rst_i                  (),
+  // For CSRRW/CSRRC/CSRRS
+  .csr_id                 (),
+  .csr_wen                (),
+  .csr_wdata              (),
+  .csr_rdata              (),
+  // For Riscv Trap
+  .trap_handler_mepc_wdata(),
+  .trap_handler_mepc_wen  (),
+  .csr_mtvec_rdata        (),
+  .csr_mepc_rdata         ()
   );
 
 endmodule

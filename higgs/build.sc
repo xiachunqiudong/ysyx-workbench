@@ -8,7 +8,7 @@ import mill.bsp._
 import os.Path
 
 object higgs extends ScalaModule with ScalafmtModule { m =>
-  val useChisel5 = true
+  val useChisel5 = false
   override def millSourcePath = os.pwd
   override def scalaVersion = "2.13.10"
   override def scalacOptions = Seq(
