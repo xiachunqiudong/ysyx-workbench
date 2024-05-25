@@ -1,4 +1,7 @@
-module csr(
+module csr #(
+  parameter XLEN = 32
+)
+(
   input  logic            clk_i,
   input  logic            rst_i,
   // For CSRRW/CSRRC/CSRRS
@@ -8,7 +11,7 @@ module csr(
   output logic [XLEN-1:0] csr_rdata,
   // For Riscv Trap
   input  logic [XLEN-1:0] trap_handler_mepc_wdata,
-  input  logic [XLEN-1:0] trap_handler_mepc_wen,
+  input  logic            trap_handler_mepc_wen,
   output logic [XLEN-1:0] csr_mtvec_rdata,
   output logic [XLEN-1:0] csr_mepc_rdata
 );

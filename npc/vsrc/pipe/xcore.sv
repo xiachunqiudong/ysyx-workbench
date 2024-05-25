@@ -1,7 +1,78 @@
-module top import liang_pkg::*;
+module xcore import liang_pkg::*;
 (
-  input clk_i,
-  input rst_i
+  input  wire        clock,
+  input  wire        reset,
+  input  wire        io_interrupt,
+  // CPU as master
+  // AW channel
+  input  wire        io_master_awready,
+  output wire        io_master_awvalid,
+  output wire [3:0]  io_master_awid,
+  output wire [31:0] io_master_awaddr,
+  output wire [7:0]  io_master_awlen,
+  output wire [2:0]  io_master_awsize,
+  output wire [1:0]  io_master_awburst,
+  // W channel
+  input  wire        io_master_wready,
+  output wire        io_master_wvalid,
+  output wire [63:0] io_master_wdata,
+  output wire [63:0] io_master_wstrb,
+  output wire        io_master_wlast,
+  // B channel
+  output wire        io_master_bready,
+  input  wire        io_master_bvalid,
+  input  wire [3:0]  io_master_bid,
+  input  wire [1:0]  io_master_bresp,
+  // AR channel
+  input  wire        io_master_arready,
+  output wire        io_master_arvalid,
+  output wire [3:0]  io_master_arid,
+  output wire [31:0] io_master_araddr,
+  output wire [7:0]  io_master_arlen,
+  output wire [2:0]  io_master_arsize,
+  output wire [1:0]  io_master_arburst,
+  // R Channel
+  output wire        io_master_rready,
+  input  wire        io_master_rvalid,
+  input  wire [3:0]  io_master_rid,
+  input  wire [63:0] io_master_rdata,
+  input  wire [1:0]  io_master_rresp,
+  input  wire        io_master_rlast,
+  // CPU as slave, do not use for now.
+  // AW channel
+  output wire        io_slave_awready,
+  input  wire        io_slave_awvalid,
+  input  wire [3:0]  io_slave_awid,
+  input  wire [31:0] io_slave_awaddr,
+  input  wire [7:0]  io_slave_awlen,
+  input  wire [2:0]  io_slave_awsize,
+  input  wire [1:0]  io_slave_awburst,
+  // W channel
+  output wire        io_slave_wready,
+  input  wire        io_slave_wvalid,
+  input  wire [63:0] io_slave_wdata,
+  input  wire [63:0] io_slave_wstrb,
+  input  wire        io_slave_wlast,
+  // B channel
+  input  wire        io_slave_bready,
+  output wire        io_slave_bvalid,
+  output wire [3:0]  io_slave_bid,
+  output wire [1:0]  io_slave_bresp,
+  // AR channel
+  output wire        io_slave_arready,
+  input  wire        io_slave_arvalid,
+  input  wire [3:0]  io_slave_arid,
+  input  wire [31:0] io_slave_araddr,
+  input  wire [7:0]  io_slave_arlen,
+  input  wire [2:0]  io_slave_arsize,
+  input  wire [1:0]  io_slave_arburst,
+  // R Channel
+  input  wire        io_slave_rready,
+  output wire        io_slave_rvalid,
+  output wire [3:0]  io_slave_rid,
+  output wire [63:0] io_slave_rdata,
+  output wire [1:0]  io_slave_rresp,
+  output wire        io_slave_rlast
 );
 
   logic       flush;
@@ -79,8 +150,8 @@ module top import liang_pkg::*;
 
   pipe_ifu
   u_pipe_ifu(
-    .clk_i         (clk_i),
-    .rst_i         (rst_i),
+    .clk_i         (clock),
+    .rst_i         (reset),
     .flush_i       (flush),
     .flush_pc_i    (flush_pc),
     .ifu_araddr_o  (ifu_araddr),
@@ -96,8 +167,8 @@ module top import liang_pkg::*;
 
   pipe_idu
   u_pipe_idu(
-    .clk_i        (clk_i),
-    .rst_i        (rst_i),
+    .clk_i        (clock),
+    .rst_i        (reset),
     .flush_i      (flush),
     .ifToId_i     (ifToId),
     .if_valid_i   (if_valid),
@@ -114,7 +185,7 @@ module top import liang_pkg::*;
 
 	regfile #(.ADDR_WIDTH(5), .DATA_WIDTH(XLEN)) 
   regfile_u(
-    .clk       (clk_i),
+    .clk       (clock),
     // read
     .rs1_raddr (uop_info.rs1),
     .rs2_raddr (uop_info.rs2),
@@ -132,8 +203,8 @@ module top import liang_pkg::*;
 
   pipe_exu
   u_pipe_exu(
-    .clk_i          (clk_i),
-    .rst_i          (rst_i),
+    .clk_i          (clock),
+    .rst_i          (reset),
     .flush_i        (flush),
     .idToEx_i       (idToEx),
 		.idu_csr_id_i   (idu_csr_id),
@@ -173,8 +244,8 @@ module top import liang_pkg::*;
 
   pipe_wb
   u_pipe_wb(
-    .clk_i          (clk_i),
-    .rst_i          (rst_i),
+    .clk_i          (clock),
+    .rst_i          (reset),
     .exToWb_i       (exToWb),
     .ex_valid_i     (ex_valid),
     .wb_ready_o     (wb_ready),
@@ -186,8 +257,8 @@ module top import liang_pkg::*;
 
   axi_lite_arbiter
   u_axi_lite_arbiter(
-    .clk_i         (clk_i),
-    .rst_i         (rst_i),
+    .clk_i         (clock),
+    .rst_i         (reset),
     .ifu_araddr_i  (ifu_araddr),
     .ifu_arvalid_i (ifu_arvalid),
     .ifu_arready_o (ifu_arready),
@@ -230,8 +301,8 @@ module top import liang_pkg::*;
 
   dram_axi_lite
   u_dram_axi_lite(
-    .clk_i     (clk_i),
-    .rst_i     (rst_i),
+    .clk_i     (clock),
+    .rst_i     (reset),
     .araddr_i  (araddr),
     .arvalid_i (arvalid),
     .arready_o (arready),
