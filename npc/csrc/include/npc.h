@@ -43,4 +43,6 @@ const char *get_gpr_name(int i);
 void reg_display();
 word_t gpr_val(int idx);
 
+void mrom_init();
+
 #endif

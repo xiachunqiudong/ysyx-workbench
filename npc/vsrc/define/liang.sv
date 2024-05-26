@@ -1,5 +1,6 @@
 package liang_pkg;
 
+`define PERF
   //`define DEBUG
 
   localparam int unsigned XLEN = 32;

@@ -3,8 +3,14 @@
 BUILD_DIR = ./build
 SOC_PATH = /home/x/project/chip/ysyx-workbench/ysyxSoC
 
-VFLAGS = -cc -trace --exe --build -j 8
+VFLAGS += -cc -trace --exe --build -j 8
+VFLAGS += --timescale "1ns/1ns"
+VFLAGS += +notimingchecks
+VFLAGS += -Wno-fatal
 
+VDEFINE += +define+PERF=1
+
+SIM_TOP    = ysyxSoCTop
 SOC_TOP    = $(SOC_PATH)/build/ysyxSoCFull.v
 V_PERIP    = $(shell find /home/x/project/chip/ysyx-workbench/ysyxSoC/perip -name "*.v")
 V_INCLUDE  = $(shell find ./vsrc/define -name "*.v" -or -name "*.sv")
@@ -30,9 +36,8 @@ endif
 build: clean
 	@echo build start!
 	verilator $(VFLAGS) \
-	--timescale "1ns/1ns" \
-	+notimingchecks \
-	--top-module ysyxSoCFull \
+	$(VDEFINE) \
+	--top-module $(SIM_TOP) \
 	--Mdir $(BUILD_DIR) \
 	-sv \
 	-I$(SOC_PATH)/perip/uart16550/rtl \
@@ -43,15 +48,14 @@ build: clean
 	-LDFLAGS -"lreadline"
 
 run: build
-	$(BUILD_DIR)/Vtop $(ARGS) $(IMG)
+	$(BUILD_DIR)/V$(SIM_TOP) $(ARGS) $(IMG)
 
-wave: run
+wave:
 	gtkwave wave.vcd
 
 clean:
 	@rm -rf $(BUILD_DIR) 
 	@rm -f *.wave
-	@rm -rf ./log
 
 test:
 	gcc ${OBJS} -o prog -lLLVM-14

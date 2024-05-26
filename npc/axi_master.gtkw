@@ -1,0 +1,58 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Sun May 26 04:44:56 2024
+[*]
+[dumpfile] "/home/x/project/chip/ysyx-workbench/npc/wave.vcd"
+[dumpfile_mtime] "Sun May 26 04:44:10 2024"
+[dumpfile_size] 8360568
+[savefile] "/home/x/project/chip/ysyx-workbench/npc/axi_master.gtkw"
+[timestart] 0
+[size] 2488 1174
+[pos] -1 -1
+*-4.000000 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.ysyxSoCTop.
+[treeopen] TOP.ysyxSoCTop.dut.
+[treeopen] TOP.ysyxSoCTop.dut.asic.
+[treeopen] TOP.ysyxSoCTop.dut.asic.cpu.cpu.
+[sst_width] 357
+[signals_width] 243
+[sst_expanded] 1
+[sst_vpaned_height] 343
+@22
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_pipe_ifu.pc_q[31:0]
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_pipe_ifu.if_inst[31:0]
+@28
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_pipe_ifu.if_inst_valid
+@200
+-
+@28
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.rst_i
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.state_q[1:0]
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.read_done
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.ifu_done
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.arvalid_o
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.arready_i
+@22
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.araddr_o[31:0]
+@28
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.arburst_o[1:0]
+@22
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.arid_o[3:0]
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.arlen_o[7:0]
+@28
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.arsize_o[2:0]
+@200
+-read resp
+@28
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.rvalid_i
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.rready_o
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.rresp_i[1:0]
+@22
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.rid_i[3:0]
+@28
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.rlast_i
+@22
+TOP.ysyxSoCTop.dut.asic.cpu.cpu.u_AXI_Master_IF.rdata_i[63:0]
+[pattern_trace] 1
+[pattern_trace] 0

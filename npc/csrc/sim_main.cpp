@@ -1,6 +1,6 @@
 #include "verilated_vcd_c.h" // for vcd wave
 #include "verilated.h"
-#include "Vtop.h"
+#include "VysyxSoCTop.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -9,14 +9,11 @@
 #include "sdb.h"
 #include "utils.h"
 
-extern "C" void flash_read(uint32_t addr, uint32_t *data) { assert(0); }
-extern "C" void mrom_read(uint32_t addr, uint32_t *data) { assert(0); }
-
 VerilatedContext *contextp;
 VerilatedVcdC *tfp;
-Vtop *top;
+VysyxSoCTop *top;
 vluint64_t main_time = 0;
-uint64_t MAX_SIM_TIME = 10000000;
+uint64_t MAX_SIM_TIME = 100000;
 
 double sim_time_stamp() {
 	return main_time;
@@ -25,7 +22,7 @@ double sim_time_stamp() {
 void init_verilator(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  top = new Vtop{contextp};
+  top = new VysyxSoCTop{contextp};
   
 #ifdef WAVE
   Verilated::traceEverOn(true);
@@ -56,44 +53,42 @@ void show_inst(uint8_t *instr, uint32_t pc) {
 }
 
 void cpu_rst() {
-  top->clk_i = 0;
-  top->rst_i = 0;
+  top->clock = 0;
+  top->reset = 0;
   top->eval();
   
-  if (tfp != nullptr)
-    tfp->dump(main_time++);
+  if (tfp != nullptr) tfp->dump(main_time++);
   
   // reset
-  top->clk_i = 1;
-  top->rst_i = 1;
+  top->clock = 1;
+  top->reset = 1;
   top->eval();
   
-  if (tfp != nullptr)
-    tfp->dump(main_time++);
+  if (tfp != nullptr) tfp->dump(main_time++);
 }
 
 void exec_once() {
-  top->clk_i = 0;
-  top->rst_i = 0;
+
+  top->clock = 0;
+  top->reset = 0;
   top->eval();
   
-  if (tfp != nullptr)
-    tfp->dump(main_time++);
+  if (tfp != nullptr) tfp->dump(main_time++);
   
-  top->clk_i = 1;
-  top->rst_i = 0;
+  top->clock = 1;
+  top->reset = 0;
   top->eval();
 
-  if (tfp != nullptr)
-    tfp->dump(main_time++);
+  if (tfp != nullptr) tfp->dump(main_time++);
+
   // Reach the max simulation time.
-  // if (main_time > MAX_SIM_TIME) {
-  //   char buf[128];
-  //   sprintf(buf, "Reach the max simulation time, stop sim.\n");
-  //   npc_info(buf);
-  //   free();
-  //   exit(0);
-  // }
+  if (main_time > MAX_SIM_TIME) {
+    char buf[128];
+    sprintf(buf, "Reach the max simulation time, stop sim.\n");
+    npc_info(buf);
+    free();
+    exit(0);
+  }
 
 }
 
