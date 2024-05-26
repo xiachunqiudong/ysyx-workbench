@@ -31,7 +31,7 @@ module pipe_ifu import liang_pkg::*;
   logic [31:0] instBuf_In;
   
   logic readAddrFire;
-  logic readFire;
+  logic readDataFire;
 
   logic [1:0] readState_In;
   logic [1:0] readState_Q;
@@ -56,10 +56,10 @@ module pipe_ifu import liang_pkg::*;
   
   always_ff @(posedge clk_i or posedge rst_i) begin
     if(rst_i) begin
-      pc_q        <= 32'h2000_0000;
+      pc_q <= 32'h2000_0000;
     end
-    else if(if_fire || flush_i) begin
-      pc_q        <= pc_d;
+    else if(instBuf_write || flush_i) begin
+      pc_q <= pc_d;
     end
   end
 
@@ -67,15 +67,15 @@ module pipe_ifu import liang_pkg::*;
 //                 IFU AXI Read Interface
 //========================================================  
   assign readAddrFire = ifu_arvalid_o & ifu_arready_i;
-  assign readFire     = ifu_rvalid_i  & ifu_rready_o;
+  assign readDataFire = ifu_rvalid_i  & ifu_rready_o;
 
   always_comb begin
     readState_In = readState_Q;
     case(readState_Q) 
       READ_IDEL:      readState_In = READ_SEND_ADDR;
-      READ_SEND_ADDR: readState_In = readAddrFire ? READ_WAIT_DATA : READ_SEND_ADDR;
-      READ_WAIT_DATA: readState_In = readFire ? READ_DONE : READ_WAIT_DATA;
-      READ_DONE:      readState_In = instBuf_read ? READ_SEND_ADDR : READ_DONE;
+      READ_SEND_ADDR: readState_In = readAddrFire  ? READ_WAIT_DATA : READ_SEND_ADDR;
+      READ_WAIT_DATA: readState_In = readDataFire  ? READ_DONE : READ_WAIT_DATA;
+      READ_DONE:      readState_In = instBuf_write ? READ_SEND_ADDR : READ_DONE;
       default:        readState_In = READ_IDEL;
     endcase
   end
@@ -89,7 +89,7 @@ module pipe_ifu import liang_pkg::*;
     end
   end
   
-  assign instBuf_read    =  readFire;
+  assign instBuf_read    =  readDataFire;
   assign instBuf_write   =  instBuf_valid_Q & id_ready_i;
   assign instBuf_allowIn = ~instBuf_valid_Q | instBuf_write;
 

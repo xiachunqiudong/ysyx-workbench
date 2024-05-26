@@ -153,7 +153,7 @@ module AXI_Master_IF
 //========================================================
   assign arid_o[3:0]    = 4'd2;
   assign arburst_o[1:0] = 2'b01;
-  assign arsize_o[2:0]  = 3'b000;
-  assign arlen_o[7:0]   = 3'b0001;
+  assign arsize_o[2:0]  = 3'b010;
+  assign arlen_o[7:0]   = 8'b0000_0000;
 
 endmodule
