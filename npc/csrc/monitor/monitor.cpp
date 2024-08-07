@@ -94,6 +94,7 @@ void init_monitor(int argc, char *argv[]) {
 #endif
 
   init_pmem();
+  mrom_init();
 
   int img_size = load_img();
 

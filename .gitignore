@@ -3,3 +3,4 @@ npc/build
 npc/log
 higgs/build
 higgs/out
+.metals/*

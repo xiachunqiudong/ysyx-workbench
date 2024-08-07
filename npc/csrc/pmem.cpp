@@ -7,6 +7,10 @@
 #include "utils.h"
 #include "time.h"
 
+extern "C" void flash_read(uint32_t addr, uint32_t *data) {
+
+}
+
 time_t cur_time;
 
 void sim_stop();

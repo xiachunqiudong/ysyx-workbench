@@ -1,21 +1,20 @@
-module axi_lite_arbiter
+module AXI_Master_IF
 #(
-  parameter int unsigned DATA_WIDTH  = 32,
+  parameter int unsigned DATA_WIDTH  = 64,
   parameter int unsigned ADDR_WIDTH  = 32,
   parameter int unsigned STRB_WIDTH  = DATA_WIDTH/8
 )
 (
   input wire clk_i,
-
   input wire rst_i,
-  // IFU <> ARBITER
+  // IFU <> AXI Master IF
   input  wire [ADDR_WIDTH-1:0] ifu_araddr_i,
   input  wire                  ifu_arvalid_i,
   output wire                  ifu_arready_o,
   output wire [DATA_WIDTH-1:0] ifu_rdata_o,
   output wire                  ifu_rvalid_o,
   input  wire                  ifu_rready_i,
-  // LSU <> ARBITER
+  // LSU <> AXI Master IF
   input  wire [ADDR_WIDTH-1:0] lsu_araddr_i,
   input  wire                  lsu_arvalid_i,
   output wire                  lsu_arready_o,
@@ -32,24 +31,47 @@ module axi_lite_arbiter
   output wire [1:0]            lsu_bresp_o,
   output wire                  lsu_bvalid_o,
   input  wire                  lsu_bready_i,
-  // ARBITER <> AXI_LITE_RAM
-  output wire [ADDR_WIDTH-1:0] araddr_o,
+  // AXI Master IF <> AXI Bus
   output wire                  arvalid_o,
   input  wire                  arready_i,
-  input  wire [DATA_WIDTH-1:0] rdata_i,
+  output wire [3:0]            arid_o,
+  output wire [ADDR_WIDTH-1:0] araddr_o,
+  output wire [7:0]            arlen_o,
+  output wire [2:0]            arsize_o,
+  output wire [1:0]            arburst_o,
   input  wire                  rvalid_i,
   output wire                  rready_o, 
-  output wire [ADDR_WIDTH-1:0] awaddr_o,
+  input  wire [3:0]            rid_i,
+  input  wire [DATA_WIDTH-1:0] rdata_i,
+  input  wire [1:0]            rresp_i,
+  input  wire                  rlast_i,
   output wire                  awvalid_o,
   input  wire                  awready_i,
-  output wire [ADDR_WIDTH-1:0] wdata_o,
-  output wire [STRB_WIDTH-1:0] wstrb_o,
+  output wire [3:0]            awid_o,
+  output wire [ADDR_WIDTH-1:0] awaddr_o,
+  output wire [7:0]            awlen_o,
+  output wire [2:0]            awsize_o,
+  output wire [1:0]            awburst_o,
   output wire                  wvalid_o,
   input  wire                  wready_i,
-  input  wire [1:0]            bresp_i,
+  output wire [ADDR_WIDTH-1:0] wdata_o,
+  output wire [STRB_WIDTH-1:0] wstrb_o,
+  output wire                  wlast_o,
   input  wire                  bvalid_i,
-  output wire                  bready_o
+  output wire                  bready_o,
+  input  wire [3:0]            bid_i,
+  input  wire [1:0]            bresp_i
 );
+
+//========================================================
+//                  AXI 协议简介
+//========================================================
+// 突发传输类型:
+//  1. fixed: 固定地址, 适合访问 FIFO
+//  2. incr:  地址递增, 适合访问 Memory
+//  3. wrap:  回环递增, 适合访问 Cache
+//
+
 
   parameter IDEL = 2'b00, IFU_RUN = 2'b01, LSU_RUN = 2'b10;
   logic [1:0] state_d, state_q;
@@ -83,7 +105,7 @@ module axi_lite_arbiter
   assign lsu_req_valid = lsu_arvalid_i || lsu_awvalid_i || lsu_wvalid_i;
   assign read_done     = rready_o && rvalid_i;
   assign write_done    = bready_o && bvalid_i;
-  assign ifu_done      = sel_ifu  && read_done;
+  assign ifu_done      = sel_ifu  && read_done && rlast_i;
   assign lsu_done      = sel_lsu  && (read_done || write_done);
 
   assign sel_ifu = state_q == IFU_RUN;
@@ -125,6 +147,27 @@ module axi_lite_arbiter
       state_q <= state_d;
     end
   end
-         
+
+//========================================================
+//                 Send Read Address
+//========================================================
+  assign arid_o[3:0]    = 4'd2;
+  assign arburst_o[1:0] = 2'b01;
+  assign arsize_o[2:0]  = 3'b010;
+  assign arlen_o[7:0]   = 8'b0000_0000;
+
+//========================================================
+//                 Send Write Address
+//========================================================
+  assign awid_o[3:0]    = 4'd3;
+  assign awlen_o[7:0]   = 8'b0000_0000;
+  assign awsize_o[2:0]  = 3'b010;
+  assign arburst_o[1:0] = 2'b01;
   
+//========================================================
+//                 Send Write Data
+//========================================================
+  assign wlast_o = 1'b1;
+
+
 endmodule

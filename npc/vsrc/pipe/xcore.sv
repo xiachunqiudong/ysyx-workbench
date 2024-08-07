@@ -255,16 +255,18 @@ module xcore import liang_pkg::*;
     .wb_fwd_data_o  (wb_fwd_data)
   );
 
-  axi_lite_arbiter
-  u_axi_lite_arbiter(
+  AXI_Master_IF
+  u_AXI_Master_IF(
     .clk_i         (clock),
     .rst_i         (reset),
+     // IFU <> AXI Master IF
     .ifu_araddr_i  (ifu_araddr),
     .ifu_arvalid_i (ifu_arvalid),
     .ifu_arready_o (ifu_arready),
     .ifu_rdata_o   (ifu_rdata),
     .ifu_rvalid_o  (ifu_rvalid),
     .ifu_rready_i  (ifu_rready),
+     // LSU <> AXI Master IF
     .lsu_araddr_i  (lsu_araddr),
     .lsu_arvalid_i (lsu_arvalid),
     .lsu_arready_o (lsu_arready),
@@ -281,22 +283,36 @@ module xcore import liang_pkg::*;
     .lsu_bresp_o   (lsu_bresp),
     .lsu_bvalid_o  (lsu_bvalid),
     .lsu_bready_i  (lsu_bready),
-    .araddr_o      (araddr),
-    .arvalid_o     (arvalid),
-    .arready_i     (arready),
-    .rdata_i       (rdata),
-    .rvalid_i      (rvalid),
-    .rready_o      (rready),
-    .awaddr_o      (awaddr),
-    .awvalid_o     (awvalid),
-    .awready_i     (awready),
-    .wdata_o       (wdata),
-    .wstrb_o       (wstrb),
-    .wvalid_o      (wvalid),
-    .wready_i      (wready),
-    .bresp_i       (bresp),
-    .bvalid_i      (bvalid),
-    .bready_o      (bready)
+     // AXI Master IF <> AXI Bus
+    .arvalid_o     (io_master_arvalid),
+    .arready_i     (io_master_arready),
+    .arid_o        (io_master_arid   ),
+    .araddr_o      (io_master_araddr ),
+    .arlen_o       (io_master_arlen  ),
+    .arsize_o      (io_master_arsize ),
+    .arburst_o     (io_master_arburst),
+    .rvalid_i      (io_master_rvalid ),
+    .rready_o      (io_master_rready ),
+    .rid_i         (io_master_rid    ),
+    .rdata_i       (io_master_rdata  ),
+    .rresp_i       (io_master_rresp  ),
+    .rlast_i       (io_master_rlast  ),
+    .awvalid_o     (io_master_awvalid),
+    .awready_i     (io_master_awready),
+    .awid_o        (io_master_awid   ),
+    .awaddr_o      (io_master_awaddr ),
+    .awlen_o       (io_master_awlen  ),
+    .awsize_o      (io_master_awsize ),
+    .awburst_o     (io_master_awburst),
+    .wvalid_o      (io_master_wvalid ),
+    .wready_i      (io_master_wready ),
+    .wdata_o       (io_master_wdata  ),
+    .wstrb_o       (io_master_wstrb  ),
+    .wlast_o       (io_master_wlast  ),
+    .bvalid_i      (io_master_bvalid ),
+    .bready_o      (io_master_bready ),
+    .bid_i         (io_master_bid    ),
+    .bresp_i       (io_master_bresp  )
   );
 
   dram_axi_lite

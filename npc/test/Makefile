@@ -1,16 +1,6 @@
 
-ALL = test
-RV = riscv64-linux-gnu-
-CC = $(RV)gcc
-OBJDUMP = $(RV)objdump
-OBJCOPY = $(RV)objcopy
+gcc:
+	riscv64-unknown-elf-gcc chat_test.c -nostdlib -fno-pic -march=rv64g -mcmodel=medany -mstrict-align
 
-CFLAGS = -nostdlib -march=rv32im_zicsr -mabi=ilp32
-
-all:
-	@$(CC) $(CFLAGS) $(ALL).s -o $(ALL).elf
-	@$(OBJDUMP) $(ALL).elf -d > $(ALL).txt
-	@$(OBJCOPY) --only-section=.text -O binary $(ALL).elf $(ALL).bin
-
-clean:
-	rm -rf *.elf *.txt *.bin
+bin: gcc
+	riscv64-unknown-elf-objcopy -O binary a.out a.bin
