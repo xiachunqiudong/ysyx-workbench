@@ -11,7 +11,21 @@ void mrom_init() {
   for (int i =0; i < ROM_SIZE; i++) {
     rom[i] = i;
   }
-  *(uint32_t *)rom = 0x00100073;
+
+  FILE *fp = fopen("/home/xia/project/chip/ysyx-workbench/npc/test/a.bin", "rb");
+  if(fp == NULL) {
+    assert(0);
+  }
+    
+  // stream = fp, offset = 0, whence = SEEK_END
+  fseek(fp, 0, SEEK_END);
+  int size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  if(fread(rom, size, 1, fp) != 1) {
+    assert(0);
+  }
+  
 }
 
 extern "C" void mrom_read(uint32_t addr, uint32_t *data) {

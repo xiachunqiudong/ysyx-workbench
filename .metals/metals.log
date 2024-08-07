@@ -1169,3 +1169,17 @@ WARNING: Unmatched cancel notification for request id 203
 2024.05.26 17:56:26 INFO  no build target found for /home/x/project/chip/ysyx-workbench/ysyxSoC/src/device/MROM.scala. Using presentation compiler with project's scala-library version: 3.3.3
 2024.05.26 17:56:26 INFO  no build target found for /home/x/project/chip/ysyx-workbench/ysyxSoC/src/device/MROM.scala. Using presentation compiler with project's scala-library version: 3.3.3
 2024.05.26 17:56:26 INFO  no build target found for /home/x/project/chip/ysyx-workbench/ysyxSoC/src/device/MROM.scala. Using presentation compiler with project's scala-library version: 3.3.3
+2024.06.14 09:40:05 INFO  Started: Metals version 1.3.1 in folders '/home/xia/project/chip/ysyx-workbench' for client Visual Studio Code 1.84.2.
+SLF4J(W): Class path contains multiple SLF4J providers.
+SLF4J(W): Found provider [scribe.slf4j.ScribeServiceProvider@2731a043]
+SLF4J(W): Found provider [ch.qos.logback.classic.spi.LogbackServiceProvider@5ad84b1e]
+SLF4J(W): See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J(I): Actual provider is of type [scribe.slf4j.ScribeServiceProvider@2731a043]
+2024.06.14 09:40:06 WARN  Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2024.06.14 09:40:07 INFO  skipping build import with status 'Dismissed'
+2024.06.14 09:40:07 INFO  no build target found for /home/xia/project/chip/ysyx-workbench/higgs/src/main/scala/higgs/Elaborate.scala. Using presentation compiler with project's scala-library version: 3.3.3
+2024.06.14 09:40:14 INFO  time: code lens generation in 6.96s
+2024.06.14 09:40:16 INFO  no build target found for /home/xia/project/chip/ysyx-workbench/higgs/src/main/scala/higgs/Elaborate.scala. Using presentation compiler with project's scala-library version: 3.3.3
+2024.06.14 09:40:29 INFO  Shutting down server
+2024.06.14 09:40:29 INFO  shutting down Metals
+2024.06.14 09:40:29 INFO  Exiting server
